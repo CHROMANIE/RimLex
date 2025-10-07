@@ -25,7 +25,9 @@
   → 新機能（HUDとかUTF出力）追加で 0.10.0, 0.11.0
   → 安定化完了＝ **1.0.0** で正式版リリース。
 
----
+---あ
+
+あああああああああああああああああああああああああああああああああああああああああああああああああああああ
 
 ### 📊 まとめるとこうなる
 
@@ -87,7 +89,6 @@ Version: v1.0
 Compatible with: RimWorld 1.5+, Harmony 2.x
 
 
-
 # RimLex – UIテキストローカライザーあ
 
 RimLexは、RimWorldのUI上に表示される英語テキストを
@@ -104,6 +105,11 @@ RimLexは、RimWorldのUI上に表示される英語テキストを
 作者: RimLex Project（えーいち＋GPT）  
 対応: RimWorld 1.5以降 / Harmony 2.x  
 依存MOD: なし（単体動作）
+
+
+
+
+
 
 
 
