@@ -1,0 +1,141 @@
+RimLex 機能仕様書（Functional Spec） v3
+作成: 2025-10-07 13:00 (JST)
+対象: RimWorld 1.5 / 1.6, .NET Framework 4.7.2, Harmony 2.x
+バージョン: 0.9.0（MVP安定域）
+
+【0. 目的と思想】
+- 目的: 画面に“表示された”英語UI文字列を収集し、辞書（TSV）で実行時に日本語へ置換する。
+- 方針:
+  1) UI描画直前フックで低レイテンシ置換（ApplyDictAtRuntime）
+  2) 未訳の自動収集（ノイズ除去・重複抑止・Per-Mod分類）
+  3) Per-Mod 出力＋_All 集約
+  4) Mod設定からワンボタン運用（辞書再読込／未訳抽出／整理／リセット／ログ）
+  5) 将来拡張（UTF XML生成など）は外付けモジュールで
+
+【1. スコープ（対応UI）】
+- Label: Widgets.Label, Listing_Standard.Label（オーバーロード差異に強い）
+- Button: Widgets.ButtonText
+- Tooltip: TooltipHandler.TipRegion(Rect,string / Rect,TipSignal)
+- Context: FloatMenuOption（右クリック）
+- Gizmo: Command.LabelCap
+- Slider: Listing_Standard.Slider（署名確認のみ／収集なし・安全化）
+- 将来候補: Command の説明（desc / GetTooltip）、Dialog_* 系テキスト
+
+【2. 非機能要件】
+- 高速: 正規化→辞書照合 O(1)
+- 安全: 失敗時は素通り（Harmony 例外吸収、部分成功で継続）
+- 互換: 「ゆるい署名探索」で将来の引数差異に耐性
+- 低干渉: 既存翻訳MODと併用可（辞書ヒット時のみ表示を上書き）
+
+【3. コンポーネント】
+- Config …… INI 読込/保存（Apply/Export/Dic/PerModSubdir/MinLength/ExcludePatterns）
+- Normalizer …… リッチテキスト/制御文字除去、改行/空白正規化、Trim
+- NoiseFilter …… 短文・URL・数値等の除外（正規表現）
+- TranslatorHub …… 辞書ロード/置換/収集、Per-Mod 出力、_All 再構築、統計、リセット
+- UIPatches …… Harmony パッチ群（Label/Button/Tooltip/FloatMenu/Gizmo/Slider）
+- ModInitializer …… 起動・設定UI・ログ・操作ボタン
+- UTFBuilder（拡張）…… UTF互換XML出力の将来モジュール（現状は無効）
+
+【4. 設定（RimLex.ini）】
+- ApplyDictAtRuntime = true/false
+- ExportPerMod = true/false
+- EmitAggregate = true/false
+- ExportMode = TextOnly | Full | Both
+- DictPath = %ModDir%/Dict/strings_ja.tsv
+- LogPath  = %ModDir%/RimLex.log
+- ExportRoot = %ModDir%/Export
+- PerModSubdir = PerMod
+- MinLength = 2
+- ExcludePatterns = ^\s*$|^https?://|^[0-9]+$|…（任意追加可）
+※ %ModDir% 変数を解決、相対/絶対を相互変換。
+
+【5. 出力（ディレクトリ構成）】
+- Export/_All/
+  - texts_en_aggregate.txt …… 全体英語（ソート・重複排除）※整理時に正規再生成
+  - untranslated.txt …… 辞書未登録のみ
+  - strings_en_aggregate.tsv …… untranslated の1列TSV
+  - grouped_by_mod.txt …… 「### ModName (件数)」+ 本文（区切りは空行×2）
+- Export/<PerModSubdir>/<ModName>/
+  - texts_en.txt …… 英語1行ログ（セッション重複抑止）
+  - strings_en.tsv …… 5列（timestamp_utc, mod, source, scope, text）
+- Export/Current/ …… Per-Mod 無効時の一時置き場
+- Export/SelfTest/ …… 動作確認のダミー出力
+- RimLex.log …… MOD専用ログ（初期化・パッチ結果・件数・例外）
+
+【6. 正規化仕様】
+- CRLF→LF、RichTextタグ(<b><i><u><size><color><align><br>)除去
+- 制御文字除去、改行→空白、空白縮約、Trim
+- プレースホルダ形式は将来拡張（{0} 等の統一）
+
+【7. ノイズ除外】
+- 文字列ベース: MinLength / ExcludePatterns に基づく除外
+- 画面ベース（計画）: EditWindow_Log / Page_ModsConfig などをブラックリスト化
+- 除外時はログに Excluded(画面名) を記録（計画）
+
+【8. 置換ロジック】
+- 入力 s → Normalize(s)
+- 辞書ヒット: ApplyDictAtRuntime=ON なら UI テキストを置換、Replaced++
+- 未訳: NoiseFilter 通過なら収集（Per-Mod 追記／EmitAggregate なら _All に軽量追記）、Collected++
+
+【9. フック点（Harmony）】
+- Widgets.Label(Rect,string) → prefix
+- Listing_Standard.Label(string, …) → prefix（第1引数stringの全Overload）
+- Widgets.ButtonText(Rect,string, …) → prefix
+- TooltipHandler.TipRegion(Rect,string) → prefix（該当Overload全部）
+- TooltipHandler.TipRegion(Rect,TipSignal) → prefix
+- FloatMenuOption::.ctor(string,Action, …) → prefix
+- Command.LabelCap.get → postfix
+- Listing_Standard.Slider(float,float,float) → prefix（存在確認のみ）
+- いずれか失敗しても他は続行（try保護）
+
+【10. 収集・集約フロー】
+- StackTrace から呼び元 Assembly を辿り、/Mods/<ModName>/ を抽出して Per-Mod へ書き分け
+- EmitAggregate=true のとき、_All/texts_en_aggregate.txt にセッション内重複抑止で軽量追記
+- 「未訳一覧」「整理」ボタンで _All/* を正規再構築（ソート・重複排除・Mod別整形）
+
+【11. Mod設定UI（操作一覧）】
+- トグル: ApplyDictAtRuntime / ExportPerMod / EmitAggregate / ExportMode / PerModSubdir
+- 生成: 未訳一覧を生成／整理（MOD別/集約）を生成／フォルダを開く（_All/PerMod/Export）
+- リセット: 収集をリセット／セッションキャッシュをクリア／ログをクリア
+- ユーティリティ: 辞書を再読み込み／動作確認（SelfTest）
+- すべてに説明（Mouseover）と完了トースト（件数表示）
+
+【12. パフォーマンスと互換性】
+- O(1)辞書照合で軽量。重い画面でも安定。
+- 既存翻訳MOD/日本語化MODとの併用OK（競合時は最後の表示勝ち）
+- Harmony パッチは“ゆるい署名探索”で将来の引数追加に耐性
+
+【13. エラーハンドリング】
+- 例外はログへ（RimLex.log / Player.log）。UIは素通り継続。
+- I/O 失敗時は ioErrors++、メニュー操作後に件数サマリを記録
+
+【14. ログ仕様（RimLex.log）】
+- レベル: INFO/WARN（将来 ERROR）
+- 起動時: 設定ダンプ、Patched: … の一覧、辞書件数
+- メニュー後: replaced / collected / ioErrors のセッション件数サマリ
+- 将来: excluded カウンタと [SESSION] まとめ行を追加予定
+
+【15. バージョニング】
+- 現在は 0.x 系（安定前）。今版は 0.9.0（MVP）
+- 互換を壊さない追加: MINOR（0.10.0 等）
+- バグ修正のみ: PATCH（0.9.1 等）
+- 1.0.0 は仕様凍結後に昇格
+- ファイルは常に _vYYYYMMDD-HHMM をサフィックス
+
+【16. 将来拡張（Roadmap）】
+- 画面単位の除外リスト（EditWindow_Log / Page_ModsConfig / Dialog_DebugTables ほか）
+- Command 説明文（desc/GetTooltip）の収集
+- HUD カウンタ（置換/収集/除外）
+- _All 再構築ヘッダ rebuit_at と初期スロットル
+- Per-Mod 特定精度の底上げ（RunningMods 突合せ）
+- UTF XML 生成（オプション）
+
+【17. 変更点（v2→v3）】
+- AutoUITranslator → RimLex に改称、名前/ログ/ini/表示を統一
+- TooltipHandler.TipRegion（string/TipSignal）実装、マウスオーバー収集を安定化
+- フック探索を“ゆるい署名判定”へ変更
+- PerModSubdir 追加（Per-Modを1段配下へ集約）
+- 設定UIの説明・トースト・「フォルダを開く」ボタン追加
+- INI に MinLength / ExcludePatterns を追加
+- 既知の穴（Slider署名差異）を安全化
+-- END OF SPEC --

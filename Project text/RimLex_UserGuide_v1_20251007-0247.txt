@@ -1,0 +1,47 @@
+RimLex ユーザーガイド v1
+更新: 2025-10-07 02:47 (JST)
+
+■ できること
+- 画面に表示された英語UI文字列を自動収集
+- 辞書（strings_ja.tsv）にあるものは即時に日本語へ置換
+
+■ 最短手順
+1) Mod設定 → 「RimLex - UI Text Localizer」を開く
+2) 画面を触って英語を収集（ツールチップにマウスを乗せるのも有効）
+3) 「未訳一覧を生成」→ Export/_All/untranslated.txt を開く
+4) その行を翻訳して Dict/strings_ja.tsv に「英語<TAB>日本語」で追記
+5) 「辞書を再読み込み」→ すぐ反映
+
+■ Export の見方
+- Export/PerMod/<Mod>/texts_en.txt …… Mod単位の英語生ログ
+- Export/PerMod/<Mod>/strings_en.tsv …… 5列（timestamp_utc, mod, source, scope, text）
+- Export/_All/texts_en_aggregate.txt …… 全体の英語（重複排除）
+- Export/_All/untranslated.txt …… 辞書未登録のみ（翻訳候補）
+- Export/_All/strings_en_aggregate.tsv …… untranslated の1列TSV
+- Export/_All/grouped_by_mod.txt …… 「### ModName (件数)」で見通しよく整理（区切りは空行×2）
+
+■ 設定パネルの主なボタン
+- 未訳一覧を生成 …… untranslated.txt / strings_en_aggregate.tsv を再生成
+- 整理（MOD別/集約）を生成 …… grouped_by_mod.txt と texts_en_aggregate.txt を再構築
+- 収集をリセット …… Export/ を空にして作り直し（辞書は維持）
+- セッションキャッシュをクリア …… ゲーム起動中の二重書込防止メモリを初期化
+- ログをクリア …… RimLex.log を空に
+- 辞書を再読み込み …… strings_ja.tsv を即反映
+- 動作確認 …… Export/SelfTest にダミー出力を書き出し
+
+■ よくある質問
+Q. 収集直後に _All/texts_en_aggregate.txt がすぐ増える  
+A. 収集中の軽量追記（EmitAggregate=true）が動いています。整理ボタンで正式版に再生成されます。
+
+Q. Per-Mod が多くて見づらい  
+A. Export/PerMod/<Mod>/… にまとめています。_All は常に上に来るので探しやすい構成です。
+
+Q. 何を消せば完全初期化？  
+A. 設定パネルの「収集をリセット」で Export/ を丸ごと再作成。辞書も白紙にする場合は Dict/strings_ja.tsv を退避。
+
+■ トラブルシュート
+- 翻訳が出ない → ApplyDictAtRuntime=ON を確認。strings_ja.tsv のタブ区切り・改行表記（/n）も要確認。
+- 収集されない → 該当UIのマウスオーバーをやり直す。RimLex.log に “Patched:” 行が出ているか確認。
+- 競合疑い → 一時的に ApplyDictAtRuntime=OFF で収集のみを確認。Player.log のHarmony例外も併せて見る。
+
+-- END OF USER GUIDE --

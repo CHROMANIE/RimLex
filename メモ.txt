@@ -1,0 +1,121 @@
+いい質問！　これ、**「v3」って言葉と「0.9.0」って数値」が指している層が違う**んだ。
+混ざって見えるけど、ちゃんと整理すれば矛盾してない。
+
+---
+
+### 🧩 二層構造で考えるのが正解
+
+| 種類                        | 意味                        | 今の値       |
+| ------------------------- | ------------------------- | --------- |
+| **ドキュメント版（v3）**           | RimLex開発アーカイブ内での「仕様書世代」   | **v3**    |
+| **実装版（Semantic Version）** | 実際のRimLex.dllの「ビルド・互換性」基準 | **0.9.0** |
+
+---
+
+### 💬 どういうことかというと
+
+* **「v3」** は「プロジェクト史として第3フェーズ」という意味。
+  → v1 = AutoUITranslator原型期
+  → v2 = AutoUITranslator成熟期（PerMod出力＋設定画面）
+  → v3 = RimLexリブランディング後（完成型に近い）
+
+* **「0.9.0」** は「リリース候補（RC）」としてのソフトウェアのバージョン。
+  → まだ1.0未満なので、破壊的変更があってもOK。
+  → バグ修正で 0.9.1, 0.9.2
+  → 新機能（HUDとかUTF出力）追加で 0.10.0, 0.11.0
+  → 安定化完了＝ **1.0.0** で正式版リリース。
+
+---
+
+### 📊 まとめるとこうなる
+
+| 概念           | 表記例            | 使う場所                 | 目的             |
+| ------------ | -------------- | -------------------- | -------------- |
+| **ドキュメント世代** | v3, v4 …       | 機能書・SourceまとめTXT     | チャット世代・開発段階を記録 |
+| **実装バージョン**  | 0.9.0, 0.9.1 … | About.xml・RimLex.log | DLLの互換性と安定性管理  |
+
+---
+
+### 💡今後の見通し
+
+* **RimLex v3（docs系）** ＝ 仕様的には完成系手前。
+* **RimLex.dll v0.9.0（実装）** ＝ RC版（Release Candidate）相当。
+
+→ **v4 + 1.0.0** のときが「正式安定版」。
+
+---
+
+つまり、いまのフェーズを正確に書くとこうなる：
+
+> RimLex v3 (docs) / RimLex.dll v0.9.0 — Release Candidate phase
+
+これで誰が見ても混乱しない。
+
+
+
+# 🈹 AutoUITranslator
+RimWorldのUI上の英語を自動収集＆即時日本語化！
+---
+
+### 特徴
+- Harmonyベースの安全・軽量翻訳
+- 辞書（strings_ja.tsv）で完全制御
+- 未訳自動抽出・MOD別管理・UTF連携
+
+
+
+
+
+# RimLex – UI Text Localizer
+
+RimLex is a runtime localization framework for RimWorld UI.
+It automatically detects English text on-screen, collects it,
+and replaces it with translations from a simple TSV dictionary.
+
+### Features
+- Real-time dictionary-based translation (ApplyDictAtRuntime)
+- Automatic collection of untranslated English text
+- Per-mod export and unified aggregate lists
+- Mod settings menu for easy reload and organization
+- Safe, lightweight Harmony patching with full compatibility
+
+RimLex enables any mod—even those without translation keys—
+to display natural localized text.
+
+Author: RimLex Project (Aeichi + GPT)
+Version: v1.0
+Compatible with: RimWorld 1.5+, Harmony 2.x
+
+
+
+# RimLex – UIテキストローカライザーあ
+
+RimLexは、RimWorldのUI上に表示される英語テキストを
+自動検出・収集し、辞書（TSV形式）をもとにリアルタイムで
+翻訳して置き換える軽量フレームワークです。
+
+### 主な特徴
+・Harmonyによる安全なUI層フック  
+・未訳テキストの自動収集（MOD別／集約）  
+・辞書の即時再読み込み（ApplyDictAtRuntime）  
+・Mod設定メニューから一括整理  
+・翻訳キーを持たないMODにも対応  
+
+作者: RimLex Project（えーいち＋GPT）  
+対応: RimWorld 1.5以降 / Harmony 2.x  
+依存MOD: なし（単体動作）
+
+
+
+
+<description>
+RimLex is a runtime localization framework for RimWorld UI.
+It collects on-screen English text and replaces it
+with translations from a simple TSV dictionary.
+
+リアルタイムでUIテキストを翻訳する軽量MOD。
+未訳文字列の自動収集や辞書再読込をサポートします。
+</description>
+<previewImagePath>About/preview.png</previewImagePath>
+
+

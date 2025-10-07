@@ -1,0 +1,28 @@
+RimLex – UI Text Localizer（Mod 説明 / 配布文面）
+更新: 2025-10-07 02:47 (JST)
+バージョン: 0.9.0（MVP）
+
+■ 概要
+RimWorld の画面に“表示された”英語UI文字列を自動収集し、辞書（strings_ja.tsv）に基づいて実行時に日本語へ置換するツール系MODです。
+翻訳キーが無い海外製MODでも、自然な日本語UIで遊べる環境を作れます。
+
+■ 主な特徴
+- UI 6系統をフック（Label / Button / Tooltip / Context / Gizmo / Slider(安全化)）
+- Per-Mod 出力 + _All 集約（未訳抽出、Mod別一覧）
+- 設定パネルからワンボタン操作（辞書再読込／未訳生成／整理／リセット／ログ）
+- 例外時は素通り。競合に強い“ゆるい署名探索”のHarmonyパッチ
+
+■ 出力
+- Export/PerMod/<Mod>/texts_en.txt・strings_en.tsv
+- Export/_All/texts_en_aggregate.txt / untranslated.txt / strings_en_aggregate.tsv / grouped_by_mod.txt
+- ログ: RimLex.log
+
+■ 設定
+- ApplyDictAtRuntime / ExportPerMod / EmitAggregate / ExportMode / PerModSubdir / MinLength / ExcludePatterns
+- INI: RimLex.ini（%ModDir% 変数対応）
+
+■ サポート
+- RimWorld 1.5 / 1.6, .NET Framework 4.8, Harmony 2.x
+- 依存MODなし
+
+-- END OF MOD DESCRIPTION --

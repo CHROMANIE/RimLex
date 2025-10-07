@@ -1,0 +1,65 @@
+AutoUITranslator_ModDescription.txt
+==================================
+
+【概要】
+AutoUITranslator は、RimWorld のあらゆるUI上の英語テキストを自動検出・収集し、
+辞書（strings_ja.tsv）を用いてリアルタイムに日本語へ置き換えるMODです。
+翻訳キーを持たない海外製MODでも自然な日本語で遊ぶことができます。
+
+【主な特徴】
+・UI / 設定 / ボタン / スライダー / ツールチップ など、画面上の英語を自動収集  
+・辞書を元に即時置換（ApplyDictAtRuntime）  
+・MODごとに分類して収集結果を保存（Export/<ModName>/texts_en.txt）  
+・全体集約版（_All/texts_en_aggregate.txt）を自動生成  
+・翻訳済みテキストは再収集しないスマートフィルタ搭載  
+・Mod設定メニューから「辞書再読込」「未訳抽出」「整理」「UTF XML生成」が実行可能  
+・Harmonyによる安全なUI層フックで、軽量・高互換
+
+【設定画面（Mod設定 → AutoUITranslator）】
+タイトル画面またはプレイ中に ESC → Mod設定 → AutoUITranslator を開くと、
+このMOD専用のメニューが表示されます。
+
+● ボタン操作  
+- 辞書を再読み込み  
+  Dict/strings_ja.tsv を読み直して、即座に反映。  
+- 未訳テキストの収集状況を表示  
+  直近で拾った英語の件数や保存先を一覧。  
+- （任意）辞書を整理  
+  収集ログと突き合わせて、MODごとに並べ替えたTSVを出力。  
+- （任意）UTF用XMLを作成  
+  収集ログ＋辞書からUTF形式XMLを生成（Build/UTF/に出力）。  
+- ApplyDictAtRuntime を切り替え  
+  即時置換をON/OFFできる（プレビュー用）。
+
+【翻訳の流れ】
+1. ゲーム内でMODのUIを開くと、英語テキストを自動収集  
+2. Export/<ModName>/texts_en.txt に保存  
+3. GPTで自然な日本語訳を作成し、Dict/strings_ja.tsv に追記  
+4. 次回起動時、即座に日本語化が反映される  
+
+【出力整理】
+収集時点でMODごとに自動分類。
+例：
+### RJW.Menstruation  
+Enable anal drip graphics  
+Enable vaginal drip graphics  
+
+### RimJobWorld  
+Enable rape  
+Enable bestiality  
+
+### Vanilla Expanded Framework  
+Enable debug mode  
+
+さらに、全MODを統合した集約版（_All）も自動で生成されます。
+
+【将来の拡張予定】
+・caller情報からUTF互換XMLを自動生成するUTFBuilder機能  
+・スライダー / ギズモ / 右クリックメニューなどUIフックの拡充  
+・OCR連携（スクショ→未訳検出）や自動翻訳API対応（オプション）
+
+【開発 / 配布】
+作者: AutoUITranslator Project（えーいち＋GPT）  
+バージョン: v2 プレリリース  
+対応: RimWorld 1.5 以降 / Harmony 2.x  
+依存MOD: なし（単体動作）

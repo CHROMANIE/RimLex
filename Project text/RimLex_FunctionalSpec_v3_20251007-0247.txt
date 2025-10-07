@@ -1,0 +1,89 @@
+RimLex 機能仕様書（Functional Spec） v3
+作成: 2025-10-07 02:47 (JST)
+対象: RimWorld 1.5 / 1.6, .NET Framework 4.8, Harmony 2.x
+このファイルの目的：ソースを失っても、この仕様だけで同等のMODを再実装できること
+現行版: 0.9.0（MVP安定域）
+
+0) 目的と思想
+- 目的: 画面に“表示された”英語UI文字列を収集し、辞書（TSV）で実行時に日本語へ置換する。
+- 基本方針:
+  1. UI描画直前のフックで低レイテンシ置換（ApplyDictAtRuntime）
+  2. 未訳の自動収集（ノイズ除去・重複抑止）
+  3. Per-Mod 出力 + _All 集約の2段構え
+  4. Mod設定から運用操作（辞書再読込／整理／未訳抽出／リセット／ログ）
+  5. 将来的なUTF連携は外付け拡張
+
+1) スコープ（対応UI）
+- ラベル: Widgets.Label / Listing_Standard.Label（オーバーロード差異に耐性）
+- ボタン: Widgets.ButtonText
+- ツールチップ: TooltipHandler.TipRegion(Rect,string / Rect,TipSignal)
+- 右クリック: FloatMenuOption
+- ギズモ: Command.LabelCap
+- スライダー: Listing_Standard.Slider（署名確認のみ／収集なし・安全化）
+
+2) 非機能
+- 速い：辞書照合 O(1)、正規化/除外は軽量
+- 安全：失敗時は素通り。Harmonyパッチは部分成功で継続
+- 互換：ゆるい署名探索で将来の引数追加に強い
+
+3) 主構成
+- Config …… INI 読み書き（Apply/Export/Dic/PerModSubdir/MinLength/ExcludePatterns）
+- Normalizer …… リッチテキスト/制御文字/改行/空白の正規化
+- NoiseFilter …… 短文・URL・数値のみ等のノイズ除外
+- TranslatorHub …… 辞書ロード/置換/収集、Per-Mod 出力、_All 再構築、統計、リセット
+- UIPatches …… Harmonyパッチ群（署名探索の安全化）
+- ModInitializer …… 起動・ログ・設定パネル（操作ボタン・フォルダを開く）
+
+4) INI キー（RimLex.ini）
+- ApplyDictAtRuntime = true/false
+- ExportPerMod = true/false
+- EmitAggregate = true/false
+- ExportMode = TextOnly | Full | Both
+- DictPath = %ModDir%/Dict/strings_ja.tsv
+- LogPath = %ModDir%/RimLex.log
+- ExportRoot = %ModDir%/Export
+- PerModSubdir = PerMod       ← NEW
+- MinLength = 2               ← NEW（既定）
+- ExcludePatterns = …         ← NEW（既定）
+
+5) 出力（フォルダ）
+- Export/_All/
+  - texts_en_aggregate.txt …… 全体の英語（ソート・重複排除）
+  - untranslated.txt …… 辞書未登録のみ
+  - strings_en_aggregate.tsv …… untranslated の1列TSV（text）
+  - grouped_by_mod.txt …… 「### ModName (件数)」+ 本文、区切りは空行×2
+- Export/<PerModSubdir>/<ModName>/
+  - texts_en.txt …… 英語1行ログ（セッション重複抑止）
+  - strings_en.tsv …… 5列（timestamp_utc, mod, source, scope, text）
+- Export/Current/ …… Per-Mod 無効時の一時箱
+- Export/SelfTest/ …… 動作確認のダミー出力
+- RimLex.log …… MOD専用ログ（初期化・パッチ結果・件数・例外）
+
+6) 正規化
+- CRLF→LF、<color>/<size>/<b>/<i>/<u>/<align>/<br> 等のタグ除去
+- 制御文字除去、改行→空白、連続空白縮約、Trim
+- プレースホルダ統一（{0} 形式など）※将来拡張
+
+7) ロジック
+- 受け取った文字列 s を Normalize(s)
+- 辞書ヒット: 置換して表示（ApplyDictAtRuntime=ON時）／統計 Replaced++
+- 未訳: NoiseFilter通過のみ収集（Per-Mod出力、EmitAggregateなら _All に軽量追記）／統計 Collected++
+
+8) フック適用状況（MVP達成条件）
+- ログに「Patched: …」が6系統分出る
+- ツールチップ（string/TipSignal）が安定して収集される
+- 「未訳一覧」「整理」「収集リセット」「ログクリア」「辞書再読み込み」「動作確認」が動作
+
+9) 競合
+- いずれかのパッチが失敗しても他は継続（Try保護）
+- 他翻訳MODと併用可能。辞書ヒット時のみ最終表示を上書き
+
+10) 変更点（v2→v3）
+- AutoUITranslator → RimLex に改称、設定名・ログ名統一
+- Tooltipの両オーバーロード対応
+- フック探索を“ゆるい署名判定”へ（将来互換UP）
+- PerModSubdir を追加（Per-Mod を1段に集約）
+- 「フォルダを開く」ボタン追加、説明をマウスオーバーに整理
+- INI に PerModSubdir/MinLength/ExcludePatterns を正式追加
+
+-- END OF SPEC --

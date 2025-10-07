@@ -1,0 +1,48 @@
+RimLex ユーザーガイド v1
+更新: 2025-10-07 13:00 (JST)
+
+■ できること
+- 画面に“表示された”英語UIを自動収集
+- 辞書（strings_ja.tsv）にあるものはその場で日本語へ置換
+- 未訳一覧から辞書を育てる運用に最適化
+
+■ 最短手順
+1) Mod設定 → 「RimLex - UI Text Localizer」を開く
+2) 画面を触って英語を収集（ツールチップにマウスを乗せるのが効果的）
+3) 「未訳一覧を生成」→ Export/_All/untranslated.txt を開く
+4) その行を翻訳して Dict/strings_ja.tsv に「英語<TAB>日本語」で追記
+5) 「辞書を再読み込み」→ 即時反映（ApplyDictAtRuntime=ON推奨）
+
+■ Export の見方
+- Export/PerMod/<Mod>/texts_en.txt …… Mod単位の英語生ログ（セッション重複抑止）
+- Export/PerMod/<Mod>/strings_en.tsv …… 5列（timestamp_utc, mod, source, scope, text）
+- Export/_All/texts_en_aggregate.txt …… 全体英語（ソート・重複排除）
+- Export/_All/untranslated.txt …… 辞書未登録のみ（翻訳候補）
+- Export/_All/strings_en_aggregate.tsv …… untranslated の1列TSV
+- Export/_All/grouped_by_mod.txt …… 「### ModName (件数)」でまとまった一覧（区切りは空行×2）
+
+■ 設定パネルの主なボタン
+- 未訳一覧を生成 …… untranslated.txt / strings_en_aggregate.tsv を再生成
+- 整理（MOD別/集約）を生成 …… grouped_by_mod.txt と texts_en_aggregate.txt を再構築
+- 収集をリセット …… Export/ を空にして作り直し（辞書は維持）
+- セッションキャッシュをクリア …… 起動中の二重書込防止キャッシュを初期化（ファイルには触れない）
+- ログをクリア …… RimLex.log を空に
+- 辞書を再読み込み …… strings_ja.tsv を即反映
+- 動作確認 …… Export/SelfTest にダミー出力
+
+■ よくある質問
+Q. 収集直後に _All/texts_en_aggregate.txt がすぐ増える  
+A. 収集中の軽量追記（EmitAggregate=true）が動いています。整理ボタンで正式版に再生成されます。
+
+Q. 同じ文が何度も出ている  
+A. セッション内の重複は抑制されます。ゲーム再起動や別画面では再び現れることがありますが、整理時に重複は落ちます。
+
+Q. 何を消せば完全初期化？  
+A. 設定パネルの「収集をリセット」で Export/ を再作成。辞書も初期化したい場合は Dict/strings_ja.tsv を退避。
+
+■ トラブルシュート
+- 翻訳が出ない → ApplyDictAtRuntime=ON、TSVのタブ区切り・改行表記（/n）確認
+- 収集されない → ツールチップにマウスを乗せ直す、RimLex.log に “Patched:” 行があるか確認
+- Harmony 例外 → Player.log で該当メソッド名を確認（署名差異は安全化済）
+
+-- END OF USER GUIDE --
