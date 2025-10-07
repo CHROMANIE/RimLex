@@ -107,7 +107,6 @@ RimLexは、RimWorldのUI上に表示される英語テキストを
 
 
 
-
 <description>
 RimLex is a runtime localization framework for RimWorld UI.
 It collects on-screen English text and replaces it
