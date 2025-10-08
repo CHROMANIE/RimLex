@@ -1,66 +1,89 @@
-﻿using System;
+﻿// RimLex TranslatorHub.cs v0.10.0-rc6 @2025-10-09 11:05
+// 変更: 改行のゆるふわ正規化を追加。/n でも \n でも OK（前後の空白も許容）。
+//       -> 辞書読込・照合・キー生成で NormalizeNewlines() を通す。
+//       出力仕様は rc5 と同じ（TXT/TSV は /n 一行表記）。他の挙動は一切変更なし。
+
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
-using HarmonyLib;
 using Verse;
 
 namespace RimLex
 {
-    /// <summary>
-    /// 収集・辞書・出力の中核。UIPatches からここを叩く。
-    /// 「同一テキストの連打」を避けるため、時間窓デバウンス＋セッション重複キャッシュを実装。
-    /// </summary>
     public static class TranslatorHub
     {
-        // ==== 設定/パス ====
         private static string _dictTsv;
         private static string _exportRoot;
-        private static string _exportMode = "Both"; // TextOnly / Full / Both
+        private static string _exportMode = "Both";
         private static bool _perMod = true;
         private static bool _emitAggregate = true;
         private static string _perModSubdir = "PerMod";
 
-        private static Action<string> _logInfo;
-        private static Action<string> _logWarn;
+        private static Action<string> _logInfo = _ => { };
+        private static Action<string> _logWarn = _ => { };
 
-        // ==== 状態 ====
         private static readonly object _lock = new object();
 
-        // 辞書（英語→日本語）
-        private static Dictionary<string, string> _dict = new Dictionary<string, string>(StringComparer.Ordinal);
-        public static int DictionaryEntryCount => _dict.Count;
+        private static Dictionary<string, string> _dictExact = new Dictionary<string, string>(StringComparer.Ordinal);
+        private static Dictionary<string, string> _dictShape = new Dictionary<string, string>(StringComparer.Ordinal);
+        public static int DictionaryEntryCount => _dictExact.Count + _dictShape.Count;
 
-        // 監視
         private static FileSystemWatcher _watcher;
 
-        // セッション統計
         private static long _sessionReplaced = 0;
         private static long _sessionCollected = 0;
         private static long _sessionIoErrors = 0;
 
-        // トータル統計（起動〜）
         private static long _totalReplaced = 0;
         private static long _totalCollected = 0;
         private static long _totalIoErrors = 0;
 
-        // ==== 重複抑制 ====
-        // セッションで一度でも登録した英語原文（HashSet）
         private static readonly HashSet<string> _seenOnce = new HashSet<string>(StringComparer.Ordinal);
-
-        // 直近の出現時刻（ms）でデバウンス。キーは英語原文
         private static readonly Dictionary<string, long> _recentSeen = new Dictionary<string, long>(StringComparer.Ordinal);
-        private const int DEBOUNCE_MS = 2000; // 2秒以内の再出現は無視
+        private const int DEBOUNCE_MS = 2000;
 
-        // ==== 出力バッファ（アグリゲートのデバウンス書き） ====
         private static bool _pauseAggregate = false;
         private static int _aggregateDebounceMs = 250;
         private static readonly List<string> _aggPending = new List<string>();
         private static Timer _aggTimer;
 
-        // ==== API ====
+        private static readonly Regex RxNumbers = new Regex(@"\d+(?:\.\d+)?", RegexOptions.Compiled);
+
+        // ========== rc6: 改行正規化 ==========
+        private static readonly Regex RxSlashNLoose = new Regex(@"\s*/\s*n\s*", RegexOptions.Compiled);
+        private static string NormalizeNewlines(string s)
+        {
+            if (string.IsNullOrEmpty(s)) return s ?? "";
+            // \n 文字列リテラル→実改行、ゆるい "/ n" → 実改行 に統一
+            string t = s.Replace("\\n", "\n");
+            t = RxSlashNLoose.Replace(t, "\n");
+            return t;
+        }
+        // =====================================
+
+        private sealed class ShapeParts
+        {
+            public string Shape;
+            public List<string> Numbers;
+        }
+        private static ShapeParts MakeShape(string s)
+        {
+            var nums = new List<string>();
+            string shaped = RxNumbers.Replace(s, m => { nums.Add(m.Value); return "#"; });
+            return new ShapeParts { Shape = shaped, Numbers = nums };
+        }
+
+        private static string NormalizeForKey(string s)
+            // rc6: 改行ゆるふわ正規化を噛ませてから、CR系をLFに
+            => NormalizeNewlines((s ?? "").Replace("\r\n", "\n").Replace("\r", "\n"));
+
+        private static string ForTsv(string s)
+            => (s ?? "").Replace("\t", " ").Replace("\r", " ").Replace("\n", "/n");
 
         public static void InitIO(
             string dictTsv, string exportRoot, string exportMode, bool perMod, bool emitAggregate,
@@ -70,24 +93,22 @@ namespace RimLex
             {
                 _dictTsv = dictTsv;
                 _exportRoot = exportRoot;
-                _exportMode = exportMode ?? "Both";
+                _exportMode = string.IsNullOrEmpty(exportMode) ? "Both" : exportMode;
                 _perMod = perMod;
                 _emitAggregate = emitAggregate;
                 _perModSubdir = string.IsNullOrEmpty(perModSubdir) ? "PerMod" : perModSubdir;
 
-                _logInfo = logInfo ?? (s => { });
-                _logWarn = logWarn ?? (s => { });
+                _logInfo = logInfo ?? _logInfo;
+                _logWarn = logWarn ?? _logWarn;
 
                 Directory.CreateDirectory(_exportRoot);
-
                 LoadDictionary_NoThrow(_dictTsv);
+
+                _aggTimer?.Dispose();
+                _aggTimer = new Timer(_ => FlushAggregateSafe(), null, Timeout.Infinite, Timeout.Infinite);
 
                 _logInfo("TranslatorHub.InitIO OK: dict=" + _dictTsv + ", exportRoot=" + _exportRoot +
                          ", perMod=" + _perMod + ", perModSubdir=" + _perModSubdir + ", aggregate=" + _emitAggregate);
-
-                // Agg タイマー
-                _aggTimer?.Dispose();
-                _aggTimer = new Timer(_ => FlushAggregateSafe(), null, Timeout.Infinite, Timeout.Infinite);
             }
         }
 
@@ -97,8 +118,6 @@ namespace RimLex
             {
                 _pauseAggregate = pauseAggregate;
                 _aggregateDebounceMs = Math.Max(0, aggregateDebounceMs);
-
-                // 監視切替
                 TryEnableDictWatcher(watchDict, dictPath);
             }
         }
@@ -113,7 +132,7 @@ namespace RimLex
                 replaced = _sessionReplaced;
                 collected = _sessionCollected;
                 ioErrors = _sessionIoErrors;
-                excluded = NoiseFilter.ExcludedCount; // 参照表示（こちらのセッション値は持たない）
+                excluded = NoiseFilter.ExcludedCount;
                 _totalReplaced += _sessionReplaced;
                 _totalCollected += _sessionCollected;
                 _totalIoErrors += _sessionIoErrors;
@@ -134,46 +153,38 @@ namespace RimLex
 
         public static void ReloadDictionary()
         {
-            lock (_lock)
-            {
-                LoadDictionary_NoThrow(_dictTsv, verbose: true);
-            }
+            lock (_lock) LoadDictionary_NoThrow(_dictTsv, verbose: true);
         }
 
-        // ==== 収集・置換のメイン入口 ====
         public static string TranslateOrEnroll(string english, string source, string scope, string modGuess = "Unknown")
         {
             if (string.IsNullOrEmpty(english)) return english;
 
-            if (NoiseFilter.IsNoise(english)) return english;
+            if (IsSelfSettingsCall()) return english;                 // RimLex自画面のみ除外
+            if (NoiseFilter.IsScreenExcluded(out _)) return english;   // 画面除外
+            if (NoiseFilter.IsNoise(english)) return english;          // 文字列ノイズ
 
-            if (NoiseFilter.IsScreenExcluded(out var _))
-            {
-                return english;
-            }
+            string key = NormalizeForKey(english);
 
-            if (TryTranslate(english, out var ja))
+            if (TryTranslateExact(key, out var ja) || TryTranslateByShape(key, out ja))
             {
                 Interlocked.Increment(ref _sessionReplaced);
                 return ja;
             }
 
-            TryEnrollOnce(english, source, scope, modGuess);
+            TryEnrollOnce(key, source, scope, modGuess);
             return english;
         }
 
-        // ==== ボタンからの再構築系 ====
-
         public static void RebuildAggregateAndUntranslated(out int aggregateLines, out int untranslatedLines, out int modSections)
         {
-            aggregateLines = untranslatedLines = modSections = 0;
-
+            // rc5 と同一（省略無し版）
             try
             {
+                aggregateLines = untranslatedLines = modSections = 0;
                 string allDir = Path.Combine(_exportRoot, "_All");
                 Directory.CreateDirectory(allDir);
 
-                // 1) 集約 TSV を再構築（PerMod を走査）
                 var rows = new List<(string mod, string source, string scope, string text)>();
                 string perRoot = Path.Combine(_exportRoot, _perModSubdir);
                 if (Directory.Exists(perRoot))
@@ -191,31 +202,34 @@ namespace RimLex
                                 string mod = parts[1];
                                 string source = parts[2];
                                 string scope = parts[3];
-                                string text = parts[4];
+                                string text = parts[4].Replace("/n", "\n");
                                 rows.Add((mod, source, scope, text));
                             }
                         }
                     }
                 }
 
-                // aggregate txt
                 string aggTxt = Path.Combine(allDir, "texts_en_aggregate.txt");
                 string header = "# rebuilt_at=" + DateTime.UtcNow.ToString("O") + Environment.NewLine;
                 File.WriteAllText(aggTxt + ".tmp", header, new UTF8Encoding(false));
                 using (var sw = new StreamWriter(aggTxt + ".tmp", true, new UTF8Encoding(false)))
-                    foreach (var r in rows) { sw.WriteLine(r.text); aggregateLines++; }
+                    foreach (var r in rows) { sw.WriteLine(r.text.Replace("\n", "/n")); aggregateLines++; }
                 ReplaceAtomically(aggTxt);
 
-                // 2) 未訳（dictに無いものだけ）
-                var dictKeys = new HashSet<string>(_dict.Keys, StringComparer.Ordinal);
+                var dictKeys = new HashSet<string>(_dictExact.Keys.Concat(_dictShape.Keys), StringComparer.Ordinal);
                 string untranslated = Path.Combine(allDir, "untranslated.txt");
                 File.WriteAllText(untranslated + ".tmp", header, new UTF8Encoding(false));
                 using (var sw = new StreamWriter(untranslated + ".tmp", true, new UTF8Encoding(false)))
+                {
                     foreach (var r in rows)
-                        if (!dictKeys.Contains(r.text)) { sw.WriteLine(r.text); untranslatedLines++; }
+                    {
+                        var shp = MakeShape(r.text);
+                        if (!dictKeys.Contains(r.text) && !dictKeys.Contains(shp.Shape))
+                        { sw.WriteLine(r.text.Replace("\n", "/n")); untranslatedLines++; }
+                    }
+                }
                 ReplaceAtomically(untranslated);
 
-                // 3) Mod別（テキスト）
                 string grouped = Path.Combine(allDir, "grouped_by_mod.txt");
                 File.WriteAllText(grouped + ".tmp", header, new UTF8Encoding(false));
                 using (var sw = new StreamWriter(grouped + ".tmp", true, new UTF8Encoding(false)))
@@ -223,7 +237,7 @@ namespace RimLex
                     foreach (var grp in rows.GroupBy(r => r.mod).OrderBy(g => g.Key))
                     {
                         sw.WriteLine("### " + grp.Key);
-                        foreach (var r in grp) sw.WriteLine(r.text);
+                        foreach (var r in grp) sw.WriteLine(r.text.Replace("\n", "/n"));
                         sw.WriteLine();
                         modSections++;
                     }
@@ -232,15 +246,15 @@ namespace RimLex
             }
             catch (Exception ex)
             {
-                _logWarn?.Invoke("[Rebuild] failed: " + ex);
+                _logWarn("[Rebuild] failed: " + ex);
                 Interlocked.Increment(ref _sessionIoErrors);
             }
         }
 
         public static bool TryBuildTsvTemplateFromUntranslated(out string path, out string error)
         {
-            path = "";
-            error = null;
+            // rc5 と同一（/n 一行テンプレ生成）
+            path = ""; error = null;
             try
             {
                 string allDir = Path.Combine(_exportRoot, "_All");
@@ -260,9 +274,8 @@ namespace RimLex
                     {
                         if (line.StartsWith("#")) continue;
                         if (string.IsNullOrWhiteSpace(line)) continue;
-                        sw.Write(line);
-                        sw.Write('\t');
-                        sw.WriteLine();
+                        sw.Write(line.Replace("\n", "/n"));
+                        sw.Write('\t'); sw.WriteLine();
                     }
                 }
                 ReplaceAtomically(path);
@@ -276,52 +289,49 @@ namespace RimLex
             }
         }
 
-        // ==== 内部処理 ====
-
         private static void LoadDictionary_NoThrow(string path, bool verbose = false)
         {
             try
             {
-                var map = new Dictionary<string, string>(StringComparer.Ordinal);
-                int lines = 0, dupNorm = 0;
+                var exact = new Dictionary<string, string>(StringComparer.Ordinal);
+                var shape = new Dictionary<string, string>(StringComparer.Ordinal);
+                int lines = 0, exactN = 0, shapeN = 0, dup = 0;
 
                 if (File.Exists(path))
                 {
-                    foreach (var line in File.ReadAllLines(path, new UTF8Encoding(false)))
+                    foreach (var raw in File.ReadAllLines(path, new UTF8Encoding(false)))
                     {
                         lines++;
-                        if (string.IsNullOrWhiteSpace(line)) continue;
-                        if (line.StartsWith("#")) continue;
+                        if (string.IsNullOrWhiteSpace(raw)) continue;
+                        if (raw.StartsWith("#")) continue;
 
-                        var idx = line.IndexOf('\t');
+                        int idx = raw.IndexOf('\t');
                         if (idx <= 0) continue;
 
-                        string en = line.Substring(0, idx);
-                        string ja = idx < line.Length - 1 ? line.Substring(idx + 1) : "";
+                        // rc6: 左辺・右辺どちらも改行ゆるふわ正規化
+                        string en = NormalizeForKey(raw.Substring(0, idx).Replace("/n", "\n"));
+                        string ja = NormalizeForKey(raw.Substring(idx + 1));
 
-                        if (!map.ContainsKey(en))
-                            map[en] = ja;
+                        if (en.IndexOf('#') >= 0)
+                        { if (!shape.ContainsKey(en)) { shape[en] = ja; shapeN++; } else dup++; }
                         else
-                            dupNorm++;
+                        { if (!exact.ContainsKey(en)) { exact[en] = ja; exactN++; } else dup++; }
                     }
                 }
 
-                _dict = map;
-                _logInfo?.Invoke($"Dictionary loaded: lines={lines}, entries={_dict.Count}, dupNormalized={dupNorm}");
+                _dictExact = exact; _dictShape = shape;
+                _logInfo($"Dictionary loaded: lines={lines}, exact={exactN}, shape={shapeN}, dupNormalized={dup}");
             }
             catch (Exception ex)
             {
-                _logWarn?.Invoke("Dictionary load failed: " + ex);
+                _logWarn("Dictionary load failed: " + ex);
             }
         }
 
         private static void TryEnableDictWatcher(bool enable, string path)
         {
-            // 既存停止
             try { _watcher?.Dispose(); } catch { }
-            _watcher = null;
-
-            if (!enable) return;
+            _watcher = null; if (!enable) return;
 
             try
             {
@@ -333,101 +343,115 @@ namespace RimLex
                 fs.Renamed += (_, __) => DebouncedReload();
                 fs.EnableRaisingEvents = true;
                 _watcher = fs;
-                _logInfo?.Invoke("Dict watcher enabled: " + path);
+                _logInfo("Dict watcher enabled: " + path);
             }
             catch (Exception ex)
             {
-                _logWarn?.Invoke("Dict watcher failed: " + ex.Message);
+                _logWarn("Dict watcher failed: " + ex.Message);
             }
         }
 
         private static int _reloadPending = 0;
         private static void DebouncedReload()
         {
-            // 簡易デバウンス：短時間に複数イベントが来ても1回だけ実行
             if (Interlocked.Exchange(ref _reloadPending, 1) == 0)
             {
-                Verse.LongEventHandler.ExecuteWhenFinished(() =>
+                LongEventHandler.ExecuteWhenFinished(() =>
                 {
-                    try
-                    {
-                        Thread.Sleep(150);
-                        ReloadDictionary();
-                    }
-                    finally
-                    {
-                        Interlocked.Exchange(ref _reloadPending, 0);
-                    }
+                    try { Thread.Sleep(150); ReloadDictionary(); }
+                    finally { Interlocked.Exchange(ref _reloadPending, 0); }
                 });
             }
         }
 
-        private static bool TryTranslate(string en, out string ja)
+        private static bool TryTranslateExact(string key, out string ja)
         {
-            lock (_lock)
-            {
-                return _dict.TryGetValue(en, out ja) && !string.IsNullOrEmpty(ja);
-            }
+            // rc6: key も正規化して照合
+            key = NormalizeForKey(key);
+            lock (_lock) return _dictExact.TryGetValue(key, out ja) && !string.IsNullOrEmpty(ja);
         }
 
-        private static void TryEnrollOnce(string en, string source, string scope, string modGuess)
+        private static bool TryTranslateByShape(string key, out string ja)
+        {
+            // rc6: key も正規化して形状化
+            key = NormalizeForKey(key);
+            ja = null;
+            var shp = MakeShape(key);
+
+            string tmpl;
+            lock (_lock)
+            {
+                if (!_dictShape.TryGetValue(shp.Shape, out tmpl)) return false;
+            }
+
+            int i = 0;
+            var sb = new StringBuilder();
+            foreach (char ch in tmpl)
+            {
+                if (ch == '#') sb.Append(i < shp.Numbers.Count ? shp.Numbers[i++] : "#");
+                else sb.Append(ch);
+            }
+            ja = sb.ToString();
+            return true;
+        }
+
+        private static void TryEnrollOnce(string keyRaw, string source, string scope, string modGuess)
         {
             long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 
             lock (_lock)
             {
-                // 時間窓（デバウンス）
-                if (_recentSeen.TryGetValue(en, out var last) && (now - last) < DEBOUNCE_MS)
-                    return;
-                _recentSeen[en] = now;
-
-                // セッション重複
-                if (_seenOnce.Contains(en))
-                    return;
-                _seenOnce.Add(en);
+                if (_recentSeen.TryGetValue(keyRaw, out var last) && (now - last) < DEBOUNCE_MS) return;
+                _recentSeen[keyRaw] = now;
+                if (_seenOnce.Contains(keyRaw)) return;
+                _seenOnce.Add(keyRaw);
             }
 
-            // ここまで来たら「初回扱い」で収集
             try
             {
+                // 形状キー化（数字→#）
+                var shp = MakeShape(NormalizeForKey(keyRaw));
+                string keyForExport = shp.Shape;
+                string keyTxt = keyForExport.Replace("\n", "/n"); // TXTは /n 一行
+
+                string modName = (modGuess != null && modGuess != "Unknown") ? modGuess : GuessModFromStack() ?? "Unknown";
+
                 if (_perMod)
                 {
-                    string modDir = Path.Combine(_exportRoot, _perModSubdir, Safe(modGuess));
+                    string modDir = Path.Combine(_exportRoot, _perModSubdir, Safe(modName));
                     Directory.CreateDirectory(modDir);
 
                     if (_exportMode == "TextOnly" || _exportMode == "Both")
-                    {
-                        AppendLine(Path.Combine(modDir, "texts_en.txt"), en);
-                    }
+                        AppendLine(Path.Combine(modDir, "texts_en.txt"), keyTxt);
+
                     if (_exportMode == "Full" || _exportMode == "Both")
                     {
                         string tsv = Path.Combine(modDir, "strings_en.tsv");
                         if (!File.Exists(tsv))
-                        {
                             WriteAll(tsv, "timestamp_utc\tmod\tsource\tscope\ttext" + Environment.NewLine);
-                        }
-                        AppendLine(tsv, DateTime.UtcNow.ToString("O") + "\t" + Safe(modGuess) + "\t" + Safe(source) + "\t" + Safe(scope) + "\t" + en);
+                        AppendLine(tsv, DateTime.UtcNow.ToString("O") + "\t" + Safe(modName) + "\t" + Safe(source) + "\t" + Safe(scope) + "\t" + ForTsv(keyForExport));
                     }
                 }
                 else
                 {
                     string cur = Path.Combine(_exportRoot, "Current");
                     Directory.CreateDirectory(cur);
+
                     if (_exportMode == "TextOnly" || _exportMode == "Both")
-                        AppendLine(Path.Combine(cur, "texts_en.txt"), en);
+                        AppendLine(Path.Combine(cur, "texts_en.txt"), keyTxt);
+
                     if (_exportMode == "Full" || _exportMode == "Both")
                     {
                         string tsv = Path.Combine(cur, "strings_en.tsv");
                         if (!File.Exists(tsv))
                             WriteAll(tsv, "timestamp_utc\tmod\tsource\tscope\ttext" + Environment.NewLine);
-                        AppendLine(tsv, DateTime.UtcNow.ToString("O") + "\t" + Safe(modGuess) + "\t" + Safe(source) + "\t" + Safe(scope) + "\t" + en);
+                        AppendLine(tsv, DateTime.UtcNow.ToString("O") + "\t" + Safe(modGuess) + "\t" + Safe(source) + "\t" + Safe(scope) + "\t" + ForTsv(keyForExport));
                     }
                 }
 
-                // アグリゲートに軽量追記（デバウンス書き）
                 if (_emitAggregate && !_pauseAggregate)
                 {
-                    lock (_lock) { _aggPending.Add(en); }
+                    lock (_lock) { _aggPending.Add(keyForExport); }
                     ScheduleAggregateFlush();
                 }
 
@@ -435,18 +459,75 @@ namespace RimLex
             }
             catch (Exception ex)
             {
-                _logWarn?.Invoke("[Enroll] IO failed: " + ex.Message);
+                _logWarn("[Enroll] IO failed: " + ex.Message);
                 Interlocked.Increment(ref _sessionIoErrors);
             }
         }
 
-        private static string Safe(string s)
+        private static string GuessModFromStack()
         {
-            if (string.IsNullOrEmpty(s)) return "";
-            return s.Replace("\t", " ").Replace("\r", " ").Replace("\n", " ");
+            try
+            {
+                var st = new StackTrace(2, false);
+                string fallback = null;
+
+                for (int i = 0; i < st.FrameCount; i++)
+                {
+                    var m = st.GetFrame(i).GetMethod();
+                    var asm = m?.DeclaringType?.Assembly;
+                    if (asm == null) continue;
+
+                    string an = asm.GetName().Name ?? "";
+                    if (an.StartsWith("RimLex", StringComparison.OrdinalIgnoreCase)) continue;
+                    if (an.StartsWith("Verse", StringComparison.OrdinalIgnoreCase)) { fallback ??= "Unknown(Verse)"; continue; }
+                    if (an.StartsWith("Unity", StringComparison.OrdinalIgnoreCase)) { fallback ??= "Unknown(Unity)"; continue; }
+                    if (an.StartsWith("Harmony", StringComparison.OrdinalIgnoreCase) || an.StartsWith("0Harmony", StringComparison.OrdinalIgnoreCase)) { fallback ??= "Unknown(Harmony)"; continue; }
+
+                    foreach (var mcp in LoadedModManager.RunningMods)
+                    {
+                        if (mcp.assemblies?.loadedAssemblies != null)
+                        {
+                            foreach (var la in mcp.assemblies.loadedAssemblies)
+                            {
+                                if (string.Equals(la.GetName().Name, an, StringComparison.OrdinalIgnoreCase))
+                                    return mcp.Name ?? mcp.PackageId ?? an;
+                            }
+                        }
+                        string id = (mcp.PackageId ?? "").ToLowerInvariant();
+                        if (!string.IsNullOrEmpty(id) && id.Contains(an.ToLowerInvariant()))
+                            return mcp.Name ?? mcp.PackageId ?? an;
+                    }
+
+                    fallback ??= "Unknown(" + an + ")";
+                }
+
+                return fallback ?? "Unknown";
+            }
+            catch { }
+            return "Unknown";
         }
 
-        // ==== I/O helpers ====
+        private static bool IsSelfSettingsCall()
+        {
+            try
+            {
+                var st = new StackTrace(2, false);
+                for (int i = 0; i < Math.Min(st.FrameCount, 16); i++)
+                {
+                    var m = st.GetFrame(i).GetMethod();
+                    var t = m?.DeclaringType;
+                    if (t == null) continue;
+
+                    if (t.FullName == "RimLex.ModInitializer" && m.Name == "DoSettingsWindowContents")
+                        return true;
+                }
+            }
+            catch { }
+            return false;
+        }
+
+        private static string Safe(string s)
+            => string.IsNullOrEmpty(s) ? "" : s.Replace("\t", " ").Replace("\r", " ").Replace("\n", " ");
 
         private static void WriteAll(string path, string content)
         {
@@ -460,9 +541,7 @@ namespace RimLex
         {
             using (var fs = new FileStream(path, FileMode.Append, FileAccess.Write, FileShare.Read))
             using (var sw = new StreamWriter(fs, new UTF8Encoding(false)))
-            {
                 sw.WriteLine(line);
-            }
         }
 
         private static void ReplaceAtomically(string finalPath)
@@ -471,8 +550,6 @@ namespace RimLex
             if (File.Exists(finalPath)) File.Delete(finalPath);
             File.Move(tmp, finalPath);
         }
-
-        // ==== Aggregate flush ====
 
         private static void ScheduleAggregateFlush()
         {
@@ -498,12 +575,12 @@ namespace RimLex
                 using (var fs = new FileStream(aggTxt, FileMode.Append, FileAccess.Write, FileShare.Read))
                 using (var sw = new StreamWriter(fs, new UTF8Encoding(false)))
                 {
-                    foreach (var s in buf) sw.WriteLine(s);
+                    foreach (var s in buf) sw.WriteLine(s.Replace("\n", "/n"));
                 }
             }
             catch (Exception ex)
             {
-                _logWarn?.Invoke("[AggregateFlush] failed: " + ex.Message);
+                _logWarn("[AggregateFlush] failed: " + ex.Message);
                 Interlocked.Increment(ref _sessionIoErrors);
             }
         }

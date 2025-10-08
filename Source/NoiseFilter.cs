@@ -1,4 +1,8 @@
-﻿using System;
+﻿// RimLex NoiseFilter.cs v0.10.0-rc4 @2025-10-09 08:05
+// 変更: 除外カウンタをデバウンス（同一画面は ~0.5s 以内はカウントしない）。
+//       既定ブラックリストは EditWindow_Log, Page_ModsConfig（前回と同じ）。
+
+using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Verse;
@@ -13,26 +17,23 @@ namespace RimLex
         private static readonly HashSet<string> _black = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         private static bool _logExcludedScreens = true;
 
-        // 統計
         private static int _excludedCount = 0;
         public static int ExcludedCount => _excludedCount;
 
-        // ログ抑制用
         private static string _lastScreen = "";
         private static int _suppressed = 0;
         private static long _lastLogMs = 0;
-        private const int LOG_WINDOW_MS = 500; // 0.5秒ごとにまとめて1行
+        private const int LOG_WINDOW_MS = 500;
 
-        // ===== NumericMotionGuard =====
-        // 文字列から「数字の並び」を # に畳んだ “形(shape)” を作り、
-        // 同じ shape が短時間に繰り返されるなら「動的値」と見なして一定時間ミュートする。
         private struct DynState { public int Count; public long FirstMs; public long MutedUntil; }
         private static readonly Dictionary<string, DynState> _dyn = new Dictionary<string, DynState>(StringComparer.Ordinal);
-        private const int DYN_WINDOW_MS = 800;    // この時間内に…
-        private const int DYN_THRESHOLD = 3;      // 同じ shape が3回以上出たら
-        private const int DYN_MUTE_MS = 3000;     // 3秒ミュート
-        private static readonly Regex _rxDigits = new Regex(@"\d+", RegexOptions.Compiled);
-        private static readonly Regex _rxMostlyNums = new Regex(@"^[\d\s\.\,\+\-:%/()＝=→<>％]+$", RegexOptions.Compiled);
+        private const int DYN_WINDOW_MS = 800;
+        private const int DYN_THRESHOLD = 3;
+        private const int DYN_MUTE_MS = 3000;
+
+        private static readonly Regex RxDigits = new Regex(@"\d+(?:\.\d+)?", RegexOptions.Compiled);
+        private static readonly Regex RxMostlyNums = new Regex(@"^[\d\.\,\+\-:%/()\s＝=→<>％]+$", RegexOptions.Compiled);
+        private static readonly Regex RxCjk = new Regex(@"[\p{IsCJKUnifiedIdeographs}\p{IsHiragana}\p{IsKatakana}]", RegexOptions.Compiled);
 
         public static void Init(Config cfg)
         {
@@ -45,17 +46,17 @@ namespace RimLex
             void Fill(string csv, HashSet<string> set)
             {
                 if (string.IsNullOrWhiteSpace(csv)) return;
-                var parts = csv.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (var p in parts) set.Add(p.Trim());
+                foreach (var p in csv.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                    set.Add(p.Trim());
             }
 
+            Fill("EditWindow_Log,Page_ModsConfig", _black);
             Fill(cfg.IncludedWindows, _white);
             Fill(cfg.ExcludedWindows, _black);
 
             _logExcludedScreens = cfg.LogExcludedScreens;
             _excludedCount = 0;
 
-            // リセット
             _lastScreen = ""; _suppressed = 0; _lastLogMs = 0;
             _dyn.Clear();
         }
@@ -65,13 +66,10 @@ namespace RimLex
             if (string.IsNullOrEmpty(s)) return true;
             if (s.Length < _minLen) return true;
 
-            // 1) 正規表現の即時除外（空白/URL/数字だけ/記号だけ/…）
             if (_rx.IsMatch(s)) return true;
+            if (RxMostlyNums.IsMatch(s)) return true;
+            if (IsCjkDominant(s)) return true;
 
-            // 2) 「数字まみれ」っぽいものは即ノイズ扱い（%や : 区切りのみ等）
-            if (_rxMostlyNums.IsMatch(s)) return true;
-
-            // 3) 動的値ガード：数字を # に潰した shape を見る
             if (IsDynamicNumeric(s)) return true;
 
             return false;
@@ -84,89 +82,63 @@ namespace RimLex
             {
                 var ws = Find.WindowStack;
                 if (ws != null && ws.Windows != null && ws.Windows.Count > 0)
-                {
-                    var top = ws.Windows[ws.Windows.Count - 1];
-                    screenName = top?.GetType()?.Name ?? "";
-                }
+                    screenName = ws.Windows[ws.Windows.Count - 1]?.GetType()?.Name ?? "";
                 else
-                {
-                    var rt = Find.UIRoot;
-                    screenName = rt?.GetType()?.Name ?? "";
-                }
+                    screenName = Find.UIRoot?.GetType()?.Name ?? "";
 
                 if (string.IsNullOrEmpty(screenName)) return false;
 
-                // ホワイトがあればその他は弾く
                 if (_white.Count > 0 && !_white.Contains(screenName))
-                {
-                    CountAndMaybeLog("whitelist", screenName);
-                    return true;
-                }
+                { CountAndMaybeLog("whitelist", screenName); return true; }
 
-                // ブラックに入っていれば弾く
                 if (_black.Contains(screenName))
-                {
-                    CountAndMaybeLog("blacklist", screenName);
-                    return true;
-                }
+                { CountAndMaybeLog("blacklist", screenName); return true; }
             }
             catch { }
             return false;
         }
 
-        // ===== helpers =====
-
-        private static void CountAndMaybeLog(string listKind, string screen)
+        private static void CountAndMaybeLog(string kind, string screen)
         {
-            _excludedCount++;
-
-            if (!_logExcludedScreens) return;
-
             long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 
-            if (_lastScreen == screen)
+            // デバウンス: 同一画面が短時間連打される場合はカウントも抑制
+            if (_lastScreen == screen && (now - _lastLogMs) < LOG_WINDOW_MS)
             {
-                if (now - _lastLogMs < LOG_WINDOW_MS)
-                {
-                    _suppressed++;
-                    return;
-                }
-                else
-                {
-                    if (_suppressed > 0)
-                        ModInitializer.LogInfo($"Excluded({listKind}): {screen} x{_suppressed + 1}");
-                    else
-                        ModInitializer.LogInfo($"Excluded({listKind}): {screen}");
-                    _suppressed = 0;
-                    _lastLogMs = now;
-                }
+                _suppressed++;
+                return;
+            }
+
+            // 直前の抑制分をまとめて確定
+            if (_suppressed > 0 && !string.IsNullOrEmpty(_lastScreen))
+            {
+                _excludedCount += (_suppressed + 1);
+                if (_logExcludedScreens)
+                    ModInitializer.LogInfo($"Excluded({kind}): {_lastScreen} x{_suppressed + 1}");
+                _suppressed = 0;
             }
             else
             {
-                if (_suppressed > 0 && !string.IsNullOrEmpty(_lastScreen))
-                    ModInitializer.LogInfo($"Excluded({listKind}): {_lastScreen} x{_suppressed + 1}");
-                _lastScreen = screen;
-                _suppressed = 0;
-                _lastLogMs = now;
-                ModInitializer.LogInfo($"Excluded({listKind}): {screen}");
+                _excludedCount += 1;
+                if (_logExcludedScreens)
+                    ModInitializer.LogInfo($"Excluded({kind}): {(_lastScreen == screen ? screen : screen)}");
             }
+
+            _lastScreen = screen;
+            _lastLogMs = now;
         }
 
         private static bool IsDynamicNumeric(string s)
         {
-            // 数字が1つも無いなら対象外
-            if (!_rxDigits.IsMatch(s)) return false;
+            if (!RxDigits.IsMatch(s)) return false;
 
-            // 形(shape)を作る：連続する数字を # に潰す（例）"HP: 123/200" → "HP: #/#"
-            string shape = _rxDigits.Replace(s, "#").Trim();
+            string shape = RxDigits.Replace(s, "#").Trim();
 
             long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             if (_dyn.TryGetValue(shape, out var st))
             {
-                // 既にミュート中ならノイズ
                 if (now < st.MutedUntil) return true;
 
-                // 窓内カウント
                 if (now - st.FirstMs <= DYN_WINDOW_MS)
                 {
                     st.Count++;
@@ -174,16 +146,13 @@ namespace RimLex
                     {
                         st.MutedUntil = now + DYN_MUTE_MS;
                         _dyn[shape] = st;
-                        return true; // しきい値到達でノイズ
+                        return true;
                     }
                     _dyn[shape] = st;
                 }
                 else
                 {
-                    // 窓を開き直す
-                    st.Count = 1;
-                    st.FirstMs = now;
-                    st.MutedUntil = 0;
+                    st.Count = 1; st.FirstMs = now; st.MutedUntil = 0;
                     _dyn[shape] = st;
                 }
             }
@@ -191,9 +160,20 @@ namespace RimLex
             {
                 _dyn[shape] = new DynState { Count = 1, FirstMs = now, MutedUntil = 0 };
             }
-
-            // まだノイズ確定ではない
             return false;
+        }
+
+        private static bool IsCjkDominant(string s)
+        {
+            int cjk = 0, total = 0;
+            foreach (var ch in s)
+            {
+                if (char.IsControl(ch)) continue;
+                total++;
+                if (RxCjk.IsMatch(ch.ToString())) cjk++;
+            }
+            if (total == 0) return false;
+            return (cjk * 100 / total) >= 30;
         }
     }
 }
