@@ -17,13 +17,16 @@ namespace RimLex
         public string LogPath;
         private string _iniPath;
 
-        // ---- New (v0.10 設定面) ----
+        // ---- New (数字・記号だらけの行は既定で除外) ----
         public int MinLength = 2;
-        public string ExcludePatterns = @"^\s*$|^https?://|^[0-9]+$|^[-–—…\.]+$|^[A-F0-9]{8}(-[A-F0-9]{4}){3}-[A-F0-9]{12}$";
+        // 空白/URL/数字のみ/記号のみ/GUID を既定で弾く
+        public string ExcludePatterns =
+            @"^\s*$|^https?://|^[0-9]+$|^[-–—…\.\(\)\[\]\{\}/:+*,%<>→=~\s]+$|^[A-F0-9]{8}(-[A-F0-9]{4}){3}-[A-F0-9]{12}$";
 
         // 画面名除外/許可（Type名カンマ区切り）
         public string IncludedWindows = "";
-        public string ExcludedWindows = "EditWindow_Log,Page_ModsConfig,Dialog_DebugTables";
+        // ★ 追加: 設定系ダイアログも既定で除外（自己参照ループ防止）
+        public string ExcludedWindows = "EditWindow_Log,Page_ModsConfig,Dialog_DebugTables,Dialog_ModSettings,Dialog_Options";
 
         // 追記デバウンス
         public bool PauseAggregate = false;
