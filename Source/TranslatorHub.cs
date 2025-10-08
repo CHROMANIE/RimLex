@@ -1,7 +1,6 @@
-﻿// RimLex TranslatorHub.cs v0.10.0-rc6 @2025-10-09 11:05
-// 変更: 改行のゆるふわ正規化を追加。/n でも \n でも OK（前後の空白も許容）。
-//       -> 辞書読込・照合・キー生成で NormalizeNewlines() を通す。
-//       出力仕様は rc5 と同じ（TXT/TSV は /n 一行表記）。他の挙動は一切変更なし。
+﻿// RimLex TranslatorHub.cs v0.10.0-rc6a @2025-10-09 11:25
+// 修正: RebuildAggregateAndUntranslated の out引数を try の外で初期化（CS0177対策）。
+// 仕様: rc6の「/n ゆるふわ正規化」「TXT/TSVは /n 一行表記」「自己参照=設定画面のみ」そのまま。
 
 using System;
 using System.Collections.Generic;
@@ -54,17 +53,15 @@ namespace RimLex
 
         private static readonly Regex RxNumbers = new Regex(@"\d+(?:\.\d+)?", RegexOptions.Compiled);
 
-        // ========== rc6: 改行正規化 ==========
+        // rc6: 改行のゆるふわ正規化
         private static readonly Regex RxSlashNLoose = new Regex(@"\s*/\s*n\s*", RegexOptions.Compiled);
         private static string NormalizeNewlines(string s)
         {
             if (string.IsNullOrEmpty(s)) return s ?? "";
-            // \n 文字列リテラル→実改行、ゆるい "/ n" → 実改行 に統一
-            string t = s.Replace("\\n", "\n");
-            t = RxSlashNLoose.Replace(t, "\n");
+            string t = s.Replace("\\n", "\n");  // 文字列としての \n → 実改行
+            t = RxSlashNLoose.Replace(t, "\n"); // "/ n" バリエーション → 実改行
             return t;
         }
-        // =====================================
 
         private sealed class ShapeParts
         {
@@ -79,7 +76,6 @@ namespace RimLex
         }
 
         private static string NormalizeForKey(string s)
-            // rc6: 改行ゆるふわ正規化を噛ませてから、CR系をLFに
             => NormalizeNewlines((s ?? "").Replace("\r\n", "\n").Replace("\r", "\n"));
 
         private static string ForTsv(string s)
@@ -178,10 +174,13 @@ namespace RimLex
 
         public static void RebuildAggregateAndUntranslated(out int aggregateLines, out int untranslatedLines, out int modSections)
         {
-            // rc5 と同一（省略無し版）
+            // ★ CS0177対策：先に初期化しておく（例外経路でも常に代入済）
+            aggregateLines = 0;
+            untranslatedLines = 0;
+            modSections = 0;
+
             try
             {
-                aggregateLines = untranslatedLines = modSections = 0;
                 string allDir = Path.Combine(_exportRoot, "_All");
                 Directory.CreateDirectory(allDir);
 
@@ -202,13 +201,14 @@ namespace RimLex
                                 string mod = parts[1];
                                 string source = parts[2];
                                 string scope = parts[3];
-                                string text = parts[4].Replace("/n", "\n");
+                                string text = parts[4].Replace("/n", "\n"); // 内部は \n
                                 rows.Add((mod, source, scope, text));
                             }
                         }
                     }
                 }
 
+                // texts_en_aggregate.txt -> /n 一行
                 string aggTxt = Path.Combine(allDir, "texts_en_aggregate.txt");
                 string header = "# rebuilt_at=" + DateTime.UtcNow.ToString("O") + Environment.NewLine;
                 File.WriteAllText(aggTxt + ".tmp", header, new UTF8Encoding(false));
@@ -216,6 +216,7 @@ namespace RimLex
                     foreach (var r in rows) { sw.WriteLine(r.text.Replace("\n", "/n")); aggregateLines++; }
                 ReplaceAtomically(aggTxt);
 
+                // untranslated.txt -> /n 一行
                 var dictKeys = new HashSet<string>(_dictExact.Keys.Concat(_dictShape.Keys), StringComparer.Ordinal);
                 string untranslated = Path.Combine(allDir, "untranslated.txt");
                 File.WriteAllText(untranslated + ".tmp", header, new UTF8Encoding(false));
@@ -230,6 +231,7 @@ namespace RimLex
                 }
                 ReplaceAtomically(untranslated);
 
+                // grouped_by_mod.txt -> /n 一行
                 string grouped = Path.Combine(allDir, "grouped_by_mod.txt");
                 File.WriteAllText(grouped + ".tmp", header, new UTF8Encoding(false));
                 using (var sw = new StreamWriter(grouped + ".tmp", true, new UTF8Encoding(false)))
@@ -248,12 +250,12 @@ namespace RimLex
             {
                 _logWarn("[Rebuild] failed: " + ex);
                 Interlocked.Increment(ref _sessionIoErrors);
+                // out は既に 0 初期化済みなのでここでいじらない
             }
         }
 
         public static bool TryBuildTsvTemplateFromUntranslated(out string path, out string error)
         {
-            // rc5 と同一（/n 一行テンプレ生成）
             path = ""; error = null;
             try
             {
@@ -308,7 +310,6 @@ namespace RimLex
                         int idx = raw.IndexOf('\t');
                         if (idx <= 0) continue;
 
-                        // rc6: 左辺・右辺どちらも改行ゆるふわ正規化
                         string en = NormalizeForKey(raw.Substring(0, idx).Replace("/n", "\n"));
                         string ja = NormalizeForKey(raw.Substring(idx + 1));
 
@@ -366,14 +367,12 @@ namespace RimLex
 
         private static bool TryTranslateExact(string key, out string ja)
         {
-            // rc6: key も正規化して照合
             key = NormalizeForKey(key);
             lock (_lock) return _dictExact.TryGetValue(key, out ja) && !string.IsNullOrEmpty(ja);
         }
 
         private static bool TryTranslateByShape(string key, out string ja)
         {
-            // rc6: key も正規化して形状化
             key = NormalizeForKey(key);
             ja = null;
             var shp = MakeShape(key);
@@ -409,10 +408,9 @@ namespace RimLex
 
             try
             {
-                // 形状キー化（数字→#）
                 var shp = MakeShape(NormalizeForKey(keyRaw));
                 string keyForExport = shp.Shape;
-                string keyTxt = keyForExport.Replace("\n", "/n"); // TXTは /n 一行
+                string keyTxt = keyForExport.Replace("\n", "/n");
 
                 string modName = (modGuess != null && modGuess != "Unknown") ? modGuess : GuessModFromStack() ?? "Unknown";
 
