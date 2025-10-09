@@ -1,504 +1,118 @@
-セッションキャッシュをクリア	
-ゲーム起動中の二重書き込み防止キャッシュ（メモリ上）を初期化します。ファイル（Export/*）には触れません。	
-ログをクリア	
-RimLex.log を空にして再初期化します。以後のログが見やすくなります。	
-辞書を再読み込み	
-Dict/strings_ja.tsv を再読み込みして、翻訳を即時反映します。	
-動作確認	
-Export/SelfTest に “Hello from RimLex self-test” を書き出します。	
-閉じる	
-ログをクリアしました。	
-RimLex - UI Text Localizer	
-UI Text Localizer (runtime dictionary-based)	
-即時反映を有効化（ApplyDictAtRuntime）	
-ONにすると辞書ヒット時にその場で日本語表示に置き換えます。OFFのときは収集のみ行います。	
-Per-Modに分割して出力（ExportPerMod）	
-ON: Export/<PerModSubdir>/<Mod名>/ に書き分けます。OFF: Export/Current/ に一括出力します。	
-_All に統合出力する（EmitAggregate）	
-ON: 収集中に Export/_All/texts_en_aggregate.txt に軽量追記します。整理ボタンで正式再生成します。	
-ExportMode： Both	
-変更	
-TextOnly: texts_en.txt のみ / Full: strings_en.tsv のみ / Both: 両方に出力します。	
-PerModSubdir： PerMod	
-Per-Mod のフォルダをまとめる下位フォルダ名です。既存の旧レイアウトも自動で読み取ります。	
-ExcludePatterns を表示	
-画面除外リスト(編集はini)	
-集約軽量追記を一時停止（PauseAggregate）	
-ON: _All/texts_en_aggregate.txt への軽量追記を止めます（整理で正規再構築は可能）。I/Oをさらに抑えたい時向け。	
-軽量追記をこの間隔でまとめ書きします。	
-辞書ファイルを監視して自動リロード（WatchDict）	
-ON: Dict/strings_ja.tsv をファイル更新で自動リロードします（小さな遅延あり）。	
-除外画面のログ記録（LogExcludedScreens）	
-ON: 画面ホワイト/ブラックリストで弾いたときに RimLex.log へ Excluded(...) を記録します（内部で間引きあり）。	
-デバッグHUDを表示（将来）	
-ON: 右上に簡易カウンタを描画（実装保留）。	
-設定を保存	
-RimLex.ini に現在の設定を保存します。次回起動時もこの値が使われます。	
-未訳一覧を生成	
-Export/_All/untranslated.txt（辞書未登録のみ）と	
-整理（MOD別/集約）を生成	
-Export/_All/grouped_by_mod.txt（### Modごとの一覧）と	
-未訳からTSV雛形を作成	
-Export/_All/untranslated.txt を Dict/strings_ja_template.tsv に変換します（英語<TAB> のみ）。	
-フォルダを開く：_All	
-Export/_All フォルダを開きます。	
-フォルダを開く：PerMod	
-Export/PerMod フォルダ（各Modの収集先）を開きます。	
-フォルダを開く：Export	
-Export ルートフォルダを開きます。	
-収集をリセット	
-Export フォルダを空にして再作成します。全MODの収集履歴が消えます（辞書には影響しません）。	
-一般	
-画面	
-音量	
-ゲーム	
-インターフェイス	
-操作	
-MODオプション	
-Allow Tool	
-CommonSense	
-Cumpilation - 基本設定	
-Cumpilation - 漏出設定	
-HugsLib	
-Mod Manager	
-RimJobWorld - Basic Setti...	
-RimJobWorld - Casual Se...	
-RimJobWorld - Debug	
-RimJobWorld - Pedophilia...	
-RimJobWorld - Pregnancy...	
-RimJobWorld - Sex Settings	
-RJW Animation Settings	
-RJW Menstruation Cycle	
-RJW Menstruation Fluids	
-RJW Menstruation Resou...	
-Sized Apparel for RJW	
-[OK]	
-Clear all log messages.	
-Set the stack trace to be large on screen.	
-Set the stack trace to be medium-sized on screen.	
-Set the stack trace to be small on screen.	
-Copy all messages to the clipboard.	
-Show info messages	
-Show warning messages	
-Show error messages	
-ログを共有する	
-ファイル	
-セッションキャッシュをクリアしました（perMod 92 / aggregate 92）。	
-セッションキャッシュをクリアしました（perMod 85 / aggregate 85）。	
-直近セッション：置換/収集/除外/IO  →  置換=0 / 収集=0 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=500 / 除外=29954 / I/O=0	
-MinLength：2   (ExcludePatterns 使用中)	
-AggregateDebounceMs： 250 ms	
-Export を初期化しました（キャッシュ: perMod 86 / aggregate 86 クリア）。	
-Export を初期化しました（キャッシュ: perMod 150 / aggregate 150 クリア）。	
-合計（起動〜）：置換=0 / 収集=506 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=507 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=508 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=509 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=510 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=511 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=512 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=513 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=514 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=515 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=516 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=517 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=518 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=519 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=520 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=521 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=522 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=523 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=524 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=525 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=526 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=527 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=528 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=529 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=530 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=531 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=532 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=533 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=534 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=535 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=536 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=537 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=538 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=539 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=540 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=541 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=542 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=543 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=544 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=545 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=546 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=547 / 除外=29954 / I/O=0	
-RimJobWorld - Casual Sex Settings	
-RimJobWorld - Pedophilia Edition	
-RimJobWorld - Basic Settings	
-RimJobWorld - Pregnancy Settings	
-RJW Menstruation Resources	
-直近セッション：置換/収集/除外/IO  →  置換=0 / 収集=5 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=548 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=555 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=556 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=557 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=558 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=559 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=560 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=561 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=562 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=563 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=564 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=565 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=566 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=567 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=568 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=569 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=570 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=571 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=572 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=573 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=574 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=575 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=576 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=577 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=578 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=579 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=580 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=581 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=582 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=583 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=584 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=585 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=586 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=587 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=588 / 除外=29954 / I/O=0	
-Enables "Unusually pregnant" Hediff, which will give female pawn some debuffs during her resource pregnancy.	
-Enable "Unusually pregnant" Hediff	
-Enables "Postpartum exhaustion" Hediff for Humanlike Female pawns after birthing, which will prevent them from moving for some time.	
-Enable Human "Postpartum exhaustion" Hediff	
-Enable Animal "Postpartum exhaustion" Hediff	
-Enables "Postpartum exhaustion" for all pregnancies, not only resource pregnancies. Human and/or Animal exhaustion must be enabled first	
-Enable "Postpartum exhaustion" Hediff for all pregnancies	
-Enables cumflation graphics for womb. Purely cosmetic. Requires Cumpilation to work.	
-Enable Cumflation Graphics	
-Enables milk dripping graphics. Purely cosmetic.	
-Enable Milk Graphics	
-Enables display of multiple breasts. Purely cosmetic.	
-Enable multiple breasts Graphics	
-Enables anal cum dripping graphics. Purely cosmetic.	
-Enable Anal Drip Graphics	
-Enables vaginal cum dripping graphics. Purely cosmetic.	
-Enable Vaginal Drip Graphics	
-Show hearts during lovin'	
-Play anal sex animations for male pawns	
-Play sounds during animations	
-Sounds volume:	
-Play voices during animations	
-Voices volume:	
-Play humanlike voices by default	
-Enable Animation Manager tab	
-Debug mode	
-Float range for Debug Render Tree offset menu: 1	
-Enable pregnancy for human-on-human sex. If the Biotech DLC is not installed, RJW will use its own pregnancy system.	
-Enable humanlike pregnancies	
-Use Biotech DLC pregnancy for pregnancies involving a human female.	
-Biotech DLC pregnancy	
-Use RJW pregnancy for animal-animal pregnancies.	
-Enable animal pregnancies	
-Notifications will be sent for animal getting pregnant, contractions starting and healthy birth.	
-Enable notifications for animal pregnancies	
-Bestiality pregnancy setting	
-Unlimited	
-Humanlike-Animal pregnancies possible between any fertile partners.	
-Use RJW pregnancy for ovipositor egg pregnancies.	
-Enable egg pregnancies	
-ON:Anyone with female ovipositor can implant eggs.	
-Egg implanting filter	
-ON:Anyone with male ovipositor can fertilize eggs.	
-Egg fertilizing filter	
-Allows for human-human-ovipositor eggs to use normal gene inheritance.	
-Egg pregnancies carry genes	
-Allow insects to impregnate pawns anally.	
-Enable anal egg pregnancies	
-Allow insects to impregnate pawns orally.	
-Enable oral egg pregnancies	
-Fertilize eggs only in "sexed" orifice.	
-Egg orifice fertilizing filter	
-Egg size modifier: 100%	
-0 - can be implanted with unlimited eggs.	
-Ovipositor capacity factor: 100%	
-multiplies the normal capacity of female ovipositors	
-ON:Babies have random parent dna.	
-DNA inheritance	
-Humanlike DNA inheritance: 50%	
-Governs humanlike pregnancies. 	
-Animal DNA inheritance: Always mother's species.	
-Governs Animal-Animal pregnancies.	
-Bestiality DNA inheritance (Human/Beast): Use Mother/Father	
-Governs Humanlike-Animal pregnancies.	
-Max inherited traits from mother: 3	
-Max inherited traits from father: 3	
-Allow probing and implanting by mechanoids.	
-Enable mechanoid implants	
-Mechanoid implants will not kill pawns ( * if pregnancy was checked), instead apply 5 damage to each body part contained within the torso. Mechanoids will still be hostile	
-Safer mechanoid implants*	
-When enabled, the impregnation chance between species depends on the difference in the body structure and size.	
-Enable complex interspecies impregnation calculation	
-Base pregnancy chances:	
-  Humanlike/Humanlike (same race): 25%	
-  Humanlike/Humanlike (different race): 5%	
-  Animal/Animal (same race): 25%	
-  Animal/Animal (different race): 5%	
-  Humanlike/Animal: 5%	
-  Animal/Humanlike: 5%	
-Human Pregnancy chances (%): 25%	
-Human pregnancy chances in percent.	
-Animal pregnancy chances (%): 25%	
-Animal pregnancy chances in percent.	
-Interspecies impregnation modifier (%): 20%	
-Interspecies impregnation modifier in percent. At 20% this cuts the normal chance to fifth of same-species, and so on.	
-Adjusted by lifespan for alien races. Same scale is used for animals and humanlikes.	
-Female infertility age (humanlikes): 46 in human years	
-Unlike most animals, human females become infertile at early age. Same ratio is used for all alien races, for balance.	
-Female infertility age (animals): 95% of life expectancy	
-Unlike humans, most female animals remain fertile until death.	
-World is filled with wicked nanomachines that accelerate children growth until they reach reproductive lifestage.	
-Phantasy pregnancy	
-Pregnancy duration modifier.: 100%	
-Bigger -> Longer	
-Egg pregnancy duration modifier.: 100%	
-Bigger -> Longer.	
-Egg size modifier: 84%	
-Egg size modifier: 0%	
-Body parts	
-Races	
-General	
-Debug logs.	
-Debug Log	
-Auto clear cache data to apply Setting.	
-Auto Clear Cache On Close Setting	
-Other Mod Compatibility	
-It may have clipping issue from unsupported parts.	
- Force ignore unsupported apparel	
-Draw breasts even when wearing unsupported apparel.	
- Always draw breasts	
-Draw multi breasts even when wearing unsupported apparel.	
- Always draw multi breasts	
-Draw belly even when wearing unsupported apparel.	
+ # frequency: #	
+ Activate RJW Menstuation patch	
  Always draw belly	
-     RJW Menstuation is Active 	
-Apply RJW Menstuation nipple color	
-     Activate RJW Menstuation patch	
-SizedApparel System Apply (apparel and body parts)	
-Try to Apply SizedApparel to Humanlikes if The textures are valid.	
- Apply Humanlikes	
-Try to Apply SizedApparel to Animals if The textures are valid.	
+ Always draw breasts	
+ Always draw multi breasts	
+ Anal fisting frequency: #	
+ Anal penetration frequency: #	
  Apply Animals	
-Try to Apply SizedApparel to Mech if The textures are valid.	
- Apply Mechanoid	
-Apparel Patch (Breasts Sized Apparel)	
-It Skips breasts size test for male. Do you need man with breasts...? may be not.	
  Apply Apparel Patch for Male	
-If you changed the option, try change apparels or reload save	
-Body Part Render Option (wip)	
-standalone BodyPart Render System from this mod. It's for user who don't use RimNudeWorld	
-Use Gender Specific texture for body and apparel if it's valid. 	
-Use Gender Specific Textures.	
-WARNING: Disabling will cause lag as it will force all textures to load.	
-Enable lazy texture loading for some SA textures	
-Submit button allows you to skip more deadly part and get right to more humiliating one. 	
-Enable "Submit" button on drafted pawns	
-Toggles showing RJW group of buttons in the pawn control GUI.	
-Show RJW designations	
-RJW Parts: Show	
-Only for developers ;)	
-Allows to set designations on all colonists ignoring conditions.	
-Override designation checks	
-Player can manually tell pawns to do sex related activities.	
-Direct control	
-Chance to gain rapist trait after 10 sex acts, >12% of which are rapes.	
-Gain Rapist trait	
-Chance to gain masochist trait after being raped, 5% after feeling broken stage.	
-Gain Masochist trait	
-Chance to gain hypersexual trait after 10 sex acts, while under HumpShroom addiction.	
-Gain Hypersexual trait	
-Chance to gain necrophiliac trait after 10 sex acts, >50% of which with corpses.	
-Gain Necrophiliac trait	
-Gain nerves trait after being raped.	
-Gain Nerves trait	
-Chance to gain zoophiliac trait after 10 sex acts, >50% of which with animals.	
-Gain Zoophiliac trait	
-Enables the "Explain Attraction" float menu on RMB.	
-RMB Explain Attraction	
-Allows RMB-Social-DeepTalk interaction (+12 relations).	
-RMB DeepTalk	
-Disable relations(mother/father/siblings) from bestiality pregnancy.	
-Disable bestiality pregnancy relations	
-Disable relations(mother/father/siblings) from egg pregnancy.	
-Disable egg pregnancy relations	
-When pawns are frustrated, they don't lose focus.	
-Disable meditation focus drain	
-When pawns have boring/bad sex due to traits/quirks, they don't lose recreation need.	
-Disable recreation drain	
-Built-in parts distributor, it tries to guess what parts Vanilla and HAR races get based on their name, maybe still useful if you dont have support patches for races.	
-Legacy parts Adder	
-Pawn designated for comfort or mating can initiate sex.	
-Designated pawn freewill	
-Use casual sex instead of vanilla lovin'	
-Override vanilla lovin'	
-Use breeding instead of vanilla matin'	
-Override vanilla matin'	
-Animals with same animalType (Vanilla: Canines, Dryads) will be considered same species and can mate with each other.	
-Matin' crossbreed	
-Enables RimJobWorld logging and stuff. You don't usually want this enabled.	
-RJW Development mode	
-USEATYOUROWNRISK. 	
-GenderlessAsFuta	
-Sex distance(Cells): 0	
-Max distance in Cells AI willing to go to reach destination/target.	
-Rape distance(Cells): 100	
-Sex distance(PawnPath): 1000	
-Max distance AI pather considers in order to reach sex destination/target. Slow complex calculation affected by obstacles, pawn speed and ground modifiers.	
-Male infertility age : 95 in human years	
-直近セッション：置換/収集/除外/IO  →  置換=0 / 収集=189 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=589 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=780 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=781 / 除外=29954 / I/O=0	
-辞書を再読み込みしました（2 行）。	
-合計（起動〜）：置換=0 / 収集=783 / 除外=29954 / I/O=0	
-Sex type frequency:	
-  Vaginal penetration frequency: 120	
-Frequency of vaginal sex. Note that this frequency is further adjusted by factors such as available orifices, etc.	
-  Anal penetration frequency: 80	
-Frequency of anal penetration (penile). Note that this frequency is further adjusted by factors such as available orifices, rape, etc.	
-  Double-penetration frequency: 60	
-Frequency of double-penetration, simultaneous anal and vaginal. Requires a multi-penis, such as a hemipenis. Note that this frequency is further adjusted by factors such as available orifices, etc.	
-  Fellatio frequency: 80	
-Frequency of fellatio, also known as blowjob. Note that this frequency is further adjusted by factors such as available orifices, etc.	
-  Cunnilingus frequency: 80	
-Frequency of oral stimulation of vagina. Note that this frequency is further adjusted by factors such as available orifices, rape, etc.	
-  Rimming frequency: 40	
-Frequency of oral stimulation of anus. Note that this frequency is further adjusted by factors such as available orifices, etc.	
-  69 frequency: 69	
-Frequency of 69 (mutual oral). Requires both partners to have genitalia. Note that this frequency is further adjusted by factors such as whoring, rape, etc.	
-Pawn will masturbate where it wants.	
-Masturbating everywhere	
-Pawn will masturbate in its bed.	
-Masturbating in bed	
-Pawn can masturbate while having their genitals blocked.	
-Masturbating with genitals blocked	
-Pawn can masturbate while having their hands blocked.	
-Masturbating with hands blocked	
-リセット	
-  Breastjob frequency: 50	
-Frequency of breastjobs. Requires one pawn to have breasts, and the other to have a penis. Note that this frequency is further adjusted by factors such as whoring, rape, etc.	
-  Handjob frequency: 80	
-Frequency of handjobs. Requires working hands. Note that this frequency is further adjusted by factors such as whoring, etc.	
-  Vaginal fingering frequency: 50	
-Frequency of vaginal fingering. Requires one pawn to have a vagina, and the other to have a working hand. Note that this frequency is further adjusted by factors such as whoring, rape, etc.	
-  Anal fisting frequency: 30	
-Frequency of anal fisting (vaginal not yet implemented). Requires one partner to have a working hand. Note that this frequency is further adjusted by factors such as whoring, rape, etc.	
-  Mutual masturbation frequency: 70	
-Frequency of mutual masturbation (two colonists masturbating each other). Note that this frequency is further adjusted by factors such as rape, etc.	
-  Footjob frequency: 30	
-Frequency of footjobs (stimulation of penis by foot). Note that this frequency is further adjusted by factors such as whoring, rape, etc.	
-  Scissoring frequency: 50	
-Frequency of scissoring (type of tribadism where partners interlock their legs and grind their vulvae together). Requires both pawns to have vaginas.	
-Allowed male sex: Straight	
+ Apply Humanlikes	
+ Apply Mechanoid	
+ Breastjob frequency: #	
+ Cunnilingus frequency: #	
+ Double-penetration frequency: #	
+ Fellatio frequency: #	
+ Footjob frequency: #	
+ Force ignore unsupported apparel	
+ Handjob frequency: #	
+ Mutual masturbation frequency: #	
+ RJW Menstuation is Active 	
+ Rimming frequency: #	
+ Scissoring frequency: #	
+ Vaginal fingering frequency: #	
+ Vaginal penetration frequency: #	
+All	
 Allowed female sex: All	
+Allowed male sex: Straight	
+Always enabled	
+Apparel Patch (Breasts Sized Apparel)	
+Apply RJW Menstuation nipple color	
+Auto Clear Cache On Close Setting	
+Auto clear cache data to apply Setting./nDefault: true	
+Body Part Render Option (wip)	
+Body parts	
+Debug Log	
+Debug logs./nDefault: false	
+Disabled	
+Draw belly even when wearing unsupported apparel./nDefault: false	
+Draw breasts even when wearing unsupported apparel./nDefault: false	
+Draw multi breasts even when wearing unsupported apparel./nDefault: false	
+Enable "Postpartum exhaustion" Hediff for all pregnancies	
+Enable "Unusually pregnant" Hediff	
+Enable Anal Drip Graphics	
+Enable Animal "Postpartum exhaustion" Hediff	
+Enable Cumflation Graphics	
+Enable Human "Postpartum exhaustion" Hediff	
+Enable Milk Graphics	
+Enable Vaginal Drip Graphics	
+Enable lazy texture loading for some SA textures	
+Enable multiple breasts Graphics	
+Enables "Postpartum exhaustion" Hediff for Humanlike Female pawns after birthing, which will prevent them from moving for some time.	
+Enables "Postpartum exhaustion" for all pregnancies, not only resource pregnancies. Human and/or Animal exhaustion must be enabled first	
+Enables "Unusually pregnant" Hediff, which will give female pawn some debuffs during her resource pregnancy.	
+Enables anal cum dripping graphics. Purely cosmetic.	
+Enables cumflation graphics for womb. Purely cosmetic. Requires Cumpilation to work.	
+Enables display of multiple breasts. Purely cosmetic.	
+Enables milk dripping graphics. Purely cosmetic.	
+Enables vaginal cum dripping graphics. Purely cosmetic.	
+Frequency of # (mutual oral). Requires both partners to have genitalia. Note that this frequency is further adjusted by factors such as whoring, rape, etc./n/nValid range: # - #/nDefault: #	
+Frequency of anal fisting (vaginal not yet implemented). Requires one partner to have a working hand. Note that this frequency is further adjusted by factors such as whoring, rape, etc./n/nValid range: # - #/nDefault: #	
+Frequency of anal penetration (penile). Note that this frequency is further adjusted by factors such as available orifices, rape, etc./n/nValid range: # - #/nDefault: #	
+Frequency of breastjobs. Requires one pawn to have breasts, and the other to have a penis. Note that this frequency is further adjusted by factors such as whoring, rape, etc./n/nValid range: # - #/nDefault: #	
+Frequency of double-penetration, simultaneous anal and vaginal. Requires a multi-penis, such as a hemipenis. Note that this frequency is further adjusted by factors such as available orifices, etc./n/nValid range: # - #/nDefault:#	
+Frequency of fellatio, also known as blowjob. Note that this frequency is further adjusted by factors such as available orifices, etc./n/nValid range: # - #/nDefault: #	
+Frequency of footjobs (stimulation of penis by foot). Note that this frequency is further adjusted by factors such as whoring, rape, etc./n/nValid range: # - #/nDefault: #	
+Frequency of handjobs. Requires working hands. Note that this frequency is further adjusted by factors such as whoring, etc./n/nValid range: # - #/nDefault: #	
+Frequency of mutual masturbation (two colonists masturbating each other). Note that this frequency is further adjusted by factors such as rape, etc./n/nValid range: # - #/nDefault: #	
+Frequency of oral stimulation of anus. Note that this frequency is further adjusted by factors such as available orifices, etc./n/nValid range: # - #/nDefault: #	
+Frequency of oral stimulation of vagina. Note that this frequency is further adjusted by factors such as available orifices, rape, etc./n/nValid range: # - #/nDefault: #	
+Frequency of scissoring (type of tribadism where partners interlock their legs and grind their vulvae together). Requires both pawns to have vaginas./n/nValid range: # - #/nDefault: #	
+Frequency of vaginal fingering. Requires one pawn to have a vagina, and the other to have a working hand. Note that this frequency is further adjusted by factors such as whoring, rape, etc./n/nValid range: # - #/nDefault: #	
+Frequency of vaginal sex. Note that this frequency is further adjusted by factors such as available orifices, etc./n/nValid range: # - #/nDefault: #	
+Fully clothed	
+Gay	
+General	
+Harmony v#.#	
+Headwear only	
+If you changed the option, try change apparels or reload save	
+It Skips breasts size test for male. Do you need man with breasts...? may be not./nDefault: false	
+It may have clipping issue from unsupported parts./nDefault: false	
+Masturbating everywhere	
+Masturbating in bed	
+Masturbating with genitals blocked	
+Masturbating with hands blocked	
+Nude	
+Only if target is colonist	
+Only if target is humanlike	
+Only show notification	
+Other Mod Compatibility	
+Pawn can masturbate while having their genitals blocked.	
+Pawn can masturbate while having their hands blocked.	
+Pawn will masturbate in its bed.	
+Pawn will masturbate where it wants.	
 Preferred clothing for sex: Nude	
-Rape attempt alert: Humanlikes	
+Psychology	
+Races	
 Rape alert: Humanlikes	
-Show alert when pawn designated for comforting is getting raped.	
-Show for CP	
-Show alert when pawn designated for breeding is getting raped.	
-Show for Breeding	
+Rape attempt alert: Humanlikes	
+RimJobWorld	
+SYRIndividuality	
+Sex type frequency:/n[Higher = more common]	
+Sexuality generation spread for RJW./nTHIS IS FOR SEX ONLY/nHAS NO EFFECT ON RELATIONSHIP	
 Sexuality spread source: 	
-Sexuality generation spread for RJW.	
+Show alert when pawn designated for breeding is getting raped.	
+Show alert when pawn designated for comforting is getting raped.	
+Show for Breeding	
+Show for CP	
+SizedApparel System Apply (apparel and body parts)	
+Straight	
+Try to Apply SizedApparel to Animals if The textures are valid./nThis may heavy performance /nDefault: false	
+Try to Apply SizedApparel to Humanlikes if The textures are valid./nDefault: true	
+Try to Apply SizedApparel to Mech if The textures are valid./nDefault: true	
+Use Gender Specific Textures.	
+Use Gender Specific texture for body and apparel if it's valid. /nDefault: true	
 Vanilla	
+WARNING: Disabling will cause lag as it will force all textures to load./nLazy loading is for textures in the "SizedApparel" path/nIf you have enough ram/vram you should disable this option	
 [Imported from Vanilla Rimworld]	
-Controls whether single pawns can have casual sex with other single pawns	
-Enable hookups (overall)	
-Controls whether single pawns can have casual quick sex with other single pawns	
-Enable quickies.	
-Controls whether pawns can seek casual sex during work hours.	
-Disable hookups during work hours	
-Controls whether colonists are allowed to look for casual sex.	
-Colonists can hookup	
-Controls whether pawns can have casual sex with visitors to the colony.	
-Colonists can hookup with visitors	
-Controls whether visiting pawns include colonists as potential partners for casual sex.	
-Visitors can hookup with colonists	
-Controls whether visiting pawns include other visitors as potential partners for casual sex.	
-Visitors can hookup with other visitors	
-Controls whether prisoners include non-prisoners as potential partners for casual sex.	
-Prisoners can hookup with colonists	
-Controls whether prisoners include other prisoners as potential partners for casual sex.	
-Prisoners can hookup with prisoners	
-Controls whether non-prisoner pawns can look for consensual sex with prisoners.	
-Non-prisoners can hookup with prisoners	
-Controls whether nymphomaniac ('Hypersexual' trait) pawns can cheat if they're sexually frustrated.	
-Nymphomaniacs can cheat	
-Controls whether nymphomaniac ('Hypersexual' trait) pawns will bang people who already have partners.	
-Nymphomaniacs can homewreck	
-Controls whether nymphomaniac ('Hypersexual' trait) pawns will accept sex even if they have partner.	
-Nymphomaniacs can homewreck(Reverse)	
-Hookup % chance per hour: 30%	
-The chance that a horny pawn will look for casual sex.	
-Hookup minimum attraction: 10%	
-Controls how attractive(RJW) both pawns must be other to consider a hookup.	
-Hookup minimum attractiveness: 50%	
-Controls how attractive(Rimworld) pawns to each other to consider a hookup.	
-Hookup minimum opinion : 20	
-Controls minimum pawns opinion for each other to consider a hookup.	
-「男性の不妊年齢：人間の年齢で96歳	
-直近セッション：置換/収集/除外/IO  →  置換=6 / 収集=86 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=0 / 収集=784 / 除外=29954 / I/O=0	
-Biotech	
-Voice Patch	
-Log level	
-The levels are ordered from least to most amount of messages.	
-Info	
-If checked, all logs related to RJWPE will always be written to the console, even if they surpass the build-in limit. WARNING: May cause performance issues.	
-Ignore console limit	
-Export logs	
-Saves information about your load order, settings and all (anonymized) logs from your current session to GoFile.	
-Attraction	
-Modify	
-Global settings	
-Override global settings	
-Reset	
-Import	
-Export	
-Mod詳細に,Mod前提が完了したものと未完了な両方を全て表示する	
-Mod前提を全て表示	
-バージョン確認は手動インストールされたMODに最適で、デフォルトではSteamMODの確認は無効になっています。これはMod作成者がこの機能を明示的にサポートしている場合か、手動でインストールされた新しいMODについてだけ通知されることに注意してください。新しいSteamModのバージョンが出ても通知しません。	
-SteamModのバージョン確認を表示	
-これを有効にすると,Steam-WorkshopのModを選択するたびに,Mod_Managerは同じ作者による他のModの宣伝を表示します.	
-宣伝を表示	
-サブスクライブしていないModの宣伝を表示する	
-使用していないModの宣伝を表示する.	
-有効にすると、Mod宣伝キャッシュは一時(TMP)フォルダーに保存されます。これにより、Mod宣伝画像の取得が遅くなる可能性がありますが、システム側は定期的にキャッシュを消去可能になります。	
-OSシステムの一時(TMP)フォルダをMod宣伝キャッシュに使用	
-宣伝キャッシュサイズ：128.8MB	
-宣伝キャッシュを掃除	
-これを有効にすると,Mod作成者名とバージョンのタグが表示されるMod名から削除されます（例：[KV],[B19]等）	
-mod名からタグを削除する	
-これを有効にすると,Mod_Managerはバージョン名（Version1.0,0.19など）からバージョンの文字列を削除しようとします.	
-Mod名からバージョン番号を削除する	
-CoreとMod-Managerを新しいModリストに追加します.	
-新しいModリストにMod-Managerを追加	
-Modリストがリセットされた際,常に新しいModリストにHugsLibを追加します.	
-新しいModリストにHugsLibを追加	
-Coreに加えて,公式DLCを新しいModリストに追加します.	
-新しいModリストに公式DLCを追加	
-MOD公開時にカウントダウンをスキップ	
-背景色	
-すべての設定をリセットする	
-インストールされたMODのバージョン：1.6.2	
-直近セッション：置換/収集/除外/IO  →  置換=10 / 収集=42 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=6 / 収集=872 / 除外=29954 / I/O=0	
-合計（起動〜）：置換=16 / 収集=916 / 除外=29954 / I/O=0	
-未訳 503 行 / 集約 504 行 / Mod別 1 セクションを出力しました。	
+standalone BodyPart Render System from this mod. It's for user who don't use RimNudeWorld/nIf you use RimNudeWorld, you should turn off this.	

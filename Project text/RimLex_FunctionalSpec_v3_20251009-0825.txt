@@ -1,0 +1,225 @@
+RimLex 機能仕様書（Functional Spec） v3
+作成: 2025-10-09 08:25 (JST)
+対象: RimWorld 1.5 / 1.6, .NET Framework 4.7.2, Harmony 2.x
+実装版: **0.10.0-rc6a**（辞書正規化＋安定化リリース候補）
+ドキュメント版: v3（本書）
+Based on SHA256 (prev v3: 2025-10-07 13:00 JST): **40e98bf63d811d2e5366953f5f939843f34577e87839a070797dc9b095e03ef8**
+
+【プロジェクトの理念と保存目的】
+この文書は単なる説明書ではなく、**開発環境そのものを保存する装置**である。将来、別の開発者／別AIが引き継いでも、**方針・設計思想・運用構造**が変わらず継続できることを目的とする。
+「コードを残す」のではなく、**開発の文脈ごと未来に渡す**。
+
+---
+
+【0. 目的と思想】
+
+* 目的: 画面に**表示された**英語UI文字列を収集し、辞書（TSV）に基づき実行時に日本語へ置換する。
+* 方針:
+
+  1. UI描画直前フックで低レイテンシ置換（ApplyDictAtRuntime）
+  2. 未訳の**自動収集**（ノイズ除去・重複抑止・Per-Mod分類）
+  3. **Per-Mod 出力＋_All 集約**（後述）
+  4. Mod設定からワンボタン運用（辞書再読込／未訳抽出／整理／リセット／ログ／自己テスト）
+  5. 将来拡張は外付け（辞書管理・分割統合・由来インデックス等）
+
+【1. スコープ（対応UI）】
+
+* Label: `Widgets.Label`, `Listing_Standard.Label`（署名差異に耐性）
+* Button: `Widgets.ButtonText`
+* Tooltip: `TooltipHandler.TipRegion(Rect,string / Rect,TipSignal)`
+* Context: `FloatMenuOption`（右クリックメニュー）
+* Gizmo: `Command.LabelCap`
+* Slider: `Listing_Standard.Slider`（**署名例外を飲み込み、安全化。収集はしない**）
+* 将来候補: `Command` の説明（desc / `GetTooltip`）、`Dialog_*` の本文
+
+【2. 非機能要件】
+
+* 高速: 正規化→辞書照合 O(1)（`Dictionary<string,string>`）
+* 安全: 失敗時は素通り（Harmony例外は掴んで継続）
+* 互換: “ゆるい署名探索”でオーバーロード差異に強い
+* 可観測性: 設定UIにセッション／合計カウンタ、`RimLex.log` にINFO/WARN
+
+【3. コンポーネント】
+
+* `UIPatches`: UI層フック（Label/Button/Tooltip/FloatMenu/Gizmo/Slider安全化）
+* `TranslatorHub`: 置換・収集・出力・集約・辞書ホットリロード
+* `NoiseFilter`: 文字列ノイズ／**画面単位の除外（Whitelist/Blacklist）**／動的スパム抑制
+* `Normalizer`: 空白正規化（軽量）
+* `Config`: INIロード／保存、UIとのブリッジ
+* `ModInitializer`: Modクラス本体・設定UI・ログ初期化
+* `UTFBuilder`: 予備（UTF XML生成は将来拡張、現状デフォルト無効）
+
+【4. 設定（RimLex.ini）】
+既定（例）：
+
+```
+ApplyDictAtRuntime=true
+ExportPerMod=true
+EmitAggregate=true
+ExportMode=Both
+DictPath=%ModDir%/Dict/strings_ja.tsv
+LogPath=%ModDir%/RimLex.log
+ExportRoot=%ModDir%/Export
+PerModSubdir=PerMod
+MinLength=2
+ExcludePatterns=^\s*$|^https?://|^[0-9]+$|^[-–—…\.]+$|^[A-F0-9]{8}(-[A-F0-9]{4}){3}-[A-F0-9]{12}$
+IncludedWindows=
+ExcludedWindows=EditWindow_Log,Page_ModsConfig,Dialog_DebugTables
+PauseAggregate=false
+AggregateDebounceMs=250
+WatchDict=true
+ShowDebugHUD=false
+LogExcludedScreens=true
+```
+
+* `IncludedWindows`/`ExcludedWindows`: **画面名ホワイト／ブラックリスト**
+* `WatchDict=true`: **辞書ホットリロード**（FileSystemWatcher）
+* `PauseAggregate`/`AggregateDebounceMs`: 集約追記の一時停止・デバウンス
+
+【5. 出力（ディレクトリ構成）】
+
+* `Export/PerMod/<Mod>/texts_en.txt`（**/n 一行**）
+* `Export/PerMod/<Mod>/strings_en.tsv`（`timestamp_utc mod source scope text`）
+* `Export/_All/texts_en_aggregate.txt`（軽量追記＋整理）
+* `Export/_All/untranslated.txt`（**/n 一行で未訳のみ**）
+* `Export/_All/grouped_by_mod.txt`（Mod別セクション）
+* `Export/SelfTest/`（自己テスト出力）
+* `Dict/strings_ja.tsv`（統合辞書：英語<TAB>日本語）
+* `RimLex.log`, `Player.log`（ログ）
+
+【6. 正規化仕様（rc6a）】
+
+* 改行: 入出力は `/n`（スラッシュエヌ）で**一行表記**。内部比較時は
+  **`/n` / `\n` / `/ n` などを全て実改行 `\n` に正規化**（ゆるふわ正規化）。
+* 数値: **形状化**（数字→`#`）。辞書に `#` を含むキーは“数値復元”で描画時に元値を挿入。
+* 空白: 連続空白は1つに圧縮（軽量）
+* 文字種: 日本語支配（CJK率 ≥ 30%）は**ノイズ**と判定し収集しない（英語UI専用化）
+
+【7. ノイズ除外（rc6a強化点）】
+
+* 正規表現: URL/空行/純数字/記号列/GUIDなど
+* **画面単位の除外**: `EditWindow_Log`, `Page_ModsConfig`, `Dialog_DebugTables` 既定BL
+
+  * `IncludedWindows` を指定すると **ホワイトリスト方式**に反転
+* **自己参照除外**: RimLex設定画面（`ModInitializer.DoSettingsWindowContents`）は常時除外
+* **動的スパム抑制**: 短時間に同型 (`#`化後) の文字列が閾値回数出たら**一定時間ミュート**
+
+  * 例: スライダーの“動く数字”で暴走しない
+
+【8. 置換ロジック】
+
+* Exact: `英語→日本語` 完全一致
+* Shape: `#`形状一致 → テンプレの`#`へ左から数値を埋め戻す
+* `/n`と`\n`の**両対応**：辞書・照合の双方で正規化して比較
+* ミス時は原文のまま表示（フェイルセーフ）
+
+【9. フック点（Harmony）】
+
+* `Widgets.Label` / `Listing_Standard.Label`（Prefix→翻訳）
+* `Widgets.ButtonText`（Prefix→翻訳）
+* `TooltipHandler.TipRegion (string/TipSignal)`（Prefix→翻訳&収集）
+* `FloatMenuOption`（Prefix→翻訳&収集）
+* `Command.LabelCap`（Postfix→翻訳）
+* `Listing_Standard.Slider`（try保護。**収集しない**）
+* 署名探索は反射で“ゆるく”当てる。見つからなければ WARN のみ。
+
+【10. 収集・集約フロー】
+
+1. 置換に失敗（未訳）した英語を**1回だけ**取りこぼしなく `PerMod` / `_All` へ追記
+
+   * **同一セッションの重複抑止**、短時間再出現はデバウンス
+2. `_All/texts_en_aggregate.txt` は**軽量追記**、整理時に再構築
+3. `_All/untranslated.txt` は辞書未ヒットのみ（**/n 一行**）
+4. `grouped_by_mod.txt` はMod別に整形
+5. すべての書き換えは**アトミック**（`.tmp`→`Move`）
+
+【11. Mod設定UI（操作一覧）】
+
+* 辞書を再読み込み（FileSystemWatcherにより保存でも自動反映可）
+* **未訳一覧を生成**（`_All/untranslated.txt` など再構築）
+* **整理（MOD別/集約）を生成**（集約＋未訳＋Mod別一覧をフル再構築）
+* **未訳からTSV雛形を作成**（`Dict/strings_ja_template.tsv`）
+* **フォルダを開く**（`Dict/` / `Export/PerMod/` / `Export/_All/`）
+* **収集をリセット**（`Export/` を再作成）
+* **ログを開く**（`RimLex.log`）
+* **動作確認（SelfTest）**（`Export/SelfTest/ok.txt` を出力してI/O確認）
+* 画面上部に**セッション／合計**の件数（置換/収集/除外/I/O）を表示
+
+【12. パフォーマンスと互換性】
+
+* I/O最小化: 軽量追記＋デバウンス（`AggregateDebounceMs`）、必要時のみ再構築
+* 例外隔離: Harmony失敗は警告して処理継続
+* 互換性: 1.5/1.6 両系で動作（.NET 4.7.2）
+
+【13. エラーハンドリング】
+
+* 置換・収集失敗は素通り（UI破壊しない）
+* I/O失敗は `RimLex.log` にWARN＋セッションI/Oカウンタ加算
+* 整理系は**アトミック書き換え**で中断時の破損を防止
+
+【14. ログ仕様（RimLex.log）】
+
+* 起動時: `Patched:` ライン（6系統）
+* 操作時: 生成件数のINFO（未訳/集約/Mod別）
+* ランタイム: 収集/置換の要約、除外スクリーンの統計（`LogExcludedScreens=true`で詳細）
+* セッションサマリ（今版）: 設定UIに**置換/収集/除外/I/O**の転記
+* 将来: `[SESSION] replaced=… collected=… excluded=… ioErrors=…` の1行要約
+
+【15. バージョニング】
+
+* 現在は 0.x 系（安定前）。本実装は **0.10.0-rc6a**。
+* 互換を壊さない追加: MINOR（0.10.x）
+* バグ修正のみ: PATCH（0.10.x → 0.10.x+1）
+* 1.0.0 は仕様凍結後に昇格
+* ファイルは常に `_vYYYYMMDD-HHMM` をサフィックス
+
+【16. 将来拡張（Roadmap｜辞書管理フェーズ）】
+
+* **恒久由来インデックス**：`Dict/Index/en_provenance.tsv`
+
+  * 形状化キー（/n正規化＋数字→#）→ `{mod集合, first_seen, last_seen, count}` を累積
+  * 収集リセット（Export削除）後も**由来が残る**
+* **MOD別辞書の分割出力**：`Dict/PerMod/<Mod>/strings_ja.tsv` 生成
+
+  * 統合辞書から由来Index/PerMod収集を参照して切り出し
+* **MOD別辞書から統合再構築**（衝突レポート `Dict/_conflicts.tsv` 出力）
+* **辞書の並べ替え（ソート）**：英語アルファベット順／由来Mod→英語
+* **陳腐化（orphan）レポート**
+
+  * Index と PerMod収集に一度も出てこないキー、または `last_seen` が閾値超えの古いキー
+* **ドロップダウン候補の“事前収集”**（別ブランチで実験、安定後に統合）
+* **Gizmo説明文**の網羅（desc/tooltip系の追加フック）
+
+【17. 変更点（v3: 2025-10-07 → v3: 2025-10-09）】
+
+* **/n 正規化の強化（rc6）**：`/n`・`\n`・`/ n` を内部で**実改行**に統一して比較
+* **数字の形状化＋復元**を全面安定化（ツールチップ内の固定数値も自然に復元）
+* **自己参照の恒久除外**（RimLex設定画面）で“カウンタ自己増殖”を根絶
+* **画面単位の除外リスト**（Included/ExcludedWindows、既定BLを拡充）
+* **動的スパム抑制**（スライダー等の連続変化はミュート）
+* **集約のアトミック書換**（`.tmp`→`Move`）徹底、`rebuilt_at` ヘッダ付与
+* **辞書ホットリロード**（FileSystemWatcher / `WatchDict=true`）
+* **未訳TSV雛形生成**をUIから実行可能に
+* **UIカウンタ表示**を安定化（直近/合計・除外/I/O含む）
+
+---
+
+【DoD（完成定義｜本フェーズ）】
+
+* ユーザー操作なしで**UI表示に連動**して英語を収集（/n一行）
+* 辞書により**即時置換**、/n/\nの差異を吸収
+* スライダー等の動的UIで**ループや暴走がない**
+* Per-Mod 出力と _All 集約／未訳が**一貫した仕様**で再構築可能
+* 設定UIから雛形生成・整理が**成功**し、件数トーストが出る
+* `Patched:` 6系統、ログとI/Oは**アトミック**で安定
+
+【次フェーズへの引き継ぎ方針】
+本フェーズで「**収集・正規化・安定稼働**」を達成。
+次フェーズでは以下を実装する：
+
+* 恒久由来インデックス `Dict/Index/en_provenance.tsv`
+* MOD別辞書の分割／統合ボタン（UI）
+* ソート・重複検出・陳腐化レポート
+* 実験ブランチ：ドロップダウン事前収集・Gizmo説明網羅
+
+-- END OF SPEC --

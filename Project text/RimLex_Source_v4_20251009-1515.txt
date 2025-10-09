@@ -1,0 +1,279 @@
+RimLex ソース一式＋運用メモ **v4**
+作成: **2025-10-09 15:15 (JST)** / 実装版: **0.10.0-rc6a** / ドキュメント版: **v4**
+**Based on SHA256 (prev v3: RimLex_Source_v3_20251009-1310.txt)**: `1441267bfc942c4497b67e1813924c5fc08e92fb9ed029ab2090b79046418c70`
+
+> 【プロジェクトの理念と保存目的】
+> 本書は**開発環境そのものを保存する装置**。設計思想・運用構造・依存・ビルド条件・改修履歴・ハッシュ基準を**丸ごと**残し、誰が引き継いでも同一品質で継続できることを目的とする。
+> つまり「コードを残す」のではなく、**開発の文脈ごと未来に渡す**。
+
+---
+
+## ============================================================
+
+## ■ フォルダ構成（推奨）
+
+## ============================================================
+
+```
+<RimLex>/
+├─ About/
+│   └─ About.xml
+├─ Assemblies/
+│   └─ RimLex.dll                … ビルド成果物（出力先固定）
+├─ Dict/                         … 辞書と付随レポート（実行時生成・編集）
+│   ├─ strings_ja.tsv            … 統合辞書（英語<TAB>日本語, /n表記, #形状キー対応）
+│   ├─ strings_ja_template.tsv   … 未訳からの雛形
+│   ├─ _conflicts.tsv            … 分割/統合時の衝突レポート（同英語→異訳）
+│   ├─ _stale.tsv                … 陳腐化レポート（Index未参照 or last_seen古い）
+│   └─ Index/
+│       └─ en_provenance.tsv     … 恒久由来Index（v4で新設）
+├─ Export/
+│   ├─ _All/
+│   │   ├─ texts_en_aggregate.txt  … 軽量追記＋整理で再構築（先頭に rebuilt_at）
+│   │   ├─ untranslated.txt        … 未訳のみ（/n一行）
+│   │   └─ grouped_by_mod.txt      … MOD単位の集計ビュー
+│   ├─ PerMod/
+│   │   └─ <ModName>/
+│   │       ├─ texts_en.txt        … /n一行（収集）
+│   │       └─ strings_en.tsv      … timestamp_utc,mod,source,scope,text
+│   └─ SelfTest/                   … 自己テスト用ダミー出力
+├─ Source/
+│   ├─ RimLex.csproj
+│   ├─ RimWorldDir.props          … GameManaged/HarmonyDir の外部化
+│   ├─ About.xml                  … Workshop 表示用
+│   ├─ Config.cs                  … INI/設定UIブリッジ
+│   ├─ MenuUI.cs                  … Mod 設定UI（ボタン・トースト等）
+│   ├─ ModInitializer.cs          … エントリ（Mod クラス・初期化）
+│   ├─ NoiseFilter.cs             … 文字列ノイズ/画面BL/WH/動的スパム抑止
+│   ├─ Normalizer.cs              … /n 正規化・空白圧縮・数字形状化
+│   ├─ TranslatorHub.cs           … 置換・収集・I/O・集約・ホットリロード
+│   ├─ UIPatches.cs               … Harmony パッチ群（Label/Tooltip/FloatMenu/Gizmo…）
+│   └─ UTFBuilder.cs              … 予備（将来の外部連携）
+└─ RimLex.ini                     … 実行時設定（外部ファイル）
+```
+
+---
+
+## ============================================================
+
+## ■ 依存関係とビルド条件（.NET 4.7.2 / VS）
+
+## ============================================================
+
+* **ターゲット**: .NET Framework **v4.7.2**（RimWorld 1.5/1.6 想定）
+* **出力**: `Assemblies\RimLex.dll`（csproj 固定）
+* **構成**: `Release | AnyCPU`（既定）
+* **定数**:
+
+  * Debug: `TRACE;DEBUG`
+  * Release: `TRACE`
+* **必須参照（RimWorld本体 Managed から）**
+  `Assembly-CSharp.dll` / `UnityEngine*.dll` / `Verse.dll` / ほか必要に応じ
+* **Harmony**: `0Harmony.dll`（GameManagedにある場合はそれを優先。無い場合は `HarmonyDir` を利用）
+* **RimWorldDir.props** で参照パスを外部化
+
+  ```xml
+  <Project>
+    <PropertyGroup>
+      <!-- Source/ から ゲーム直下へ戻って Managed へ -->
+      <GameManaged>$(MSBuildThisFileDirectory)..\..\RimWorldWin64_Data\Managed\</GameManaged>
+      <!-- Harmony の代替ルートを指定したい場合のみ -->
+      <!-- <HarmonyDir>$(MSBuildThisFileDirectory)..\..\Mods\Harmony\Assemblies\</HarmonyDir> -->
+    </PropertyGroup>
+  </Project>
+  ```
+* **csproj の保護ターゲット**
+
+  * `ShowConfig`: 使われる実パス（GM/HarmonyDll）をビルド前にログ表示
+  * `EnsureGameManaged`: `$(GM)Assembly-CSharp.dll` が無ければ **エラー**
+  * Harmony が見つからない場合は **Warning**（以後の参照解決に依存）
+
+> 参照解決は **RimWorldDir.props** を最優先。パス固定の HintPath を使う場合でも、Props の上書きが勝つ設計。
+
+---
+
+## ============================================================
+
+## ■ ソースファイルの責務
+
+## ============================================================
+
+* **ModInitializer.cs**
+  `Mod` クラス／初期化、設定ロード、ログ初期化、パッチ適用、辞書ウォッチ開始。
+* **MenuUI.cs**
+  Mod 設定画面。主要ボタン：
+  「辞書を再読込」「未訳一覧を生成」「整理」「雛形を作成」「フォルダを開く（3種）」「ログを開く」「収集をリセット」「SelfTest」
+  画面上部に **置換/収集/除外/I/O**（セッション／合計）カウンタ。
+* **Config.cs**
+  INI 読み書き・既定値・FileSystemWatcher（`WatchDict`）・デバウンス・パス解決。
+* **Normalizer.cs**
+  `/n` と `\n` を同一視、空白圧縮、**数字→# 形状化**、描画時の**数値復元**。
+* **NoiseFilter.cs**
+  URL/空行/記号列/GUID などの正規表現ノイズ除外、**画面BL/WH**、自己参照除外、**動的スパム抑止**（#形状キー単位）。
+* **TranslatorHub.cs**
+  TSV 辞書ロード／ホットリロード、**O(1)** 置換、**未訳収集→PerMod/_All 追記**、集約の再構築（アトミック書換）、雛形生成。
+  v4 ではここに **恒久由来Index（en_provenance.tsv）更新**と**PerMod辞書分割/統合**を統合する。
+* **UIPatches.cs**
+  Harmony フック一式：`Widgets.Label` / `Listing_Standard.Label` / `Widgets.ButtonText` / `TooltipHandler.TipRegion(string/TipSignal)` / `FloatMenuOption` / `Command.LabelCap` / `Listing_Standard.Slider`（try保護・収集しない）
+  署名探索は反射で“ゆるく”一致。失敗は警告のみでフェイルオープン。
+* **UTFBuilder.cs**
+  将来の外部連携用に温存（現状デフォルト無効）。
+
+---
+
+## ============================================================
+
+## ■ 実行時ファイルと I/O 仕様
+
+## ============================================================
+
+* **/n 正規化**：外部ファイルは `/n` 一行表記。内部比較では `/n`/`\n` を同一視。
+* **数字形状化**：辞書側の `#` キーに対し、描画時に**左から順に元値を復元**。
+* **I/O はアトミック**：`.tmp` に出力→`Move` で置換。
+* **集約のデバウンス**：`AggregateDebounceMs`（既定 250ms）。
+* **英語UI専用**：CJK 比率が高い行は収集しない。
+* **除外**：RimLex 設定画面／`EditWindow_Log`／`Page_ModsConfig`／`Dialog_DebugTables`（既定BL。WH反転可）。
+
+---
+
+## ============================================================
+
+## ■ 設定（RimLex.ini 抜粋）
+
+## ============================================================
+
+```
+ApplyDictAtRuntime=true
+ExportPerMod=true
+EmitAggregate=true
+ExportMode=Both
+DictPath=%ModDir%/Dict/strings_ja.tsv
+LogPath=%ModDir%/RimLex.log
+ExportRoot=%ModDir%/Export
+PerModSubdir=PerMod
+MinLength=2
+ExcludePatterns=^\s*$|^https?://|^[0-9]+$|^[-–—…\.]+$|^[A-F0-9]{8}(-[A-F0-9]{4}){3}-[A-F0-9]{12}$
+IncludedWindows=
+ExcludedWindows=EditWindow_Log,Page_ModsConfig,Dialog_DebugTables
+PauseAggregate=false
+AggregateDebounceMs=250
+WatchDict=true
+ShowDebugHUD=false
+LogExcludedScreens=true
+```
+
+---
+
+## ============================================================
+
+## ■ 設定UI（操作と期待する結果）
+
+## ============================================================
+
+* **辞書を再読み込み**：`strings_ja.tsv` を再ロード（差し替え即反映：`WatchDict=true`でも反映）
+* **未訳一覧を生成**：`_All/untranslated.txt` 再構築（件数トースト）
+* **整理**：`texts_en_aggregate.txt` 再構築＋`grouped_by_mod.txt` 更新（件数トースト）
+* **雛形を作成**：`Dict/strings_ja_template.tsv` を未訳から生成
+* **フォルダを開く（3種）**：`Dict/`, `Export/PerMod/`, `Export/_All/`
+* **収集をリセット**：`Export/` 再生成（**辞書は消さない**／**Index は恒久**）
+* **ログを開く**：`RimLex.log`
+* **SelfTest**：`Export/SelfTest/ok.txt` を出力して I/O を確認
+* 画面上部：**置換/収集/除外/I/O**（セッション／合計）カウンタ
+
+---
+
+## ============================================================
+
+## ■ ログ・可観測性
+
+## ============================================================
+
+* 起動時：`Patched:`（6系統）
+* 操作時：生成件数の INFO（未訳・集約・Mod別）
+* ランタイム：除外統計（`LogExcludedScreens=true` 時に詳細）
+* セッション要約：`[SESSION] replaced=… collected=… excluded=… io=…`（今版：設定UIに転記）
+
+---
+
+## ============================================================
+
+## ■ v4（辞書管理フェーズ）に伴う新要素
+
+## ============================================================
+
+1. **恒久由来Index**：`Dict/Index/en_provenance.tsv`
+
+   * 主キー：`key_shape`（/n正規化＋数字#化）
+   * 値：`mods(set)`, `first_seen(UTC)`, `last_seen(UTC)`, `count`
+   * **Export の「収集リセット」では消さない**（恒久）
+   * 設定UIに「**PerMod から再構築**」ボタン
+
+2. **MOD別辞書**
+
+   * 分割出力：`Dict/PerMod/<Mod>/strings_ja.tsv`（統合辞書＋由来Indexで切り出し）
+   * 逆変換：PerMod 群→ `Dict/strings_ja.tsv` を再構築（衝突は `Dict/_conflicts.tsv`＋WARN）
+
+3. **品質と整頓**
+
+   * 重複キー検出（同英語→異訳）をログ＆`_conflicts.tsv`
+   * 辞書ソート（Alpha / ByModAlpha）
+   * 陳腐化レポート（Index・PerModに一度も出ていない／`last_seen` が古い）
+
+> 実装は `TranslatorHub` に **ProvenanceIndex（新規クラス）** を注入。I/O はアトミック・デバウンスを踏襲。
+
+---
+
+## ============================================================
+
+## ■ 採用版ファイル SHA-256（v4 基準）
+
+## ============================================================
+
+* Config.cs …… `c4a3ffcd1c3bd0558210173b3c6f5d158f60c228de09b0099bba859c561fc460`
+* MenuUI.cs …… `2b96fcfed908487e74291fbf0199ea726bb67dde2414063ee0e4a14d6e669c80`
+* ModInitializer.cs …… `8a083faea3975aa28a583455d4e3ba4646456f8a1d0ee483402403971d5384eb`
+* NoiseFilter.cs …… `4cdccac73e1c9262e11410c8f96f55f09db2ea5f0acae72997fe96e46a74ad0d`
+* Normalizer.cs …… `ff89c88f6b1d5682b13a59ff4551c81304ed09a492162f09b7e24609c5906cba`
+* TranslatorHub.cs …… `c96286c251344adf606b0521db8e9244bcf667881422a3827189687ab8f4f510`
+* UIPatches.cs …… `7b904e430ae3ae0503c168c77d8b4393fedd825c097f346a95067841e9b34b8d`
+* UTFBuilder.cs …… `5445664b1f40c7f7a9b304cdb17b36439b1da9ac5e090a34562421d0443c75472`
+* RimLex.csproj …… `21ebbacb7d86fd0b33157003e1622147c1bf07eced9d753355e9fc5693aa3a4f`
+* RimWorldDir.props …… `c06273fbca18e9b51510222377f7a03d73d9aa3c9a3d955ff55906eaf22f2bff`
+* About.xml …… `7b350e1e4264ac7f90a393a311c2d8f5bf8183a71b3161e374f0f4a20caf95e1`
+
+> **ハッシュベースライン運用（恒久）**
+>
+> 1. 採用時に上記 SHA を**ベースライン固定**
+> 2. 以降の改修はこのベースラインに対する差分
+> 3. 新チャット開始時は最新版一式を再アップしてベースラインを再確立
+> 4. 本書は**全文差し替え可能**な形で常に再発行
+
+---
+
+## ============================================================
+
+## ■ 既知仕様・注意点
+
+## ============================================================
+
+* スライダーの**収集はしない**（動的数値で暴走回避）
+* 置換失敗時は原文を表示し継続（フェイルセーフ）
+* 画面 BL/WH と自己参照除外は**恒久**（RimLex 設定画面は常時除外）
+* I/O は中断に強い**アトミック**。エラーは `RimLex.log` に WARN
+* 署名探索の失敗は UI を止めない（WARN のみ）
+
+---
+
+## ============================================================
+
+## ■ v3 → v4 差分要約
+
+## ============================================================
+
+* 文書版を **v4** に昇格し、**辞書管理フェーズ**（由来Index／PerMod分割/統合／衝突・ソート・陳腐化）を仕様に編入
+* 実装は rc6a を基線とし、`ProvenanceIndex` の追加と `TranslatorHub` 統合を最初の改修ターンで着手予定
+* `.NET 4.7.2`／`Assemblies\` 出力／Props外部化の方針は**維持**
+
+---
+
+**-- END OF SOURCE ARCHIVE (v4) --**

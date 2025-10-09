@@ -1,0 +1,265 @@
+key_shape	mods	first_seen_utc	last_seen_utc	count
+ # frequency: #	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.3774457Z	5
+ Activate RJW Menstuation patch	SizedApparelforRJW	2025-10-09T13:08:20.9372929Z	2025-10-09T18:18:35.5586824Z	5
+ Always draw belly	SizedApparelforRJW	2025-10-09T13:08:20.9347720Z	2025-10-09T18:18:35.5561792Z	5
+ Always draw breasts	SizedApparelforRJW	2025-10-09T13:08:20.9327285Z	2025-10-09T18:18:35.5536754Z	5
+ Always draw multi breasts	SizedApparelforRJW	2025-10-09T13:08:20.9337380Z	2025-10-09T18:18:35.5551781Z	5
+ Anal fisting frequency: #	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.3904915Z	5
+ Anal penetration frequency: #	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.3684951Z	6
+ Apply Animals	SizedApparelforRJW	2025-10-09T13:08:20.9413319Z	2025-10-09T18:18:35.5626961Z	5
+ Apply Apparel Patch for Male	SizedApparelforRJW	2025-10-09T13:08:20.9443559Z	2025-10-09T18:18:35.5667976Z	5
+ Apply Humanlikes	SizedApparelforRJW	2025-10-09T13:08:20.9393096Z	2025-10-09T18:18:35.5616956Z	5
+ Apply Mechanoid	SizedApparelforRJW	2025-10-09T13:08:20.9423397Z	2025-10-09T18:18:35.5647111Z	5
+ Breastjob frequency: #	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.3852158Z	5
+ Cunnilingus frequency: #	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.3735840Z	5
+ Double-penetration frequency: #	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.3705497Z	5
+ Fellatio frequency: #	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.3725550Z	5
+ Footjob frequency: #	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.3937254Z	5
+ Force ignore unsupported apparel	SizedApparelforRJW	2025-10-09T13:08:20.9306583Z	2025-10-09T18:18:35.5516750Z	5
+ Handjob frequency: #	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.3864172Z	5
+ Mutual masturbation frequency: #	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.3915253Z	5
+ RJW Menstuation is Active 	SizedApparelforRJW	2025-10-09T13:08:20.9362769Z	2025-10-09T18:18:35.5571798Z	5
+ Rimming frequency: #	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.3761235Z	5
+ Scissoring frequency: #	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.3948533Z	5
+ Vaginal fingering frequency: #	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.3884246Z	5
+ Vaginal penetration frequency: #	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.3664924Z	5
+Accelerate menstruation cycle/nThis can cause early menopause and infertility./nSetting this lower than x# is recommended./nRimworld's timescale: x#(default)	RJW_Menstruation	2025-10-09T18:03:13.1339524Z	2025-10-09T18:03:13.1339524Z	1
+Adjusts approximately how much of a pregnant pawn's nipples will remain changed after the pregnancy ends.	RJW_Menstruation	2025-10-09T18:03:13.1178841Z	2025-10-09T18:03:13.1178841Z	1
+All	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:19:10.0386026Z	4
+Allied Faction: False	RJW_Menstruation	2025-10-09T18:03:13.1116815Z	2025-10-09T18:03:13.1116815Z	1
+Allow humanlikes in visible estrus to increase the sex drive of nearby humanlike males.	RJW_Menstruation	2025-10-09T18:03:13.1210996Z	2025-10-09T18:03:13.1210996Z	1
+Allow love enhancers to override pawns preferences.	RJW	2025-10-09T17:22:10.8268546Z	2025-10-09T17:22:10.8268546Z	1
+Allow pregnancy from multiple eggs at the same time.	RJW_Menstruation	2025-10-09T18:03:13.1473864Z	2025-10-09T18:03:13.1473864Z	1
+Allow shrink icon	RJW_Menstruation	2025-10-09T18:03:13.1029130Z	2025-10-09T18:03:13.1029130Z	1
+Allowed female sex: All	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.3968969Z	5
+Allowed male sex: Straight	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.3968969Z	5
+Allows RMB-Social-DeepTalk interaction (+# relations).	RJW	2025-10-09T12:39:07.4690774Z	2025-10-09T12:39:07.4690774Z	1
+Allows to set designations on all colonists ignoring conditions.	RJW	2025-10-09T12:39:07.4480967Z	2025-10-09T12:39:07.4480967Z	1
+Always enabled	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T16:50:31.9584576Z	3
+Animals with same animalType (Vanilla: Canines, Dryads) will be considered same species and can mate with each other.	RJW	2025-10-09T12:39:07.4821300Z	2025-10-09T12:39:07.4821300Z	1
+Apparel Patch (Breasts Sized Apparel)	SizedApparelforRJW	2025-10-09T13:08:20.9433469Z	2025-10-09T18:18:35.5647111Z	5
+Apply RJW Menstuation nipple color	SizedApparelforRJW	2025-10-09T13:08:20.9362769Z	2025-10-09T18:18:35.5586824Z	5
+Auto Clear Cache On Close Setting	SizedApparelforRJW	2025-10-09T13:08:20.9275982Z	2025-10-09T18:18:35.5496730Z	5
+Auto clear cache data to apply Setting./nDefault: true	SizedApparelforRJW	2025-10-09T13:08:20.9275982Z	2025-10-09T18:18:35.5486593Z	5
+Base implantation chance of fertilized egg/nThis value affects the chance of impregnation.	RJW_Menstruation	2025-10-09T18:03:13.1231236Z	2025-10-09T18:03:13.1231236Z	1
+Bleeding amount	RJW_Menstruation	2025-10-09T18:03:13.1390048Z	2025-10-09T18:03:13.1390048Z	1
+Body Part Render Option (wip)	SizedApparelforRJW	2025-10-09T13:08:20.9458607Z	2025-10-09T18:18:35.5678033Z	5
+Body parts	SizedApparelforRJW	2025-10-09T13:08:20.9209943Z	2025-10-09T18:18:35.5431411Z	5
+Breast growth during pregnancy #%	RJW_Menstruation	2025-10-09T18:03:13.1136931Z	2025-10-09T18:03:13.1136931Z	1
+Built-in parts distributor, it tries to guess what parts Vanilla and HAR races get based on their name, maybe still useful if you dont have support patches for races.	RJW	2025-10-09T12:39:07.4765928Z	2025-10-09T12:39:07.4765928Z	1
+Chance to gain hypersexual trait after # sex acts, while under HumpShroom addiction.	RJW	2025-10-09T12:39:07.4624831Z	2025-10-09T12:39:07.4624831Z	1
+Chance to gain masochist trait after being raped, #% after feeling broken stage.	RJW	2025-10-09T12:39:07.4604721Z	2025-10-09T12:39:07.4604721Z	1
+Chance to gain necrophiliac trait after # sex acts, >#% of which with corpses.	RJW	2025-10-09T12:39:07.4634885Z	2025-10-09T12:39:07.4634885Z	1
+Chance to gain rapist trait after # sex acts, >#% of which are rapes.	RJW	2025-10-09T12:39:07.4594669Z	2025-10-09T12:39:07.4594669Z	1
+Chance to gain zoophiliac trait after # sex acts, >#% of which with animals.	RJW	2025-10-09T12:39:07.4665301Z	2025-10-09T12:39:07.4665301Z	1
+Change how much a pregnant pawn's breasts will grow when pregnant. Some pawns will grow more than others.	RJW_Menstruation	2025-10-09T18:03:13.1146959Z	2025-10-09T18:03:13.1146959Z	1
+Change how much a pregnant pawn's nipples will change during pregnancy.	RJW_Menstruation	2025-10-09T18:03:13.1157697Z	2025-10-09T18:03:13.1157697Z	1
+Colonist update interval	RJW_Menstruation	2025-10-09T18:03:13.1359623Z	2025-10-09T18:03:13.1359623Z	1
+Colonist: True	RJW_Menstruation	2025-10-09T18:03:13.1106776Z	2025-10-09T18:03:13.1106776Z	1
+Cum decay ratio per hour #%	RJW_Menstruation	2025-10-09T18:03:13.1271707Z	2025-10-09T18:03:13.1271707Z	1
+Cum fertility decay ratio per hour #%	RJW_Menstruation	2025-10-09T18:03:13.1318506Z	2025-10-09T18:03:13.1318506Z	1
+Cum will lose fertility by this amount every hour/nThis value affects fertilization chance indirectly.	RJW_Menstruation	2025-10-09T18:03:13.1306737Z	2025-10-09T18:03:13.1306737Z	1
+Customize Hybrids	RJW_Menstruation	2025-10-09T18:03:13.1459519Z	2025-10-09T18:03:13.1459519Z	1
+Cycle acceleration x#	RJW_Menstruation	2025-10-09T18:03:13.1328561Z	2025-10-09T18:03:13.1328561Z	1
+Debug	RJW_Menstruation	2025-10-09T18:03:13.1561554Z	2025-10-09T18:03:13.1561554Z	1
+Debug Log	SizedApparelforRJW	2025-10-09T13:08:20.9265919Z	2025-10-09T18:18:35.5471562Z	5
+Debug logs./nDefault: false	SizedApparelforRJW	2025-10-09T13:08:20.9260865Z	2025-10-09T18:18:35.5471562Z	5
+Debug mode	Rimworld-Animations	2025-10-09T18:00:13.5636342Z	2025-10-09T18:00:13.5636342Z	1
+Designated pawn freewill	RJW	2025-10-09T12:39:07.4791123Z	2025-10-09T12:39:07.4791123Z	1
+Direct control	RJW	2025-10-09T12:39:07.4584503Z	2025-10-09T12:39:07.4584503Z	1
+Disable bestiality pregnancy relations	RJW	2025-10-09T12:39:07.4715115Z	2025-10-09T12:39:07.4715115Z	1
+Disable egg pregnancy relations	RJW	2025-10-09T12:39:07.4725116Z	2025-10-09T12:39:07.4725116Z	1
+Disable meditation focus drain	RJW	2025-10-09T12:39:07.4745628Z	2025-10-09T12:39:07.4745628Z	1
+Disable recreation drain	RJW	2025-10-09T12:39:07.4755869Z	2025-10-09T12:39:07.4755869Z	1
+Disable relations(mother/father/siblings) from bestiality pregnancy.	RJW	2025-10-09T12:39:07.4705079Z	2025-10-09T12:39:07.4705079Z	1
+Disable relations(mother/father/siblings) from egg pregnancy.	RJW	2025-10-09T12:39:07.4725116Z	2025-10-09T12:39:07.4725116Z	1
+Disabled	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T16:50:31.9619751Z	3
+Draw belly even when wearing unsupported apparel./nDefault: false	SizedApparelforRJW	2025-10-09T13:08:20.9347720Z	2025-10-09T18:18:35.5561792Z	5
+Draw breasts even when wearing unsupported apparel./nDefault: false	SizedApparelforRJW	2025-10-09T13:08:20.9317204Z	2025-10-09T18:18:35.5526749Z	5
+Draw multi breasts even when wearing unsupported apparel./nDefault: false	SizedApparelforRJW	2025-10-09T13:08:20.9337380Z	2025-10-09T18:18:35.5546750Z	5
+Draw vagina, anus and breast icons in the status window.	RJW_Menstruation	2025-10-09T18:03:13.1007502Z	2025-10-09T18:03:13.1007502Z	1
+Draw womb icon for drafted pawns	RJW_Menstruation	2025-10-09T18:03:13.1040158Z	2025-10-09T18:03:13.1040158Z	1
+Draw womb icon for infertile wombs	RJW_Menstruation	2025-10-09T18:03:13.1050427Z	2025-10-09T18:03:13.1050427Z	1
+Draw womb icon in status window.	RJW_Menstruation	2025-10-09T18:03:13.0981642Z	2025-10-09T18:03:13.0981642Z	1
+Egg lifespan multiplier x#	RJW_Menstruation	2025-10-09T18:03:13.1291711Z	2025-10-09T18:03:13.1291711Z	1
+Enable "Postpartum exhaustion" Hediff for all pregnancies	RJW_Menstruation_Resources	2025-10-09T12:31:04.8117544Z	2025-10-09T18:17:57.0150942Z	7
+Enable "Submit" button on drafted pawns	RJW	2025-10-09T12:39:07.4440642Z	2025-10-09T12:39:07.4440642Z	1
+Enable "Unusually pregnant" Hediff	RJW_Menstruation_Resources	2025-10-09T12:31:04.8117544Z	2025-10-09T18:17:57.0109361Z	7
+Enable Anal Drip Graphics	RJW_Menstruation_Fluids	2025-10-09T12:31:04.8107451Z	2025-10-09T18:03:14.1911966Z	4
+Enable Animal "Postpartum exhaustion" Hediff	RJW_Menstruation_Resources	2025-10-09T12:31:04.8117544Z	2025-10-09T18:17:57.0132254Z	7
+Enable Animation Manager tab	Rimworld-Animations	2025-10-09T18:00:13.5626341Z	2025-10-09T18:00:13.5626341Z	1
+Enable Cumflation Graphics	RJW_Menstruation_Fluids	2025-10-09T12:31:04.8107451Z	2025-10-09T18:03:14.1860354Z	4
+Enable Human "Postpartum exhaustion" Hediff	RJW_Menstruation_Resources	2025-10-09T12:31:04.8117544Z	2025-10-09T18:17:57.0122202Z	7
+Enable Milk Graphics	RJW_Menstruation_Fluids	2025-10-09T12:31:04.8107451Z	2025-10-09T18:03:14.1881152Z	4
+Enable Vaginal Drip Graphics	RJW_Menstruation_Fluids	2025-10-09T12:31:04.8107451Z	2025-10-09T18:03:14.1932397Z	4
+Enable a single egg to result in multiple identical offspring.	RJW_Menstruation	2025-10-09T18:03:13.1484790Z	2025-10-09T18:03:13.1484790Z	1
+Enable animal cycle	RJW_Menstruation	2025-10-09T18:03:13.1189334Z	2025-10-09T18:03:13.1189334Z	1
+Enable button in health tab	RJW_Menstruation	2025-10-09T18:03:13.0971572Z	2025-10-09T18:03:13.0971572Z	1
+Enable egg overlay	RJW_Menstruation	2025-10-09T18:03:13.0997355Z	2025-10-09T18:03:13.0997355Z	1
+Enable egg overlay on womb icon.	RJW_Menstruation	2025-10-09T18:03:13.0997355Z	2025-10-09T18:03:13.0997355Z	1
+Enable enzygotic twins	RJW_Menstruation	2025-10-09T18:03:13.1499828Z	2025-10-09T18:03:13.1499828Z	1
+Enable hetero ovular twins	RJW_Menstruation	2025-10-09T18:03:13.1484790Z	2025-10-09T18:03:13.1484790Z	1
+Enable lazy texture loading for some SA textures	SizedApparelforRJW	2025-10-09T13:08:20.9498963Z	2025-10-09T18:18:35.5724318Z	5
+Enable menopause	RJW_Menstruation	2025-10-09T18:03:13.1210996Z	2025-10-09T18:03:13.1210996Z	1
+Enable menopause effect that makes pawn infertile when they run out of eggs/nIf you have problems with long lived races, turn off this option.	RJW_Menstruation	2025-10-09T18:03:13.1199353Z	2025-10-09T18:03:13.1199353Z	1
+Enable multiple breasts Graphics	RJW_Menstruation_Fluids	2025-10-09T12:31:04.8107451Z	2025-10-09T18:03:14.1891261Z	4
+Enable permanent vagina stretch after birth./nIf you are using another mod handling this, turn off this option.	RJW_Menstruation	2025-10-09T18:03:13.1540090Z	2025-10-09T18:03:13.1540090Z	1
+Enable pheromones	RJW_Menstruation	2025-10-09T18:03:13.1221026Z	2025-10-09T18:03:13.1221026Z	1
+Enable vagina morph after birth	RJW_Menstruation	2025-10-09T18:03:13.1550324Z	2025-10-09T18:03:13.1550324Z	1
+Enable womb icon	RJW_Menstruation	2025-10-09T18:03:13.0951499Z	2025-10-09T18:03:13.0951499Z	1
+Enables "Postpartum exhaustion" Hediff for Humanlike Female pawns after birthing, which will prevent them from moving for some time.	RJW_Menstruation_Resources	2025-10-09T12:31:04.8117544Z	2025-10-09T18:17:57.0122202Z	7
+Enables "Postpartum exhaustion" for all pregnancies, not only resource pregnancies. Human and/or Animal exhaustion must be enabled first	RJW_Menstruation_Resources	2025-10-09T12:31:04.8117544Z	2025-10-09T18:17:57.0150942Z	7
+Enables "Unusually pregnant" Hediff, which will give female pawn some debuffs during her resource pregnancy.	RJW_Menstruation_Resources	2025-10-09T12:31:04.8117544Z	2025-10-09T18:17:57.0085824Z	7
+Enables RimJobWorld logging and stuff. You don't usually want this enabled.	RJW	2025-10-09T12:39:07.4831348Z	2025-10-09T12:39:07.4831348Z	1
+Enables anal cum dripping graphics. Purely cosmetic.	RJW_Menstruation_Fluids	2025-10-09T12:31:04.8107451Z	2025-10-09T18:03:14.1901264Z	4
+Enables cumflation graphics for womb. Purely cosmetic. Requires Cumpilation to work.	RJW_Menstruation_Fluids	2025-10-09T12:31:04.8107451Z	2025-10-09T18:03:14.1850330Z	4
+Enables display of multiple breasts. Purely cosmetic.	RJW_Menstruation_Fluids	2025-10-09T12:31:04.8107451Z	2025-10-09T18:03:14.1881152Z	4
+Enables milk dripping graphics. Purely cosmetic.	RJW_Menstruation_Fluids	2025-10-09T12:31:04.8107451Z	2025-10-09T18:03:14.1870396Z	4
+Enables the "Explain Attraction" float menu on RMB.	RJW	2025-10-09T12:39:07.4665301Z	2025-10-09T17:27:41.6754772Z	2
+Enables vaginal cum dripping graphics. Purely cosmetic.	RJW_Menstruation_Fluids	2025-10-09T12:31:04.8107451Z	2025-10-09T18:03:14.1921987Z	4
+Enzygotic twins chance #%	RJW_Menstruation	2025-10-09T18:03:13.1509980Z	2025-10-09T18:03:13.1509980Z	1
+Estimated egg lifespan: #h	RJW_Menstruation	2025-10-09T18:03:13.1301711Z	2025-10-09T18:03:13.1301711Z	1
+Estimated sperm lifespan: #h	RJW_Menstruation	2025-10-09T18:03:13.1318506Z	2025-10-09T18:03:13.1318506Z	1
+Estimated total bleeding amount: #ml, #ml/h	RJW_Menstruation	2025-10-09T18:03:13.1400057Z	2025-10-09T18:03:13.1400057Z	1
+Estrus overrides RJW hookup settings	RJW_Menstruation	2025-10-09T18:03:13.1411053Z	2025-10-09T18:03:13.1411053Z	1
+Fertilization chance #%	RJW_Menstruation	2025-10-09T18:03:13.1251707Z	2025-10-09T18:03:13.1251707Z	1
+Fetus information level: All	RJW_Menstruation	2025-10-09T18:03:13.1071632Z	2025-10-09T18:03:13.1071632Z	1
+Float range for Debug Render Tree offset menu: #	Rimworld-Animations	2025-10-09T18:00:13.5636342Z	2025-10-09T18:00:13.5636342Z	1
+Frequency of # (mutual oral). Requires both partners to have genitalia. Note that this frequency is further adjusted by factors such as whoring, rape, etc./n/nValid range: # - #/nDefault: #	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.3784460Z	6
+Frequency of anal fisting (vaginal not yet implemented). Requires one partner to have a working hand. Note that this frequency is further adjusted by factors such as whoring, rape, etc./n/nValid range: # - #/nDefault: #	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.3915253Z	6
+Frequency of anal penetration (penile). Note that this frequency is further adjusted by factors such as available orifices, rape, etc./n/nValid range: # - #/nDefault: #	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.3684951Z	6
+Frequency of breastjobs. Requires one pawn to have breasts, and the other to have a penis. Note that this frequency is further adjusted by factors such as whoring, rape, etc./n/nValid range: # - #/nDefault: #	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.3864172Z	6
+Frequency of double-penetration, simultaneous anal and vaginal. Requires a multi-penis, such as a hemipenis. Note that this frequency is further adjusted by factors such as available orifices, etc./n/nValid range: # - #/nDefault:#	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.3715530Z	6
+Frequency of fellatio, also known as blowjob. Note that this frequency is further adjusted by factors such as available orifices, etc./n/nValid range: # - #/nDefault: #	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.3735840Z	6
+Frequency of footjobs (stimulation of penis by foot). Note that this frequency is further adjusted by factors such as whoring, rape, etc./n/nValid range: # - #/nDefault: #	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.3937254Z	6
+Frequency of handjobs. Requires working hands. Note that this frequency is further adjusted by factors such as whoring, etc./n/nValid range: # - #/nDefault: #	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.3874241Z	6
+Frequency of mutual masturbation (two colonists masturbating each other). Note that this frequency is further adjusted by factors such as rape, etc./n/nValid range: # - #/nDefault: #	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.3927250Z	6
+Frequency of oral stimulation of anus. Note that this frequency is further adjusted by factors such as available orifices, etc./n/nValid range: # - #/nDefault: #	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.3761235Z	6
+Frequency of oral stimulation of vagina. Note that this frequency is further adjusted by factors such as available orifices, rape, etc./n/nValid range: # - #/nDefault: #	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.3750882Z	6
+Frequency of scissoring (type of tribadism where partners interlock their legs and grind their vulvae together). Requires both pawns to have vaginas./n/nValid range: # - #/nDefault: #	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.3958884Z	6
+Frequency of vaginal fingering. Requires one pawn to have a vagina, and the other to have a working hand. Note that this frequency is further adjusted by factors such as whoring, rape, etc./n/nValid range: # - #/nDefault: #	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.3894881Z	6
+Frequency of vaginal sex. Note that this frequency is further adjusted by factors such as available orifices, etc./n/nValid range: # - #/nDefault: #	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.3674961Z	6
+Fully clothed	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T16:50:30.9769113Z	3
+Gain Hypersexual trait	RJW	2025-10-09T12:39:07.4624831Z	2025-10-09T12:39:07.4624831Z	1
+Gain Masochist trait	RJW	2025-10-09T12:39:07.4614775Z	2025-10-09T12:39:07.4614775Z	1
+Gain Necrophiliac trait	RJW	2025-10-09T12:39:07.4644939Z	2025-10-09T12:39:07.4644939Z	1
+Gain Nerves trait	RJW	2025-10-09T12:39:07.4655214Z	2025-10-09T12:39:07.4655214Z	1
+Gain Rapist trait	RJW	2025-10-09T12:39:07.4604721Z	2025-10-09T12:39:07.4604721Z	1
+Gain Zoophiliac trait	RJW	2025-10-09T12:39:07.4665301Z	2025-10-09T12:39:07.4665301Z	1
+Gain nerves trait after being raped.	RJW	2025-10-09T12:39:07.4644939Z	2025-10-09T12:39:07.4644939Z	1
+Gay	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:19:10.0401090Z	4
+GenderlessAsFuta	RJW	2025-10-09T12:39:07.4851332Z	2025-10-09T12:39:07.4851332Z	1
+General	SizedApparelforRJW	2025-10-09T13:08:20.9240691Z	2025-10-09T18:18:35.5451504Z	5
+Harmony v#.#	HarmonyMod	2025-10-09T12:35:18.5138582Z	2025-10-09T18:42:16.5317381Z	15
+Headwear only	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T16:50:30.9769113Z	3
+Hostile Faction: False	RJW_Menstruation	2025-10-09T18:03:13.1126879Z	2025-10-09T18:03:13.1126879Z	1
+How often the womb of each of your colonists, prisoners, and slaves update./nLowering this will improve accuracy, increasing this can improve performance.	RJW_Menstruation	2025-10-09T18:03:13.1359623Z	2025-10-09T18:03:13.1359623Z	1
+How often the womb of humans you don't control update./nLowering this will improve accuracy, increasing this can improve performance.	RJW_Menstruation	2025-10-09T18:03:13.1369980Z	2025-10-09T18:03:13.1369980Z	1
+If enabled, a pawn in visible estrus will use these settings for potential impregnation hookups instead of the RJW settings./nAll settings default to their RJW counterparts.	RJW_Menstruation	2025-10-09T18:03:13.1411053Z	2025-10-09T18:03:13.1411053Z	1
+If enabled, love enhancers will make pawns enjoy sex acts as if they were masochists and zoophiles.	RJW	2025-10-09T17:22:10.8242367Z	2025-10-09T17:22:10.8242367Z	1
+If you changed the option, try change apparels or reload save	SizedApparelforRJW	2025-10-09T13:08:20.9458607Z	2025-10-09T18:18:35.5678033Z	5
+Implantation chance #%	RJW_Menstruation	2025-10-09T18:03:13.1231236Z	2025-10-09T18:03:13.1231236Z	1
+It Skips breasts size test for male. Do you need man with breasts...? may be not./nDefault: false	SizedApparelforRJW	2025-10-09T13:08:20.9443559Z	2025-10-09T18:18:35.5657919Z	5
+It may have clipping issue from unsupported parts./nDefault: false	SizedApparelforRJW	2025-10-09T13:08:20.9306583Z	2025-10-09T18:18:35.5516750Z	5
+Legacy parts Adder	RJW	2025-10-09T12:39:07.4765928Z	2025-10-09T12:39:07.4765928Z	1
+Let icon become smaller if needed.	RJW_Menstruation	2025-10-09T18:03:13.1029130Z	2025-10-09T18:03:13.1029130Z	1
+Masturbating everywhere	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.3784460Z	5
+Masturbating in bed	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.3809421Z	5
+Masturbating with genitals blocked	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.3819447Z	5
+Masturbating with hands blocked	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.3841770Z	5
+Matin' crossbreed	RJW	2025-10-09T12:39:07.4831348Z	2025-10-09T12:39:07.4831348Z	1
+Max distance AI pather considers in order to reach sex destination/target. Slow complex calculation affected by obstacles, pawn speed and ground modifiers./nDefault #./n# - disable check.	RJW	2025-10-09T12:39:07.4902160Z	2025-10-09T12:39:07.4902160Z	1
+Max distance in Cells AI willing to go to reach destination/target./n/nFast distance check - ignores obstacles (e.g. walls, mountains)./nDefault # cells.	RJW	2025-10-09T12:39:07.4871970Z	2025-10-09T12:39:07.4871970Z	1
+Max enzygotic twins #	RJW_Menstruation	2025-10-09T18:03:13.1520009Z	2025-10-09T18:03:13.1520009Z	1
+Multiply egg's lifespan./nAll non-implanted eggs will die at end of luteal stage regardless of this setting.	RJW_Menstruation	2025-10-09T18:03:13.1281707Z	2025-10-09T18:03:13.1281707Z	1
+Neutral: False	RJW_Menstruation	2025-10-09T18:03:13.1116815Z	2025-10-09T18:03:13.1116815Z	1
+Nipple change during pregnancy #%	RJW_Menstruation	2025-10-09T18:03:13.1157697Z	2025-10-09T18:03:13.1157697Z	1
+Non-colonist update interval	RJW_Menstruation	2025-10-09T18:03:13.1380019Z	2025-10-09T18:03:13.1380019Z	1
+Nude	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T16:50:30.9759038Z	3
+Only for developers ;)	RJW	2025-10-09T12:39:07.4475790Z	2025-10-09T17:27:41.6714043Z	2
+Only if target is colonist	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T16:50:31.9599640Z	3
+Only if target is humanlike	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T16:50:31.9599640Z	3
+Only show notification	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T16:50:31.9609676Z	3
+Open custom hybrid editor./nThis will overrides hybrid definitions of XML files.	RJW_Menstruation	2025-10-09T18:03:13.1459519Z	2025-10-09T18:03:13.1459519Z	1
+Other Mod Compatibility	SizedApparelforRJW	2025-10-09T13:08:20.9286037Z	2025-10-09T18:18:35.5506747Z	5
+Override designation checks	RJW	2025-10-09T12:39:07.4569454Z	2025-10-09T12:39:07.4569454Z	1
+Override vanilla lovin'	RJW	2025-10-09T12:39:07.4801177Z	2025-10-09T12:39:07.4801177Z	1
+Override vanilla matin'	RJW	2025-10-09T12:39:07.4811248Z	2025-10-09T12:39:07.4811248Z	1
+Pawn can masturbate while having their genitals blocked.	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.3819447Z	5
+Pawn can masturbate while having their hands blocked.	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.3829636Z	5
+Pawn designated for comfort or mating can initiate sex.	RJW	2025-10-09T12:39:07.4780974Z	2025-10-09T12:39:07.4780974Z	1
+Pawn will masturbate in its bed.	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.3799268Z	5
+Pawn will masturbate where it wants.	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.3784460Z	5
+Permanent nipple change after pregnancy #	RJW_Menstruation	2025-10-09T18:03:13.1168809Z	2025-10-09T18:03:13.1168809Z	1
+Play anal sex animations for male pawns	Rimworld-Animations	2025-10-09T18:00:13.5584489Z	2025-10-09T18:00:13.5584489Z	1
+Play humanlike voices by default	Rimworld-Animations	2025-10-09T18:00:13.5615939Z	2025-10-09T18:00:13.5615939Z	1
+Play sounds during animations	Rimworld-Animations	2025-10-09T18:00:13.5594936Z	2025-10-09T18:00:13.5594936Z	1
+Play voices during animations	Rimworld-Animations	2025-10-09T18:00:13.5605091Z	2025-10-09T18:00:13.5605091Z	1
+Player can manually tell pawns to do sex related activities.	RJW	2025-10-09T12:39:07.4584503Z	2025-10-09T12:39:07.4584503Z	1
+Preferred clothing for sex: Nude	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.3983996Z	5
+Prisoner: True	RJW_Menstruation	2025-10-09T18:03:13.1106776Z	2025-10-09T18:03:13.1106776Z	1
+Psychology	RJW	2025-10-09T16:50:33.6453457Z	2025-10-09T16:50:33.6453457Z	1
+RJW Development mode	RJW	2025-10-09T12:39:07.4841330Z	2025-10-09T12:39:07.4841330Z	1
+RJW Parts: Show	RJW	2025-10-09T12:39:07.4460745Z	2025-10-09T17:27:41.6703995Z	2
+RMB DeepTalk	RJW	2025-10-09T12:39:07.4705079Z	2025-10-09T12:39:07.4705079Z	1
+RMB DeepTalkを有効化	RJW	2025-10-09T17:27:41.6768455Z	2025-10-09T17:27:41.6768455Z	1
+RMB DeepTalkを有効化する(+#関係)/n YOU CHEATER	RJW	2025-10-09T17:27:41.6768455Z	2025-10-09T17:27:41.6768455Z	1
+RMB Explain Attraction	RJW	2025-10-09T12:39:07.4680351Z	2025-10-09T17:27:41.6754772Z	2
+Races	SizedApparelforRJW	2025-10-09T13:08:20.9230165Z	2025-10-09T18:18:35.5441429Z	5
+Rape alert: Humanlikes	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.3998278Z	5
+Rape attempt alert: Humanlikes	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.3983996Z	5
+Rape distance(Cells): #	RJW	2025-10-09T12:39:07.4882002Z	2025-10-09T12:39:07.4882002Z	1
+Reset to default	RJW_Menstruation	2025-10-09T18:03:13.1571558Z	2025-10-09T18:03:13.1571558Z	1
+RimJobWorld	RJW	2025-10-09T16:50:33.6431493Z	2025-10-09T16:50:33.6431493Z	1
+SYRIndividuality	RJW	2025-10-09T16:50:33.6441493Z	2025-10-09T16:50:33.6441493Z	1
+Sex distance(Cells): #	RJW	2025-10-09T12:39:07.4861338Z	2025-10-09T12:39:07.4861338Z	1
+Sex distance(PawnPath): #	RJW	2025-10-09T12:39:07.4892133Z	2025-10-09T12:39:07.4892133Z	1
+Sex type frequency:/n[Higher = more common]	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.3644728Z	5
+Sexuality generation spread for RJW./nTHIS IS FOR SEX ONLY/nHAS NO EFFECT ON RELATIONSHIP	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.4040957Z	5
+Sexuality spread source: 	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.4028599Z	5
+Show RJW designations	RJW	2025-10-09T12:39:07.4460745Z	2025-10-09T12:39:07.4460745Z	1
+Show alert when pawn designated for breeding is getting raped.	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.4018373Z	5
+Show alert when pawn designated for comforting is getting raped.	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.4008340Z	5
+Show all information about a fetus.	RJW_Menstruation	2025-10-09T18:03:13.1071632Z	2025-10-09T18:03:13.1071632Z	1
+Show debug information.	RJW_Menstruation	2025-10-09T18:03:13.1550324Z	2025-10-09T18:03:13.1550324Z	1
+Show for Breeding	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.4028599Z	5
+Show for CP	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.4018373Z	5
+Show hearts during lovin'	Rimworld-Animations	2025-10-09T18:00:13.5553259Z	2025-10-09T18:00:13.5553259Z	1
+Show womb status when drafted	RJW_Menstruation	2025-10-09T18:03:13.1050427Z	2025-10-09T18:03:13.1050427Z	1
+Show womb status when infertile	RJW_Menstruation	2025-10-09T18:03:13.1061608Z	2025-10-09T18:03:13.1061608Z	1
+Simulate animal cycles./nNot recommended.	RJW_Menstruation	2025-10-09T18:03:13.1189334Z	2025-10-09T18:03:13.1189334Z	1
+SizedApparel System Apply (apparel and body parts)	SizedApparelforRJW	2025-10-09T13:08:20.9383044Z	2025-10-09T18:18:35.5596944Z	5
+Sounds volume:	Rimworld-Animations	2025-10-09T18:00:13.5594936Z	2025-10-09T18:00:13.5594936Z	1
+Straight	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:19:10.0411888Z	4
+Submit button allows you to skip more deadly part and get right to more humiliating one. /nDisable this if honor comes before life for you. /nRemember, if you change your mind, it will always be here, waiting for you.	RJW	2025-10-09T12:39:07.4430472Z	2025-10-09T12:39:07.4430472Z	1
+Target pawns: Colonist, Prisoner	RJW_Menstruation	2025-10-09T18:03:13.1091734Z	2025-10-09T18:03:13.1091734Z	1
+The amount of cum in the womb will drop by this amount every hour/nThis value affects the chance of impregnation.	RJW_Menstruation	2025-10-09T18:03:13.1271707Z	2025-10-09T18:03:13.1271707Z	1
+The approximate bleeding amount./nThe normal bleeding amount of a human is about #~#ml per cycle.	RJW_Menstruation	2025-10-09T18:03:13.1390048Z	2025-10-09T18:03:13.1390048Z	1
+The chance of identical twins.	RJW_Menstruation	2025-10-09T18:03:13.1509980Z	2025-10-09T18:03:13.1509980Z	1
+The fertilization chance per ml of sperm per hour/nThis value affects the chance of impregnation.	RJW_Menstruation	2025-10-09T18:03:13.1241535Z	2025-10-09T18:03:13.1241535Z	1
+The gizmo and button will appear for these pawns	RJW_Menstruation	2025-10-09T18:03:13.1091734Z	2025-10-09T18:03:13.1091734Z	1
+The maximum number of identical siblings.	RJW_Menstruation	2025-10-09T18:03:13.1530047Z	2025-10-09T18:03:13.1530047Z	1
+Toggles showing RJW group of buttons in the pawn control GUI.	RJW	2025-10-09T12:39:07.4450658Z	2025-10-09T12:39:07.4450658Z	1
+Try to Apply SizedApparel to Animals if The textures are valid./nThis may heavy performance /nDefault: false	SizedApparelforRJW	2025-10-09T13:08:20.9403263Z	2025-10-09T18:18:35.5616956Z	5
+Try to Apply SizedApparel to Humanlikes if The textures are valid./nDefault: true	SizedApparelforRJW	2025-10-09T13:08:20.9393096Z	2025-10-09T18:18:35.5606956Z	5
+Try to Apply SizedApparel to Mech if The textures are valid./nDefault: true	SizedApparelforRJW	2025-10-09T13:08:20.9413319Z	2025-10-09T18:18:35.5636962Z	5
+USEATYOUROWNRISK. /n/nGenderless Pawns will be set as Female and have both sets of genitals.	RJW	2025-10-09T12:39:07.4851332Z	2025-10-09T12:39:07.4851332Z	1
+Use Biotech pregnancy	RJW_Menstruation	2025-10-09T18:03:13.1436050Z	2025-10-09T18:03:13.1436050Z	1
+Use Gender Specific Textures.	SizedApparelforRJW	2025-10-09T13:08:20.9478799Z	2025-10-09T18:18:35.5710633Z	5
+Use Gender Specific texture for body and apparel if it's valid. /nDefault: true	SizedApparelforRJW	2025-10-09T13:08:20.9478799Z	2025-10-09T18:18:35.5698555Z	5
+Use basic RJW pregnancy	RJW_Menstruation	2025-10-09T18:03:13.1425991Z	2025-10-09T18:03:13.1425991Z	1
+Use breeding instead of vanilla matin'	RJW	2025-10-09T12:39:07.4801177Z	2025-10-09T12:39:07.4801177Z	1
+Use casual sex instead of vanilla lovin'	RJW	2025-10-09T12:39:07.4791123Z	2025-10-09T12:39:07.4791123Z	1
+Use hybrid extension	RJW_Menstruation	2025-10-09T18:03:13.1449301Z	2025-10-09T18:03:13.1449301Z	1
+Use menstruation multiple pregnancy	RJW_Menstruation	2025-10-09T18:03:13.1436050Z	2025-10-09T18:03:13.1436050Z	1
+Vagina and breast status	RJW_Menstruation	2025-10-09T18:03:13.1007502Z	2025-10-09T18:03:13.1007502Z	1
+Vanilla	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.4051033Z	6
+Voices volume:	Rimworld-Animations	2025-10-09T18:00:13.5615939Z	2025-10-09T18:00:13.5615939Z	1
+WARNING: Disabling will cause lag as it will force all textures to load./nLazy loading is for textures in the "SizedApparel" path/nIf you have enough ram/vram you should disable this option	SizedApparelforRJW	2025-10-09T13:08:20.9488885Z	2025-10-09T18:18:35.5724318Z	5
+When pawns are frustrated, they don't lose focus.	RJW	2025-10-09T12:39:07.4735585Z	2025-10-09T12:39:07.4735585Z	1
+When pawns have boring/bad sex due to traits/quirks, they don't lose recreation need.	RJW	2025-10-09T12:39:07.4755869Z	2025-10-09T12:39:07.4755869Z	1
+Womb status	RJW_Menstruation	2025-10-09T18:03:13.0981642Z	2025-10-09T18:03:13.0981642Z	1
+[Imported from Vanilla Rimworld]	RJW	2025-10-09T12:31:04.8097399Z	2025-10-09T18:18:55.4051033Z	5
+[Vanilla Rimworldからインポート]	RJW	2025-10-09T17:22:15.1729675Z	2025-10-09T17:22:15.1729675Z	1
+key_shape	mods	2025-10-09T12:34:53.5094366Z	2025-10-09T12:34:53.5094366Z	1
+standalone BodyPart Render System from this mod. It's for user who don't use RimNudeWorld/nIf you use RimNudeWorld, you should turn off this.	SizedApparelforRJW	2025-10-09T13:08:20.9468752Z	2025-10-09T18:18:35.5688022Z	5

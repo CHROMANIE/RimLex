@@ -25,8 +25,8 @@ namespace RimLex
 
         // 画面名除外/許可（Type名カンマ区切り）
         public string IncludedWindows = "";
-        // ★ 追加: 設定系ダイアログも既定で除外（自己参照ループ防止）
-        public string ExcludedWindows = "EditWindow_Log,Page_ModsConfig,Dialog_DebugTables,Dialog_ModSettings,Dialog_Options";
+        // ★ 既定は仕様どおり（RimLex 自身は別ルートで恒久除外）
+        public string ExcludedWindows = "EditWindow_Log,Page_ModsConfig,Dialog_DebugTables";
 
         // 追記デバウンス
         public bool PauseAggregate = false;
