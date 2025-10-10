@@ -1,9 +1,6 @@
 ﻿// RimLex TranslatorHub.cs v0.10.0-rc6a @2025-10-09 11:25
 // 修正: RebuildAggregateAndUntranslated の out引数を try の外で初期化（CS0177対策）。
 // 仕様: rc6の「/n ゆるふわ正規化」「TXT/TSVは /n 一行表記」「自己参照=設定画面のみ」そのまま。
-// 追加修正(この改版):
-//  - TranslateOrEnroll の処理順を「翻訳優先」に変更。
-//    → ノイズ判定は未訳だったときだけ適用（動的数値でも既訳は置換される）。
 
 using System;
 using System.Collections.Generic;
@@ -62,7 +59,7 @@ namespace RimLex
         {
             if (string.IsNullOrEmpty(s)) return s ?? "";
             string t = s.Replace("\\n", "\n");  // 文字列としての \n → 実改行
-            t = RxSlashNLoose.Replace(t, "\n"); // "/ n" バリエーション（例: "/n" も）→ 実改行
+            t = RxSlashNLoose.Replace(t, "\n"); // "/ n" バリエーション → 実改行
             return t;
         }
 
@@ -159,22 +156,19 @@ namespace RimLex
         {
             if (string.IsNullOrEmpty(english)) return english;
 
-            // RimLex 自身の設定UI と 画面除外は常に対象外（翻訳も収集もしない）
-            if (IsSelfSettingsCall()) return english;
-            if (NoiseFilter.IsScreenExcluded(out _)) return english;
+            if (IsSelfSettingsCall()) return english;                 // RimLex自画面のみ除外
+            if (NoiseFilter.IsScreenExcluded(out _)) return english;   // 画面除外
+            if (NoiseFilter.IsNoise(english)) return english;          // 文字列ノイズ
 
-            // ---- 1) まず翻訳を試す（ここではノイズ判定をしない）----
             string key = NormalizeForKey(english);
+
             if (TryTranslateExact(key, out var ja) || TryTranslateByShape(key, out ja))
             {
                 Interlocked.Increment(ref _sessionReplaced);
                 return ja;
             }
 
-            // ---- 2) 未訳だった場合のみ、ノイズ判定を適用して必要なら収集 ----
-            if (!NoiseFilter.IsNoise(english))
-                TryEnrollOnce(key, source, scope, modGuess);
-
+            TryEnrollOnce(key, source, scope, modGuess);
             return english;
         }
 
@@ -256,7 +250,7 @@ namespace RimLex
             {
                 _logWarn("[Rebuild] failed: " + ex);
                 Interlocked.Increment(ref _sessionIoErrors);
-                // out は既に 0 初期化済み
+                // out は既に 0 初期化済みなのでここでいじらない
             }
         }
 

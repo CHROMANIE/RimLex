@@ -14,7 +14,6 @@ namespace RimLex
     /// 対象：
     ///  - Widgets.Label / Listing_Standard.Label（ラベル）
     ///  - Widgets.ButtonText（ボタン）
-    ///  - Listing_Standard.SliderLabeled（★ラベル合成前にラベルだけ翻訳）
     ///  - TooltipHandler.TipRegion（string / TipSignal の両系統）
     ///  - FloatMenuOption（右クリック）
     ///  - Command.LabelCap（ギズモ）
@@ -85,22 +84,6 @@ namespace RimLex
                         logInfo?.Invoke("Patched: Widgets.ButtonText");
                     }
                     else logWarn?.Invoke("Patch skip: Widgets.ButtonText(Rect,string,...) not found");
-                });
-
-                // ---- Listing_Standard.SliderLabeled(...)：★ラベル合成前にラベルだけ翻訳 ----
-                Try(() =>
-                {
-                    var targets = typeof(Listing_Standard).GetMethods(BindingFlags.Public | BindingFlags.Instance)
-                        .Where(mi => mi.Name == "SliderLabeled" && mi.GetParameters().Any(p => p.ParameterType == typeof(string)))
-                        .ToArray();
-
-                    foreach (var t in targets)
-                        harmony.Patch(t, prefix: new HarmonyMethod(typeof(UIPatches), nameof(SliderLabeled_Prefix)));
-
-                    if (targets.Length > 0)
-                        logInfo?.Invoke($"Patched: Listing_Standard.SliderLabeled x{targets.Length}");
-                    else
-                        logWarn?.Invoke("Patch skip: Listing_Standard.SliderLabeled(*) not found");
                 });
 
                 // ---- Slider：署名差異で例外を出さないように try 保護（収集はしない）----
@@ -223,33 +206,6 @@ namespace RimLex
             return true;
         }
 
-        // -----------------------------
-        // SliderLabeled（★合成前にラベルだけ翻訳）
-        // -----------------------------
-        public static bool SliderLabeled_Prefix(MethodBase __originalMethod, object[] __args)
-        {
-            try
-            {
-                var ps = __originalMethod.GetParameters();
-                // 最初の string パラメータをラベルとみなす
-                for (int i = 0; i < ps.Length; i++)
-                {
-                    if (ps[i].ParameterType == typeof(string))
-                    {
-                        var s = __args[i] as string;
-                        if (!string.IsNullOrEmpty(s))
-                        {
-                            var ja = TranslatorHub.TranslateOrEnroll(s, "Listing_Standard.SliderLabeled", "UI");
-                            if (_applyAtRuntime) __args[i] = ja;
-                        }
-                        break;
-                    }
-                }
-            }
-            catch { }
-            return true;
-        }
-
         // スライダー：収集なし。署名だけ合わせて“パッチ成功”ログを出せるようにする
         public static bool Slider_Prefix(float val, float min, float max) => true;
 
@@ -272,18 +228,11 @@ namespace RimLex
         {
             try
             {
-                // textGetter を優先して実文字列を取り出す（改行含む）
-                string raw = null;
-                try { raw = tip.textGetter != null ? tip.textGetter() : tip.text; } catch { raw = tip.text; }
-
-                if (!string.IsNullOrEmpty(raw))
+                var t = tip.text;
+                if (!string.IsNullOrEmpty(t))
                 {
-                    var ja = TranslatorHub.TranslateOrEnroll(raw, "TooltipHandler.TipRegion", "Tooltip");
-                    if (_applyAtRuntime)
-                    {
-                        // 既存の delay（または priority 相当）を維持しつつ text だけ置換
-                        tip = new TipSignal(ja, tip.delay);
-                    }
+                    var ja = TranslatorHub.TranslateOrEnroll(t, "TooltipHandler.TipRegion", "Tooltip");
+                    if (_applyAtRuntime) tip = new TipSignal(ja, tip.delay);
                 }
             }
             catch { }
