@@ -1,0 +1,119 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\RimWorld\\Mods\\RimLex\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A82101D6-A1A1-4049-B7FA-D57CE057277E}|Source\\RimLex.csproj|d:\\program files (x86)\\steam\\steamapps\\common\\rimworld\\mods\\rimlex\\source\\uipatches.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A82101D6-A1A1-4049-B7FA-D57CE057277E}|Source\\RimLex.csproj|solutionrelative:source\\uipatches.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A82101D6-A1A1-4049-B7FA-D57CE057277E}|Source\\RimLex.csproj|D:\\Program Files (x86)\\Steam\\steamapps\\common\\RimWorld\\Mods\\RimLex\\source\\modinitializer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A82101D6-A1A1-4049-B7FA-D57CE057277E}|Source\\RimLex.csproj|solutionrelative:source\\modinitializer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A82101D6-A1A1-4049-B7FA-D57CE057277E}|Source\\RimLex.csproj|d:\\program files (x86)\\steam\\steamapps\\common\\rimworld\\mods\\rimlex\\source\\config.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A82101D6-A1A1-4049-B7FA-D57CE057277E}|Source\\RimLex.csproj|solutionrelative:source\\config.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A82101D6-A1A1-4049-B7FA-D57CE057277E}|Source\\RimLex.csproj|D:\\Program Files (x86)\\Steam\\steamapps\\common\\RimWorld\\Mods\\RimLex\\source\\translatorhub.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A82101D6-A1A1-4049-B7FA-D57CE057277E}|Source\\RimLex.csproj|solutionrelative:source\\translatorhub.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A82101D6-A1A1-4049-B7FA-D57CE057277E}|Source\\RimLex.csproj|D:\\Program Files (x86)\\Steam\\steamapps\\common\\RimWorld\\Mods\\RimLex\\source\\noisefilter.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A82101D6-A1A1-4049-B7FA-D57CE057277E}|Source\\RimLex.csproj|solutionrelative:source\\noisefilter.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A82101D6-A1A1-4049-B7FA-D57CE057277E}|Source\\RimLex.csproj|D:\\Program Files (x86)\\Steam\\steamapps\\common\\RimWorld\\Mods\\RimLex\\source\\normalizer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A82101D6-A1A1-4049-B7FA-D57CE057277E}|Source\\RimLex.csproj|solutionrelative:source\\normalizer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "UIPatches.cs",
+              "DocumentMoniker": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\RimWorld\\Mods\\RimLex\\Source\\UIPatches.cs",
+              "RelativeDocumentMoniker": "Source\\UIPatches.cs",
+              "ToolTip": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\RimWorld\\Mods\\RimLex\\Source\\UIPatches.cs",
+              "RelativeToolTip": "Source\\UIPatches.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACAAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-09T21:57:30.342Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Normalizer.cs",
+              "DocumentMoniker": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\RimWorld\\Mods\\RimLex\\Source\\Normalizer.cs",
+              "RelativeDocumentMoniker": "Source\\Normalizer.cs",
+              "ToolTip": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\RimWorld\\Mods\\RimLex\\Source\\Normalizer.cs",
+              "RelativeToolTip": "Source\\Normalizer.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAwAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-09T00:31:27.973Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "ModInitializer.cs",
+              "DocumentMoniker": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\RimWorld\\Mods\\RimLex\\Source\\ModInitializer.cs",
+              "RelativeDocumentMoniker": "Source\\ModInitializer.cs",
+              "ToolTip": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\RimWorld\\Mods\\RimLex\\Source\\ModInitializer.cs",
+              "RelativeToolTip": "Source\\ModInitializer.cs",
+              "ViewState": "AgIAAPcAAAAAAAAAAAAcwGABAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-07T12:07:38.186Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "TranslatorHub.cs",
+              "DocumentMoniker": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\RimWorld\\Mods\\RimLex\\Source\\TranslatorHub.cs",
+              "RelativeDocumentMoniker": "Source\\TranslatorHub.cs",
+              "ToolTip": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\RimWorld\\Mods\\RimLex\\Source\\TranslatorHub.cs",
+              "RelativeToolTip": "Source\\TranslatorHub.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAFACAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-07T12:07:06.446Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "NoiseFilter.cs",
+              "DocumentMoniker": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\RimWorld\\Mods\\RimLex\\Source\\NoiseFilter.cs",
+              "RelativeDocumentMoniker": "Source\\NoiseFilter.cs",
+              "ToolTip": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\RimWorld\\Mods\\RimLex\\Source\\NoiseFilter.cs",
+              "RelativeToolTip": "Source\\NoiseFilter.cs",
+              "ViewState": "AgIAACEAAAAAAAAAAAAIwLMAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-07T12:06:55.296Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Config.cs",
+              "DocumentMoniker": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\RimWorld\\Mods\\RimLex\\Source\\Config.cs",
+              "RelativeDocumentMoniker": "Source\\Config.cs",
+              "ToolTip": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\RimWorld\\Mods\\RimLex\\Source\\Config.cs",
+              "RelativeToolTip": "Source\\Config.cs",
+              "ViewState": "AgIAAHsAAAAAAAAAAAAIwJsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-07T12:06:30.704Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

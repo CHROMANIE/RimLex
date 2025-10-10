@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project>
-  <!-- ▼▼ ここを各自の環境に合わせて編集してください ▼▼ -->
-  <PropertyGroup>
-    <RimWorldManaged>C:\Path\To\RimWorld\RimWorldWin64_Data\Managed</RimWorldManaged>
-    <HarmonyLibPath>C:\Path\To\Harmony\</HarmonyLibPath>
-  </PropertyGroup>
-  <!-- ▲▲ ここを各自の環境に合わせて編集してください ▲▲ -->
-</Project>
