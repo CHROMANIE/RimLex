@@ -20,6 +20,7 @@
 /Library/
 /Dict/
 /LocalOnly/
+/Docs/Archive/
 /Temp/
 *.pdb
 *.user
