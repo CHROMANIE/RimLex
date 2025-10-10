@@ -189,6 +189,17 @@ namespace RimLex
                 });
             }
 
+            if (DrawButton(ls, "PerMod から由来Indexを再構築", "Export/<PerModSubdir>/strings_en.tsv から Dict/Index/en_provenance.tsv を再構成。"))
+            {
+                TryMenuAction("Rebuild provenance index", () =>
+                {
+                    if (TranslatorHub.TryRebuildProvenanceIndex(out var keys, out var mods, out var err))
+                        Messages.Message($"由来Indexを再構築：キー {keys} / Mod {mods}", MessageTypeDefOf.TaskCompletion, false);
+                    else
+                        Messages.Message("再構築失敗: " + (err ?? "unknown"), MessageTypeDefOf.RejectInput, false);
+                });
+            }
+
             if (DrawButton(ls, "未訳からTSV雛形を作成", "Dict/strings_ja_template.tsv を作成。"))
             {
                 TryMenuAction("Build TSV template", () =>

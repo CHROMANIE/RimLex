@@ -1,4 +1,4 @@
-﻿// RimLex TranslatorHub.cs v0.10.0-rc6a @2025-10-09 11:25
+// RimLex TranslatorHub.cs v0.10.0-rc6a @2025-10-09 11:25
 // 修正: RebuildAggregateAndUntranslated の out引数を try の外で初期化（CS0177対策）。
 // 仕様: rc6の「/n ゆるふわ正規化」「TXT/TSVは /n 一行表記」「自己参照=設定画面のみ」そのまま。
 // 追加修正(この改版):
@@ -11,7 +11,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 using Verse;
 
@@ -54,36 +53,6 @@ namespace RimLex
         private static readonly List<string> _aggPending = new List<string>();
         private static Timer _aggTimer;
 
-        private static readonly Regex RxNumbers = new Regex(@"\d+(?:\.\d+)?", RegexOptions.Compiled);
-
-        // rc6: 改行のゆるふわ正規化
-        private static readonly Regex RxSlashNLoose = new Regex(@"\s*/\s*n\s*", RegexOptions.Compiled);
-        private static string NormalizeNewlines(string s)
-        {
-            if (string.IsNullOrEmpty(s)) return s ?? "";
-            string t = s.Replace("\\n", "\n");  // 文字列としての \n → 実改行
-            t = RxSlashNLoose.Replace(t, "\n"); // "/ n" バリエーション（例: "/n" も）→ 実改行
-            return t;
-        }
-
-        private sealed class ShapeParts
-        {
-            public string Shape;
-            public List<string> Numbers;
-        }
-        private static ShapeParts MakeShape(string s)
-        {
-            var nums = new List<string>();
-            string shaped = RxNumbers.Replace(s, m => { nums.Add(m.Value); return "#"; });
-            return new ShapeParts { Shape = shaped, Numbers = nums };
-        }
-
-        private static string NormalizeForKey(string s)
-            => NormalizeNewlines((s ?? "").Replace("\r\n", "\n").Replace("\r", "\n"));
-
-        private static string ForTsv(string s)
-            => (s ?? "").Replace("\t", " ").Replace("\r", " ").Replace("\n", "/n");
-
         public static void InitIO(
             string dictTsv, string exportRoot, string exportMode, bool perMod, bool emitAggregate,
             Action<string> logInfo, Action<string> logWarn, string perModSubdir)
@@ -102,6 +71,7 @@ namespace RimLex
 
                 Directory.CreateDirectory(_exportRoot);
                 LoadDictionary_NoThrow(_dictTsv);
+                ProvenanceIndex.Init(_dictTsv, _logInfo, _logWarn, () => Interlocked.Increment(ref _sessionIoErrors));
 
                 _aggTimer?.Dispose();
                 _aggTimer = new Timer(_ => FlushAggregateSafe(), null, Timeout.Infinite, Timeout.Infinite);
@@ -159,28 +129,32 @@ namespace RimLex
         {
             if (string.IsNullOrEmpty(english)) return english;
 
-            // RimLex 自身の設定UI と 画面除外は常に対象外（翻訳も収集もしない）
             if (IsSelfSettingsCall()) return english;
             if (NoiseFilter.IsScreenExcluded(out _)) return english;
 
-            // ---- 1) まず翻訳を試す（ここではノイズ判定をしない）----
-            string key = NormalizeForKey(english);
-            if (TryTranslateExact(key, out var ja) || TryTranslateByShape(key, out ja))
+            string normalized = TextShapeUtil.NormalizeForKey(english);
+            var shapeParts = TextShapeUtil.MakeShape(normalized);
+            string resolvedMod = ResolveModName(modGuess);
+            string modName = SanitizeModName(resolvedMod);
+
+            bool isNoise = NoiseFilter.IsNoise(english);
+            if (!isNoise)
+                ProvenanceIndex.Register(shapeParts.Shape, modName);
+
+            if (TryTranslateExact(normalized, out var ja) || TryTranslateByShape(normalized, shapeParts, out ja))
             {
                 Interlocked.Increment(ref _sessionReplaced);
                 return ja;
             }
 
-            // ---- 2) 未訳だった場合のみ、ノイズ判定を適用して必要なら収集 ----
-            if (!NoiseFilter.IsNoise(english))
-                TryEnrollOnce(key, source, scope, modGuess);
+            if (!isNoise)
+                TryEnrollOnce(normalized, source, scope, modName, shapeParts);
 
             return english;
         }
 
         public static void RebuildAggregateAndUntranslated(out int aggregateLines, out int untranslatedLines, out int modSections)
         {
-            // ★ CS0177対策：先に初期化しておく（例外経路でも常に代入済）
             aggregateLines = 0;
             untranslatedLines = 0;
             modSections = 0;
@@ -205,16 +179,15 @@ namespace RimLex
                             if (parts.Length >= 5)
                             {
                                 string mod = parts[1];
-                                string source = parts[2];
-                                string scope = parts[3];
-                                string text = parts[4].Replace("/n", "\n"); // 内部は \n
-                                rows.Add((mod, source, scope, text));
+                                string sourceId = parts[2];
+                                string scopeId = parts[3];
+                                string text = parts[4].Replace("/n", "\n");
+                                rows.Add((mod, sourceId, scopeId, text));
                             }
                         }
                     }
                 }
 
-                // texts_en_aggregate.txt -> /n 一行
                 string aggTxt = Path.Combine(allDir, "texts_en_aggregate.txt");
                 string header = "# rebuilt_at=" + DateTime.UtcNow.ToString("O") + Environment.NewLine;
                 File.WriteAllText(aggTxt + ".tmp", header, new UTF8Encoding(false));
@@ -222,7 +195,6 @@ namespace RimLex
                     foreach (var r in rows) { sw.WriteLine(r.text.Replace("\n", "/n")); aggregateLines++; }
                 ReplaceAtomically(aggTxt);
 
-                // untranslated.txt -> /n 一行
                 var dictKeys = new HashSet<string>(_dictExact.Keys.Concat(_dictShape.Keys), StringComparer.Ordinal);
                 string untranslated = Path.Combine(allDir, "untranslated.txt");
                 File.WriteAllText(untranslated + ".tmp", header, new UTF8Encoding(false));
@@ -230,14 +202,14 @@ namespace RimLex
                 {
                     foreach (var r in rows)
                     {
-                        var shp = MakeShape(r.text);
-                        if (!dictKeys.Contains(r.text) && !dictKeys.Contains(shp.Shape))
+                        var normalized = TextShapeUtil.NormalizeForKey(r.text);
+                        var shp = TextShapeUtil.MakeShape(normalized);
+                        if (!dictKeys.Contains(normalized) && !dictKeys.Contains(shp.Shape))
                         { sw.WriteLine(r.text.Replace("\n", "/n")); untranslatedLines++; }
                     }
                 }
                 ReplaceAtomically(untranslated);
 
-                // grouped_by_mod.txt -> /n 一行
                 string grouped = Path.Combine(allDir, "grouped_by_mod.txt");
                 File.WriteAllText(grouped + ".tmp", header, new UTF8Encoding(false));
                 using (var sw = new StreamWriter(grouped + ".tmp", true, new UTF8Encoding(false)))
@@ -256,7 +228,6 @@ namespace RimLex
             {
                 _logWarn("[Rebuild] failed: " + ex);
                 Interlocked.Increment(ref _sessionIoErrors);
-                // out は既に 0 初期化済み
             }
         }
 
@@ -297,6 +268,18 @@ namespace RimLex
             }
         }
 
+        public static bool TryRebuildProvenanceIndex(out int keyCount, out int modCount, out string error)
+        {
+            string exportRoot;
+            string perModSubdir;
+            lock (_lock)
+            {
+                exportRoot = _exportRoot;
+                perModSubdir = _perModSubdir;
+            }
+            return ProvenanceIndex.TryRebuildFromPerMod(exportRoot, perModSubdir, out keyCount, out modCount, out error);
+        }
+
         private static void LoadDictionary_NoThrow(string path, bool verbose = false)
         {
             try
@@ -316,8 +299,8 @@ namespace RimLex
                         int idx = raw.IndexOf('\t');
                         if (idx <= 0) continue;
 
-                        string en = NormalizeForKey(raw.Substring(0, idx).Replace("/n", "\n"));
-                        string ja = NormalizeForKey(raw.Substring(idx + 1));
+                        string en = TextShapeUtil.NormalizeForKey(raw.Substring(0, idx).Replace("/n", "\n"));
+                        string ja = TextShapeUtil.NormalizeForKey(raw.Substring(idx + 1));
 
                         if (en.IndexOf('#') >= 0)
                         { if (!shape.ContainsKey(en)) { shape[en] = ja; shapeN++; } else dup++; }
@@ -373,56 +356,57 @@ namespace RimLex
 
         private static bool TryTranslateExact(string key, out string ja)
         {
-            key = NormalizeForKey(key);
-            lock (_lock) return _dictExact.TryGetValue(key, out ja) && !string.IsNullOrEmpty(ja);
+            string norm = TextShapeUtil.NormalizeForKey(key);
+            lock (_lock) return _dictExact.TryGetValue(norm, out ja) && !string.IsNullOrEmpty(ja);
         }
 
-        private static bool TryTranslateByShape(string key, out string ja)
+        private static bool TryTranslateByShape(string normalizedKey, TextShapeUtil.ShapeParts shapeParts, out string ja)
         {
-            key = NormalizeForKey(key);
             ja = null;
-            var shp = MakeShape(key);
+            var parts = shapeParts ?? TextShapeUtil.MakeShape(TextShapeUtil.NormalizeForKey(normalizedKey));
 
             string tmpl;
             lock (_lock)
             {
-                if (!_dictShape.TryGetValue(shp.Shape, out tmpl)) return false;
+                if (!_dictShape.TryGetValue(parts.Shape, out tmpl)) return false;
             }
 
             int i = 0;
             var sb = new StringBuilder();
             foreach (char ch in tmpl)
             {
-                if (ch == '#') sb.Append(i < shp.Numbers.Count ? shp.Numbers[i++] : "#");
+                if (ch == '#') sb.Append(i < parts.Numbers.Count ? parts.Numbers[i++] : "#");
                 else sb.Append(ch);
             }
             ja = sb.ToString();
             return true;
         }
 
-        private static void TryEnrollOnce(string keyRaw, string source, string scope, string modGuess)
+        private static void TryEnrollOnce(string normalizedKey, string source, string scope, string modName, TextShapeUtil.ShapeParts shapeParts)
         {
             long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 
             lock (_lock)
             {
-                if (_recentSeen.TryGetValue(keyRaw, out var last) && (now - last) < DEBOUNCE_MS) return;
-                _recentSeen[keyRaw] = now;
-                if (_seenOnce.Contains(keyRaw)) return;
-                _seenOnce.Add(keyRaw);
+                if (_recentSeen.TryGetValue(normalizedKey, out var last) && (now - last) < DEBOUNCE_MS) return;
+                _recentSeen[normalizedKey] = now;
+                if (_seenOnce.Contains(normalizedKey)) return;
+                _seenOnce.Add(normalizedKey);
             }
 
             try
             {
-                var shp = MakeShape(NormalizeForKey(keyRaw));
+                var shp = shapeParts ?? TextShapeUtil.MakeShape(normalizedKey);
                 string keyForExport = shp.Shape;
+                if (string.IsNullOrEmpty(keyForExport)) return;
                 string keyTxt = keyForExport.Replace("\n", "/n");
 
-                string modName = (modGuess != null && modGuess != "Unknown") ? modGuess : GuessModFromStack() ?? "Unknown";
+                string safeMod = Safe(modName);
+                if (string.IsNullOrEmpty(safeMod)) safeMod = "Unknown";
 
                 if (_perMod)
                 {
-                    string modDir = Path.Combine(_exportRoot, _perModSubdir, Safe(modName));
+                    string modDir = Path.Combine(_exportRoot, _perModSubdir, safeMod);
                     Directory.CreateDirectory(modDir);
 
                     if (_exportMode == "TextOnly" || _exportMode == "Both")
@@ -433,7 +417,7 @@ namespace RimLex
                         string tsv = Path.Combine(modDir, "strings_en.tsv");
                         if (!File.Exists(tsv))
                             WriteAll(tsv, "timestamp_utc\tmod\tsource\tscope\ttext" + Environment.NewLine);
-                        AppendLine(tsv, DateTime.UtcNow.ToString("O") + "\t" + Safe(modName) + "\t" + Safe(source) + "\t" + Safe(scope) + "\t" + ForTsv(keyForExport));
+                        AppendLine(tsv, DateTime.UtcNow.ToString("O") + "\t" + safeMod + "\t" + Safe(source) + "\t" + Safe(scope) + "\t" + TextShapeUtil.ForTsv(keyForExport));
                     }
                 }
                 else
@@ -449,7 +433,7 @@ namespace RimLex
                         string tsv = Path.Combine(cur, "strings_en.tsv");
                         if (!File.Exists(tsv))
                             WriteAll(tsv, "timestamp_utc\tmod\tsource\tscope\ttext" + Environment.NewLine);
-                        AppendLine(tsv, DateTime.UtcNow.ToString("O") + "\t" + Safe(modGuess) + "\t" + Safe(source) + "\t" + Safe(scope) + "\t" + ForTsv(keyForExport));
+                        AppendLine(tsv, DateTime.UtcNow.ToString("O") + "\t" + safeMod + "\t" + Safe(source) + "\t" + Safe(scope) + "\t" + TextShapeUtil.ForTsv(keyForExport));
                     }
                 }
 
@@ -466,6 +450,21 @@ namespace RimLex
                 _logWarn("[Enroll] IO failed: " + ex.Message);
                 Interlocked.Increment(ref _sessionIoErrors);
             }
+        }
+
+        private static string ResolveModName(string modGuess)
+        {
+            if (!string.IsNullOrWhiteSpace(modGuess) && !string.Equals(modGuess, "Unknown", StringComparison.OrdinalIgnoreCase))
+                return modGuess;
+            string guessed = GuessModFromStack();
+            return string.IsNullOrWhiteSpace(guessed) ? "Unknown" : guessed;
+        }
+
+        private static string SanitizeModName(string modName)
+        {
+            string cleaned = Safe(modName);
+            cleaned = string.IsNullOrWhiteSpace(cleaned) ? "Unknown" : cleaned.Trim();
+            return string.IsNullOrEmpty(cleaned) ? "Unknown" : cleaned;
         }
 
         private static string GuessModFromStack()
@@ -531,7 +530,7 @@ namespace RimLex
         }
 
         private static string Safe(string s)
-            => string.IsNullOrEmpty(s) ? "" : s.Replace("\t", " ").Replace("\r", " ").Replace("\n", " ");
+            => string.IsNullOrEmpty(s) ? "" : s.Replace('\t', ' ').Replace('\r', ' ').Replace('\n', ' ');
 
         private static void WriteAll(string path, string content)
         {
