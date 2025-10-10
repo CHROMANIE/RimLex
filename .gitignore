@@ -18,9 +18,8 @@
 /bin/
 /obj/
 /Library/
-/Dict/strings_ja.tsv
-/Dict/Index/*
-LocalOnly/
+/Dict/
+/LocalOnly/
 /Temp/
 *.pdb
 *.user
