@@ -26,7 +26,7 @@
 *.user
 *.suo
 *.tmp
-/.vs/
+.vs/
 
 # 以下は Visual Studio 標準の無視設定（残す）
 *.rsuser
