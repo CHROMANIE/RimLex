@@ -109,20 +109,24 @@ namespace RimLex
                 return;
             }
 
+            int added = 1;
+            string message = null;
+
             // 直前の抑制分をまとめて確定
             if (_suppressed > 0 && !string.IsNullOrEmpty(_lastScreen))
             {
-                _excludedCount += (_suppressed + 1);
+                added = _suppressed + 1;
                 if (_logExcludedScreens)
-                    ModInitializer.LogInfo($"Excluded({kind}): {_lastScreen} x{_suppressed + 1}");
+                    message = $"Excluded({kind}): {_lastScreen} x{added}";
                 _suppressed = 0;
             }
-            else
+            else if (_logExcludedScreens)
             {
-                _excludedCount += 1;
-                if (_logExcludedScreens)
-                    ModInitializer.LogInfo($"Excluded({kind}): {(_lastScreen == screen ? screen : screen)}");
+                message = $"Excluded({kind}): {screen}";
             }
+
+            _excludedCount += added;
+            if (message != null) ModInitializer.LogInfo(message);
 
             _lastScreen = screen;
             _lastLogMs = now;

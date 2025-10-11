@@ -128,10 +128,15 @@ namespace RimLex
         }
 
         // ---- helpers ----
-        private static bool ParseBool(string v, bool def) =>
-            v.Equals("true", StringComparison.OrdinalIgnoreCase) || v == "1"
-                ? true
-                : (v.Equals("false", StringComparison.OrdinalIgnoreCase) || v == "0" ? false : def);
+        private static bool ParseBool(string v, bool def)
+        {
+            if (string.IsNullOrWhiteSpace(v)) return def;
+
+            if (v.Equals("true", StringComparison.OrdinalIgnoreCase) || v == "1") return true;
+            if (v.Equals("false", StringComparison.OrdinalIgnoreCase) || v == "0") return false;
+
+            return def;
+        }
 
         private static string Resolve(string v, string def)
         {
