@@ -1,0 +1,85 @@
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <!-- DLL出力 -->
+    <OutputType>Library</OutputType>
+    <!-- .NET Framework（RimWorld 1.6 / Unity 2022 LTS に最適化） -->
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
+    <!-- 既定は Release / AnyCPU -->
+    <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
+    <Platform>AnyCPU</Platform>
+    <!-- この .csproj が Mods/RimLex/Source/ にある前提で Assemblies へ出力 -->
+    <OutputPath>..\Assemblies\</OutputPath>
+    <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
+    <!-- ビルドオプション -->
+    <Optimize>true</Optimize>
+    <LangVersion>latest</LangVersion>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <!-- アセンブリ名とルート名前空間 -->
+    <AssemblyName>RimLex</AssemblyName>
+    <RootNamespace>RimLex</RootNamespace>
+    <!-- RimWorld ルート推定（この .csproj が Mods/RimLex/Source/ にある前提） -->
+    <RimWorldRoot>$(SolutionDir)..\..\</RimWorldRoot>
+    <ManagedDir>$(RimWorldRoot)RimWorldWin64_Data\Managed\</ManagedDir>
+    <!-- Harmony は Mods/Harmony を基準に統一 -->
+    <HarmonyDll>$(RimWorldRoot)Mods\Harmony\Assemblies\0Harmony.dll</HarmonyDll>
+    <!-- プロジェクト GUID（任意） -->
+    <ProjectGuid>{A82101D6-A1A1-4049-B7FA-D57CE057277E}</ProjectGuid>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <Optimize>false</Optimize>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <Optimize>true</Optimize>
+    <DefineConstants>TRACE</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- ゲーム本体 / Unity 参照 -->
+    <Reference Include="Assembly-CSharp">
+      <HintPath>$(ManagedDir)Assembly-CSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(ManagedDir)UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.IMGUIModule">
+      <HintPath>$(ManagedDir)UnityEngine.IMGUIModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule">
+      <HintPath>..\..\RimWorldWin64_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule">
+      <HintPath>$(ManagedDir)UnityEngine.TextRenderingModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <!-- Harmony（Mods/Harmony を基準に） -->
+    <Reference Include="0Harmony">
+      <HintPath>..\..\..\..\workshop\content\294100\2009463077\1.5\Assemblies\0Harmony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <!-- .NET 標準 -->
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml" />
+    <Reference Include="UnityEngine.UI">
+      <HintPath>..\..\RimWorldWin64_Data\Managed\UnityEngine.UI.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <!-- この .csproj が Source/ にある前提の相対パス -->
+    <Compile Include="Config.cs" />
+    <Compile Include="MenuUI.cs" />
+    <Compile Include="ModInitializer.cs" />
+    <Compile Include="NoiseFilter.cs" />
+    <Compile Include="Normalizer.cs" />
+    <Compile Include="TranslatorHub.cs" />
+    <Compile Include="UIPatches.cs" />
+    <Compile Include="UTFBuilder.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

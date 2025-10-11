@@ -1,0 +1,12 @@
+<Project>
+  <PropertyGroup>
+    <!-- RimWorld の Managed フォルダ（あなたの環境の実パス） -->
+    <GameManaged>D:\Program Files (x86)\Steam\steamapps\common\RimWorld\RimWorldWin64_Data\Managed\</GameManaged>
+
+    <!-- Harmony の場所（まずは Managed を見る。Mod の Harmony を使う場合は下を有効化） -->
+    <HarmonyDir>$(GameManaged)</HarmonyDir>
+    <!-- 例：Workshop の Harmony を使うならこう（必要なときだけ切替）
+    <HarmonyDir>D:\Program Files (x86)\Steam\steamapps\workshop\content\294100\2009463077\Assemblies\</HarmonyDir>
+    -->
+  </PropertyGroup>
+</Project>
