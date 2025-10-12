@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -476,26 +477,15 @@ namespace RimLex
                     var asm = m?.DeclaringType?.Assembly;
                     if (asm == null) continue;
 
-                    string an = asm.GetName().Name ?? "";
-                    if (an.StartsWith("RimLex", StringComparison.OrdinalIgnoreCase)) continue;
+                    string resolved = ResolveModFromAssembly(asm);
+                    if (!string.IsNullOrEmpty(resolved)) return resolved;
+
+                    string an = SafeAssemblyName(asm);
+                    if (string.IsNullOrEmpty(an)) continue;
+
                     if (an.StartsWith("Verse", StringComparison.OrdinalIgnoreCase)) { fallback ??= "Unknown(Verse)"; continue; }
                     if (an.StartsWith("Unity", StringComparison.OrdinalIgnoreCase)) { fallback ??= "Unknown(Unity)"; continue; }
                     if (an.StartsWith("Harmony", StringComparison.OrdinalIgnoreCase) || an.StartsWith("0Harmony", StringComparison.OrdinalIgnoreCase)) { fallback ??= "Unknown(Harmony)"; continue; }
-
-                    foreach (var mcp in LoadedModManager.RunningMods)
-                    {
-                        if (mcp.assemblies?.loadedAssemblies != null)
-                        {
-                            foreach (var la in mcp.assemblies.loadedAssemblies)
-                            {
-                                if (string.Equals(la.GetName().Name, an, StringComparison.OrdinalIgnoreCase))
-                                    return mcp.Name ?? mcp.PackageId ?? an;
-                            }
-                        }
-                        string id = (mcp.PackageId ?? "").ToLowerInvariant();
-                        if (!string.IsNullOrEmpty(id) && id.Contains(an.ToLowerInvariant()))
-                            return mcp.Name ?? mcp.PackageId ?? an;
-                    }
 
                     fallback ??= "Unknown(" + an + ")";
                 }
@@ -504,6 +494,95 @@ namespace RimLex
             }
             catch { }
             return "Unknown";
+        }
+
+        private static string ResolveModFromAssembly(Assembly asm)
+        {
+            string an = SafeAssemblyName(asm);
+            if (string.IsNullOrEmpty(an)) return null;
+
+            if (an.StartsWith("RimLex", StringComparison.OrdinalIgnoreCase)) return null;
+            if (an.StartsWith("Verse", StringComparison.OrdinalIgnoreCase)) return null;
+            if (an.StartsWith("Unity", StringComparison.OrdinalIgnoreCase)) return null;
+            if (an.StartsWith("Harmony", StringComparison.OrdinalIgnoreCase) || an.StartsWith("0Harmony", StringComparison.OrdinalIgnoreCase)) return null;
+
+            foreach (var mcp in LoadedModManager.RunningMods)
+            {
+                string modName = mcp.Name ?? mcp.PackageId ?? an;
+
+                if (mcp.assemblies?.loadedAssemblies != null)
+                {
+                    foreach (var la in mcp.assemblies.loadedAssemblies)
+                    {
+                        if (la == null) continue;
+
+                        if (ReferenceEquals(la, asm)) return modName;
+
+                        string laName = SafeAssemblyName(la);
+                        if (!string.IsNullOrEmpty(laName) && string.Equals(laName, an, StringComparison.OrdinalIgnoreCase))
+                            return modName;
+                    }
+                }
+
+                if (TryMatchAssemblyPath(mcp, asm)) return modName;
+
+                string id = mcp.PackageId ?? string.Empty;
+                if (!string.IsNullOrEmpty(id) && id.IndexOf(an, StringComparison.OrdinalIgnoreCase) >= 0)
+                    return modName;
+            }
+
+            return null;
+        }
+
+        private static bool TryMatchAssemblyPath(ModContentPack mcp, Assembly asm)
+        {
+            try
+            {
+                string loc = asm.Location;
+                if (string.IsNullOrEmpty(loc)) return false;
+
+                string root = mcp?.RootDir?.FullName;
+                if (string.IsNullOrEmpty(root)) return false;
+
+                return PathStartsWith(loc, root);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static bool PathStartsWith(string path, string root)
+        {
+            if (string.IsNullOrEmpty(path) || string.IsNullOrEmpty(root)) return false;
+
+            string normalizedPath = NormalizePathSafe(path);
+            string normalizedRoot = NormalizePathSafe(root);
+
+            if (!normalizedPath.StartsWith(normalizedRoot, StringComparison.OrdinalIgnoreCase)) return false;
+            if (normalizedPath.Length == normalizedRoot.Length) return true;
+
+            char ch = normalizedPath[normalizedRoot.Length];
+            return ch == Path.DirectorySeparatorChar || ch == Path.AltDirectorySeparatorChar;
+        }
+
+        private static string NormalizePathSafe(string path)
+        {
+            try
+            {
+                string full = Path.GetFullPath(path);
+                return full.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            }
+            catch
+            {
+                return path.Replace('/', Path.DirectorySeparatorChar).Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+            }
+        }
+
+        private static string SafeAssemblyName(Assembly asm)
+        {
+            try { return asm?.GetName()?.Name ?? string.Empty; }
+            catch { return string.Empty; }
         }
 
         private static bool IsSelfSettingsCall()
