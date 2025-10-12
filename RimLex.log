@@ -1,0 +1,451 @@
+[03:17:53] [INFO] ログをクリアしました。
+[03:17:54] [INFO] セッションキャッシュをクリアしました（perMod 88 / aggregate 88）。
+[03:17:54] [INFO] Export を初期化しました。
+[03:17:58] [INFO] [Provenance] views updated: D:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\RimLex\Dict\Index\en_provenance_view.tsv , D:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\RimLex\Dict\Index\en_provenance_recent.tsv
+[03:18:37] [INFO] [Provenance] views updated: D:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\RimLex\Dict\Index\en_provenance_view.tsv , D:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\RimLex\Dict\Index\en_provenance_recent.tsv
+[03:18:56] [INFO] [Provenance] views updated: D:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\RimLex\Dict\Index\en_provenance_view.tsv , D:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\RimLex\Dict\Index\en_provenance_recent.tsv
+[03:19:11] [INFO] [Provenance] views updated: D:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\RimLex\Dict\Index\en_provenance_view.tsv , D:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\RimLex\Dict\Index\en_provenance_recent.tsv
+[03:19:37] [INFO] [Provenance] views updated: D:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\RimLex\Dict\Index\en_provenance_view.tsv , D:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\RimLex\Dict\Index\en_provenance_recent.tsv
+[03:19:55] [INFO] === RimLex initializing ===
+[03:19:55] [INFO] Dict loaded: exact=1, shape=0
+[03:19:55] [INFO] [Provenance] loaded 265 rows.
+[03:19:55] [INFO] [Provenance] index at D:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\RimLex\Dict\Index\en_provenance.tsv (entries=264)
+[03:19:55] [INFO] TranslatorHub.InitIO OK: dict=D:/Program Files (x86)/Steam/steamapps/common/RimWorld/Mods/RimLex/Dict/strings_ja.tsv, exportRoot=D:/Program Files (x86)/Steam/steamapps/common/RimWorld/Mods/RimLex/Export, perMod=True, perModSubdir=PerMod, aggregate=True
+[03:19:55] [INFO] Dict watcher enabled: D:/Program Files (x86)/Steam/steamapps/common/RimWorld/Mods/RimLex/Dict/strings_ja.tsv
+[03:19:55] [INFO] Patched: Widgets.Label(Rect,string)
+[03:19:55] [INFO] Patched: Listing_Standard.Label x1
+[03:19:55] [INFO] Patched: Widgets.ButtonText
+[03:19:55] [INFO] Patched: Listing_Standard.Slider
+[03:19:55] [INFO] Patched: TooltipHandler.TipRegion(Rect,TipSignal)
+[03:19:55] [INFO] Patched: FloatMenuOption::.ctor
+[03:19:55] [INFO] Patched: Command.LabelCap.get
+[03:19:55] [INFO] UIPatches applied. ApplyDictAtRuntime=True
+[03:19:55] [INFO] Options: Apply=True, PerMod=True, Aggregate=True, Mode=Both, PerModSubdir=PerMod, PauseAgg=False, WatchDict=True
+[03:19:55] [INFO] === RimLex initialized ===
+[03:20:23] [INFO] [Provenance] views updated: D:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\RimLex\Dict\Index\en_provenance_view.tsv , D:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\RimLex\Dict\Index\en_provenance_recent.tsv
+[03:41:48] [INFO] === RimLex initializing ===
+[03:41:48] [INFO] Dict loaded: exact=1, shape=0
+[03:41:48] [INFO] [Provenance] loaded 265 rows.
+[03:41:48] [INFO] [Provenance] index at D:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\RimLex\Dict\Index\en_provenance.tsv (entries=264)
+[03:41:48] [INFO] TranslatorHub.InitIO OK: dict=D:/Program Files (x86)/Steam/steamapps/common/RimWorld/Mods/RimLex/Dict/strings_ja.tsv, exportRoot=D:/Program Files (x86)/Steam/steamapps/common/RimWorld/Mods/RimLex/Export, perMod=True, perModSubdir=PerMod, aggregate=True
+[03:41:48] [INFO] Dict watcher enabled: D:/Program Files (x86)/Steam/steamapps/common/RimWorld/Mods/RimLex/Dict/strings_ja.tsv
+[03:41:48] [INFO] Patched: Widgets.Label(Rect,string)
+[03:41:48] [INFO] Patched: Listing_Standard.Label x1
+[03:41:48] [INFO] Patched: Widgets.ButtonText
+[03:41:48] [INFO] Patched: Listing_Standard.Slider
+[03:41:48] [INFO] Patched: TooltipHandler.TipRegion(Rect,TipSignal)
+[03:41:48] [INFO] Patched: FloatMenuOption::.ctor
+[03:41:48] [INFO] Patched: Command.LabelCap.get
+[03:41:48] [INFO] UIPatches applied. ApplyDictAtRuntime=True
+[03:41:48] [INFO] Options: Apply=True, PerMod=True, Aggregate=True, Mode=Both, PerModSubdir=PerMod, PauseAgg=False, WatchDict=True
+[03:41:48] [INFO] === RimLex initialized ===
+[03:42:18] [INFO] [Provenance] views updated: D:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\RimLex\Dict\Index\en_provenance_view.tsv , D:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\RimLex\Dict\Index\en_provenance_recent.tsv
+[03:47:56] [INFO] === RimLex initializing ===
+[03:47:56] [INFO] Dictionary loaded: lines=1, exact=1, shape=0, dupNormalized=0
+[03:47:56] [INFO] TranslatorHub.InitIO OK: dict=D:/Program Files (x86)/Steam/steamapps/common/RimWorld/Mods/RimLex/Dict/strings_ja.tsv, exportRoot=D:/Program Files (x86)/Steam/steamapps/common/RimWorld/Mods/RimLex/Export, perMod=True, perModSubdir=PerMod, aggregate=True
+[03:47:56] [INFO] Dict watcher enabled: D:/Program Files (x86)/Steam/steamapps/common/RimWorld/Mods/RimLex/Dict/strings_ja.tsv
+[03:47:56] [INFO] Patched: Widgets.Label(Rect,string)
+[03:47:56] [INFO] Patched: Listing_Standard.Label x1
+[03:47:56] [INFO] Patched: Widgets.ButtonText
+[03:47:56] [INFO] Patched: Listing_Standard.Slider
+[03:47:56] [INFO] Patched: TooltipHandler.TipRegion(Rect,TipSignal)
+[03:47:56] [INFO] Patched: FloatMenuOption::.ctor
+[03:47:56] [INFO] Patched: Command.LabelCap.get
+[03:47:56] [INFO] UIPatches applied. ApplyDictAtRuntime=True
+[03:47:56] [INFO] Options: Apply=True, PerMod=True, Aggregate=True, Mode=Both, PerModSubdir=PerMod, PauseAggregate=False, WatchDict=True
+[03:47:56] [INFO] === RimLex initialized ===
+[03:48:22] [INFO] Excluded(blacklist): EditWindow_Log
+[03:48:23] [INFO] Excluded(blacklist): EditWindow_Log x2668
+[03:48:23] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[03:48:24] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[03:48:24] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[04:05:38] [INFO] === RimLex initializing ===
+[04:05:38] [INFO] Dict loaded: exact=1, shape=0
+[04:05:38] [INFO] [Provenance] loaded 265 rows.
+[04:05:38] [INFO] [Provenance] index at D:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\RimLex\Dict\Index\en_provenance.tsv (entries=264)
+[04:05:38] [INFO] TranslatorHub.InitIO OK: dict=D:/Program Files (x86)/Steam/steamapps/common/RimWorld/Mods/RimLex/Dict/strings_ja.tsv, exportRoot=D:/Program Files (x86)/Steam/steamapps/common/RimWorld/Mods/RimLex/Export, perMod=True, perModSubdir=PerMod, aggregate=True, mode=Both
+[04:05:38] [INFO] Dict watcher enabled: D:/Program Files (x86)/Steam/steamapps/common/RimWorld/Mods/RimLex/Dict/strings_ja.tsv
+[04:05:38] [INFO] Patched: Widgets.Label(Rect,string)
+[04:05:38] [INFO] Patched: Listing_Standard.Label x1
+[04:05:38] [INFO] Patched: Widgets.ButtonText
+[04:05:38] [INFO] Patched: Listing_Standard.Slider
+[04:05:38] [INFO] Patched: TooltipHandler.TipRegion(Rect,TipSignal)
+[04:05:38] [INFO] Patched: FloatMenuOption::.ctor
+[04:05:38] [INFO] Patched: Command.LabelCap.get
+[04:05:38] [INFO] UIPatches applied. ApplyDictAtRuntime=True
+[04:05:38] [INFO] Options: Apply=True, PerMod=True, Aggregate=True, Mode=Both, PerModSubdir=PerMod, PauseAgg=False, WatchDict=True
+[04:05:38] [INFO] === RimLex initialized ===
+[04:06:04] [INFO] Excluded(blacklist): EditWindow_Log
+[04:06:24] [INFO] Excluded(blacklist): EditWindow_Log x33
+[04:06:26] [INFO] Excluded(blacklist): EditWindow_Log x33
+[04:06:26] [INFO] Excluded(blacklist): EditWindow_Log x23
+[04:06:28] [INFO] Excluded(blacklist): EditWindow_Log x10
+[04:06:28] [INFO] Excluded(blacklist): EditWindow_Log x23
+[04:06:30] [INFO] Excluded(blacklist): EditWindow_Log x10
+[04:06:30] [INFO] Excluded(blacklist): EditWindow_Log x23
+[04:06:32] [INFO] Excluded(blacklist): EditWindow_Log x10
+[04:06:32] [INFO] Excluded(blacklist): EditWindow_Log x23
+[04:06:34] [INFO] Excluded(blacklist): EditWindow_Log x10
+[04:06:34] [INFO] Excluded(blacklist): EditWindow_Log x23
+[04:06:36] [INFO] Excluded(blacklist): EditWindow_Log x10
+[04:06:36] [INFO] Excluded(blacklist): EditWindow_Log x23
+[04:06:38] [INFO] Excluded(blacklist): EditWindow_Log x10
+[04:06:38] [INFO] Excluded(blacklist): EditWindow_Log x23
+[04:06:40] [INFO] Excluded(blacklist): EditWindow_Log x10
+[04:06:40] [INFO] Excluded(blacklist): EditWindow_Log x24
+[04:06:42] [INFO] Excluded(blacklist): EditWindow_Log x9
+[04:06:42] [INFO] Excluded(blacklist): EditWindow_Log x23
+[04:06:44] [INFO] Excluded(blacklist): EditWindow_Log x10
+[04:06:44] [INFO] Excluded(blacklist): EditWindow_Log x23
+[04:06:46] [INFO] Excluded(blacklist): EditWindow_Log x10
+[04:06:46] [INFO] Excluded(blacklist): EditWindow_Log x23
+[04:06:48] [INFO] Excluded(blacklist): EditWindow_Log x10
+[04:06:48] [INFO] Excluded(blacklist): EditWindow_Log x23
+[04:06:50] [INFO] Excluded(blacklist): EditWindow_Log x10
+[04:06:50] [INFO] Excluded(blacklist): EditWindow_Log x23
+[04:06:52] [INFO] Excluded(blacklist): EditWindow_Log x10
+[04:06:52] [INFO] Excluded(blacklist): EditWindow_Log x23
+[04:06:54] [INFO] Excluded(blacklist): EditWindow_Log x10
+[04:06:54] [INFO] Excluded(blacklist): EditWindow_Log x23
+[04:06:56] [INFO] Excluded(blacklist): EditWindow_Log x10
+[04:06:56] [INFO] Excluded(blacklist): EditWindow_Log x23
+[04:06:58] [INFO] Excluded(blacklist): EditWindow_Log x10
+[04:06:58] [INFO] Excluded(blacklist): EditWindow_Log x23
+[04:07:00] [INFO] Excluded(blacklist): EditWindow_Log x10
+[04:07:00] [INFO] Excluded(blacklist): EditWindow_Log x23
+[04:07:02] [INFO] Excluded(blacklist): EditWindow_Log x10
+[04:07:02] [INFO] Excluded(blacklist): EditWindow_Log x23
+[04:07:04] [INFO] Excluded(blacklist): EditWindow_Log x10
+[04:07:04] [INFO] Excluded(blacklist): EditWindow_Log x23
+[04:07:06] [INFO] Excluded(blacklist): EditWindow_Log x10
+[04:07:06] [INFO] Excluded(blacklist): EditWindow_Log x23
+[04:07:08] [INFO] Excluded(blacklist): EditWindow_Log x10
+[04:07:08] [INFO] Excluded(blacklist): EditWindow_Log x25
+[04:07:10] [INFO] Excluded(blacklist): EditWindow_Log x10
+[04:07:10] [INFO] Excluded(blacklist): EditWindow_Log x24
+[04:07:12] [INFO] Excluded(blacklist): EditWindow_Log x9
+[04:07:12] [INFO] Excluded(blacklist): EditWindow_Log x23
+[04:07:14] [INFO] Excluded(blacklist): EditWindow_Log x10
+[04:07:16] [INFO] Excluded(blacklist): EditWindow_Log x33
+[04:07:18] [INFO] Excluded(blacklist): EditWindow_Log x33
+[04:07:20] [INFO] Excluded(blacklist): EditWindow_Log x33
+[04:07:22] [INFO] Excluded(blacklist): EditWindow_Log x33
+[04:07:24] [INFO] Excluded(blacklist): EditWindow_Log x33
+[04:07:26] [INFO] Excluded(blacklist): EditWindow_Log x33
+[04:07:28] [INFO] Excluded(blacklist): EditWindow_Log x33
+[04:07:30] [INFO] Excluded(blacklist): EditWindow_Log x33
+[04:07:32] [INFO] Excluded(blacklist): EditWindow_Log x33
+[04:07:34] [INFO] Excluded(blacklist): EditWindow_Log x33
+[04:07:36] [INFO] Excluded(blacklist): EditWindow_Log x33
+[04:07:36] [INFO] Excluded(blacklist): EditWindow_Log x33
+[04:13:41] [INFO] === RimLex initializing ===
+[04:13:41] [INFO] Dict loaded: exact=1, shape=0
+[04:13:41] [INFO] [Provenance] loaded 265 rows.
+[04:13:41] [INFO] [Provenance] index at D:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\RimLex\Dict\Index\en_provenance.tsv (entries=264)
+[04:13:41] [INFO] TranslatorHub.InitIO OK: dict=D:/Program Files (x86)/Steam/steamapps/common/RimWorld/Mods/RimLex/Dict/strings_ja.tsv, exportRoot=D:/Program Files (x86)/Steam/steamapps/common/RimWorld/Mods/RimLex/Export, perMod=True, perModSubdir=PerMod, aggregate=True, mode=Both
+[04:13:41] [INFO] Dict watcher enabled: D:/Program Files (x86)/Steam/steamapps/common/RimWorld/Mods/RimLex/Dict/strings_ja.tsv
+[04:13:41] [INFO] Patched: Widgets.Label(Rect,string)
+[04:13:41] [INFO] Patched: Listing_Standard.Label x1
+[04:13:41] [INFO] Patched: Widgets.ButtonText
+[04:13:41] [INFO] Patched: Listing_Standard.Slider
+[04:13:41] [INFO] Patched: TooltipHandler.TipRegion(Rect,TipSignal)
+[04:13:41] [INFO] Patched: FloatMenuOption::.ctor
+[04:13:41] [INFO] Patched: Command.LabelCap.get
+[04:13:41] [INFO] UIPatches applied. ApplyDictAtRuntime=True
+[04:13:41] [INFO] Options: Apply=True, PerMod=True, Aggregate=True, Mode=Both, PerModSubdir=PerMod, PauseAgg=False, WatchDict=True
+[04:13:41] [INFO] === RimLex initialized ===
+[04:14:07] [INFO] Excluded(blacklist): EditWindow_Log
+[04:21:05] [INFO] Excluded(blacklist): EditWindow_Log x33
+[04:21:06] [INFO] Excluded(blacklist): EditWindow_Log x23
+[04:21:07] [INFO] Excluded(blacklist): EditWindow_Log x10
+[04:21:08] [INFO] Excluded(blacklist): EditWindow_Log x23
+[04:21:09] [INFO] Excluded(blacklist): EditWindow_Log x10
+[04:21:10] [INFO] Excluded(blacklist): EditWindow_Log x23
+[04:21:11] [INFO] Excluded(blacklist): EditWindow_Log x10
+[05:42:48] [INFO] === RimLex initializing ===
+[05:42:48] [INFO] Dictionary loaded: lines=65, exact=37, shape=28, dupNormalized=0
+[05:42:48] [INFO] TranslatorHub.InitIO OK: dict=D:/Program Files (x86)/Steam/steamapps/common/RimWorld/Mods/RimLex/Dict/strings_ja.tsv, exportRoot=D:/Program Files (x86)/Steam/steamapps/common/RimWorld/Mods/RimLex/Export, perMod=True, perModSubdir=PerMod, aggregate=True
+[05:42:48] [INFO] Dict watcher enabled: D:/Program Files (x86)/Steam/steamapps/common/RimWorld/Mods/RimLex/Dict/strings_ja.tsv
+[05:42:48] [INFO] Patched: Widgets.Label(Rect,string)
+[05:42:48] [INFO] Patched: Listing_Standard.Label x1
+[05:42:48] [INFO] Patched: Widgets.ButtonText
+[05:42:48] [INFO] Patched: Listing_Standard.Slider
+[05:42:48] [INFO] Patched: TooltipHandler.TipRegion(Rect,TipSignal)
+[05:42:48] [INFO] Patched: FloatMenuOption::.ctor
+[05:42:48] [INFO] Patched: Command.LabelCap.get
+[05:42:48] [INFO] UIPatches applied. ApplyDictAtRuntime=True
+[05:42:48] [INFO] Options: Apply=True, PerMod=True, Aggregate=True, Mode=Both, PerModSubdir=PerMod, PauseAggregate=False, WatchDict=True
+[05:42:48] [INFO] === RimLex initialized ===
+[05:43:15] [INFO] Excluded(blacklist): EditWindow_Log
+[05:43:15] [INFO] Excluded(blacklist): EditWindow_Log x2668
+[05:43:16] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[05:43:16] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[05:43:17] [INFO] Excluded(blacklist): EditWindow_Log x2855
+[06:54:57] [INFO] Excluded(blacklist): EditWindow_Log x2250
+[06:54:57] [INFO] Excluded(blacklist): EditWindow_Log x2886
+[06:54:58] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[06:59:34] [INFO] === RimLex initializing ===
+[06:59:34] [INFO] Dictionary loaded: lines=65, exact=37, shape=28, dupNormalized=0
+[06:59:34] [INFO] TranslatorHub.InitIO OK: dict=D:/Program Files (x86)/Steam/steamapps/common/RimWorld/Mods/RimLex/Dict/strings_ja.tsv, exportRoot=D:/Program Files (x86)/Steam/steamapps/common/RimWorld/Mods/RimLex/Export, perMod=True, perModSubdir=PerMod, aggregate=True
+[06:59:34] [INFO] Dict watcher enabled: D:/Program Files (x86)/Steam/steamapps/common/RimWorld/Mods/RimLex/Dict/strings_ja.tsv
+[06:59:34] [INFO] Patched: Widgets.Label(Rect,string)
+[06:59:34] [INFO] Patched: Listing_Standard.Label x1
+[06:59:34] [INFO] Patched: Widgets.ButtonText
+[06:59:34] [INFO] Patched: Listing_Standard.SliderLabeled x1
+[06:59:34] [INFO] Patched: Listing_Standard.Slider
+[06:59:34] [INFO] Patched: TooltipHandler.TipRegion(Rect,TipSignal)
+[06:59:34] [INFO] Patched: FloatMenuOption::.ctor
+[06:59:34] [INFO] Patched: Command.LabelCap.get
+[06:59:34] [INFO] UIPatches applied. ApplyDictAtRuntime=True
+[06:59:34] [INFO] Options: Apply=True, PerMod=True, Aggregate=True, Mode=Both, PerModSubdir=PerMod, PauseAggregate=False, WatchDict=True
+[06:59:34] [INFO] === RimLex initialized ===
+[07:00:23] [INFO] Excluded(blacklist): EditWindow_Log
+[07:00:24] [INFO] Excluded(blacklist): EditWindow_Log x2668
+[07:00:24] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[07:00:25] [INFO] Excluded(blacklist): EditWindow_Log x2767
+[07:00:25] [INFO] Excluded(blacklist): EditWindow_Log x2755
+[07:00:26] [INFO] Excluded(blacklist): EditWindow_Log x2763
+[07:00:26] [INFO] Excluded(blacklist): EditWindow_Log x2762
+[07:00:27] [INFO] Excluded(blacklist): EditWindow_Log x2766
+[07:00:27] [INFO] Excluded(blacklist): EditWindow_Log x2762
+[07:00:28] [INFO] Excluded(blacklist): EditWindow_Log x2961
+[22:14:49] [INFO] === RimLex initializing ===
+[22:14:49] [INFO] Dictionary loaded: lines=65, exact=37, shape=28, dupNormalized=0
+[22:14:49] [INFO] TranslatorHub.InitIO OK: dict=D:/Program Files (x86)/Steam/steamapps/common/RimWorld/Mods/RimLex/Dict/strings_ja.tsv, exportRoot=D:/Program Files (x86)/Steam/steamapps/common/RimWorld/Mods/RimLex/Export, perMod=True, perModSubdir=PerMod, aggregate=True
+[22:14:49] [INFO] Dict watcher enabled: D:/Program Files (x86)/Steam/steamapps/common/RimWorld/Mods/RimLex/Dict/strings_ja.tsv
+[22:14:49] [INFO] Patched: Widgets.Label(Rect,string)
+[22:14:49] [INFO] Patched: Listing_Standard.Label x1
+[22:14:49] [INFO] Patched: Widgets.ButtonText
+[22:14:49] [INFO] Patched: Listing_Standard.Slider
+[22:14:49] [INFO] Patched: TooltipHandler.TipRegion(Rect,TipSignal)
+[22:14:49] [INFO] Patched: FloatMenuOption::.ctor
+[22:14:49] [INFO] Patched: Command.LabelCap.get
+[22:14:49] [INFO] UIPatches applied. ApplyDictAtRuntime=True
+[22:14:49] [INFO] Options: Apply=True, PerMod=True, Aggregate=True, Mode=Both, PerModSubdir=PerMod, PauseAggregate=False, WatchDict=True
+[22:14:49] [INFO] === RimLex initialized ===
+[22:15:45] [INFO] Excluded(blacklist): EditWindow_Log
+[22:15:45] [INFO] Excluded(blacklist): EditWindow_Log x2656
+[22:15:46] [INFO] Excluded(blacklist): EditWindow_Log x2761
+[22:15:46] [INFO] Excluded(blacklist): EditWindow_Log x2768
+[22:15:47] [INFO] Excluded(blacklist): EditWindow_Log x2751
+[22:28:17] [INFO] [Menu] Export reset OK
+[22:28:23] [INFO] [Menu] Log cleared.
+[22:28:23] [INFO] [Menu] Log clear OK
+[22:28:42] [INFO] === RimLex initializing ===
+[22:28:42] [INFO] Dictionary loaded: lines=65, exact=37, shape=28, dupNormalized=0
+[22:28:42] [INFO] TranslatorHub.InitIO OK: dict=D:/Program Files (x86)/Steam/steamapps/common/RimWorld/Mods/RimLex/Dict/strings_ja.tsv, exportRoot=D:/Program Files (x86)/Steam/steamapps/common/RimWorld/Mods/RimLex/Export, perMod=True, perModSubdir=PerMod, aggregate=True
+[22:28:42] [INFO] Dict watcher enabled: D:/Program Files (x86)/Steam/steamapps/common/RimWorld/Mods/RimLex/Dict/strings_ja.tsv
+[22:28:42] [INFO] Patched: Widgets.Label(Rect,string)
+[22:28:42] [INFO] Patched: Listing_Standard.Label x1
+[22:28:42] [INFO] Patched: Widgets.ButtonText
+[22:28:42] [INFO] Patched: Listing_Standard.Slider
+[22:28:42] [INFO] Patched: TooltipHandler.TipRegion(Rect,TipSignal)
+[22:28:42] [INFO] Patched: FloatMenuOption::.ctor
+[22:28:42] [INFO] Patched: Command.LabelCap.get
+[22:28:42] [INFO] UIPatches applied. ApplyDictAtRuntime=True
+[22:28:42] [INFO] Options: Apply=True, PerMod=True, Aggregate=True, Mode=Both, PerModSubdir=PerMod, PauseAggregate=False, WatchDict=True
+[22:28:42] [INFO] === RimLex initialized ===
+[22:29:10] [INFO] Excluded(blacklist): EditWindow_Log
+[22:29:11] [INFO] Excluded(blacklist): EditWindow_Log x2668
+[22:29:11] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[22:29:12] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[22:29:12] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[22:29:13] [INFO] Excluded(blacklist): EditWindow_Log x2771
+[22:29:13] [INFO] Excluded(blacklist): EditWindow_Log x2749
+[22:29:14] [INFO] Excluded(blacklist): EditWindow_Log x2772
+[22:29:14] [INFO] Excluded(blacklist): EditWindow_Log x2748
+[22:29:15] [INFO] Excluded(blacklist): EditWindow_Log x2774
+[22:29:15] [INFO] Excluded(blacklist): EditWindow_Log x2762
+[22:29:16] [INFO] Excluded(blacklist): EditWindow_Log x2775
+[22:29:16] [INFO] Excluded(blacklist): EditWindow_Log x2763
+[22:29:17] [INFO] Excluded(blacklist): EditWindow_Log x2736
+[22:29:17] [INFO] Excluded(blacklist): EditWindow_Log x2771
+[22:29:18] [INFO] Excluded(blacklist): EditWindow_Log x2762
+[22:29:18] [INFO] Excluded(blacklist): EditWindow_Log x2756
+[22:29:19] [INFO] Excluded(blacklist): EditWindow_Log x2770
+[22:29:19] [INFO] Excluded(blacklist): EditWindow_Log x2765
+[22:29:20] [INFO] Excluded(blacklist): EditWindow_Log x2753
+[22:29:20] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[22:29:21] [INFO] Excluded(blacklist): EditWindow_Log x2776
+[22:29:21] [INFO] Excluded(blacklist): EditWindow_Log x2717
+[22:29:22] [INFO] Excluded(blacklist): EditWindow_Log x2764
+[22:29:22] [INFO] Excluded(blacklist): EditWindow_Log x2756
+[22:29:23] [INFO] Excluded(blacklist): EditWindow_Log x2772
+[22:29:23] [INFO] Excluded(blacklist): EditWindow_Log x2763
+[22:29:24] [INFO] Excluded(blacklist): EditWindow_Log x2745
+[22:30:28] [INFO] Excluded(blacklist): EditWindow_Log x965
+[22:30:29] [INFO] Excluded(blacklist): EditWindow_Log x2886
+[22:30:29] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[22:30:30] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[22:30:30] [INFO] Excluded(blacklist): EditWindow_Log x2770
+[22:33:08] [INFO] === RimLex initializing ===
+[22:33:08] [INFO] Dictionary loaded: lines=65, exact=37, shape=28, dupNormalized=0
+[22:33:08] [INFO] TranslatorHub.InitIO OK: dict=D:/Program Files (x86)/Steam/steamapps/common/RimWorld/Mods/RimLex/Dict/strings_ja.tsv, exportRoot=D:/Program Files (x86)/Steam/steamapps/common/RimWorld/Mods/RimLex/Export, perMod=True, perModSubdir=PerMod, aggregate=True
+[22:33:08] [INFO] Dict watcher enabled: D:/Program Files (x86)/Steam/steamapps/common/RimWorld/Mods/RimLex/Dict/strings_ja.tsv
+[22:33:08] [INFO] Patched: Widgets.Label(Rect,string)
+[22:33:08] [INFO] Patched: Listing_Standard.Label x1
+[22:33:08] [INFO] Patched: Widgets.ButtonText
+[22:33:08] [INFO] Patched: Listing_Standard.Slider
+[22:33:08] [INFO] Patched: TooltipHandler.TipRegion(Rect,TipSignal)
+[22:33:08] [INFO] Patched: FloatMenuOption::.ctor
+[22:33:08] [INFO] Patched: Command.LabelCap.get
+[22:33:08] [INFO] UIPatches applied. ApplyDictAtRuntime=True
+[22:33:08] [INFO] Options: Apply=True, PerMod=True, Aggregate=True, Mode=Both, PerModSubdir=PerMod, PauseAggregate=False, WatchDict=True
+[22:33:08] [INFO] === RimLex initialized ===
+[22:33:34] [INFO] Excluded(blacklist): EditWindow_Log
+[22:33:35] [INFO] Excluded(blacklist): EditWindow_Log x2668
+[22:33:35] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[22:33:36] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[22:33:36] [INFO] Excluded(blacklist): EditWindow_Log x2668
+[22:33:37] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[22:33:37] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[22:33:38] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[22:33:38] [INFO] Excluded(blacklist): EditWindow_Log x2761
+[22:33:39] [INFO] Excluded(blacklist): EditWindow_Log x2780
+[22:33:39] [INFO] Excluded(blacklist): EditWindow_Log x2743
+[22:33:40] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[22:33:40] [INFO] Excluded(blacklist): EditWindow_Log x2756
+[22:33:41] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[22:33:41] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[22:33:42] [INFO] Excluded(blacklist): EditWindow_Log x2777
+[22:33:42] [INFO] Excluded(blacklist): EditWindow_Log x2767
+[22:33:43] [INFO] Excluded(blacklist): EditWindow_Log x2751
+[22:33:43] [INFO] Excluded(blacklist): EditWindow_Log x2766
+[22:33:44] [INFO] Excluded(blacklist): EditWindow_Log x2749
+[22:47:01] [INFO] Excluded(blacklist): EditWindow_Log x1415
+[22:47:02] [INFO] Excluded(blacklist): EditWindow_Log x2794
+[22:47:02] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[22:56:37] [INFO] === RimLex initializing ===
+[22:56:37] [INFO] Dictionary loaded: lines=65, exact=37, shape=28, dupNormalized=0
+[22:56:37] [INFO] TranslatorHub.InitIO OK: dict=D:/Program Files (x86)/Steam/steamapps/common/RimWorld/Mods/RimLex/Dict/strings_ja.tsv, exportRoot=D:/Program Files (x86)/Steam/steamapps/common/RimWorld/Mods/RimLex/Export, perMod=True, perModSubdir=PerMod, aggregate=True
+[22:56:37] [INFO] Dict watcher enabled: D:/Program Files (x86)/Steam/steamapps/common/RimWorld/Mods/RimLex/Dict/strings_ja.tsv
+[22:56:37] [INFO] Patched: Widgets.Label(Rect,string)
+[22:56:37] [INFO] Patched: Listing_Standard.Label x1
+[22:56:37] [INFO] Patched: Widgets.ButtonText
+[22:56:37] [INFO] Patched: Listing_Standard.Slider
+[22:56:37] [INFO] Patched: TooltipHandler.TipRegion(Rect,TipSignal)
+[22:56:37] [INFO] Patched: FloatMenuOption::.ctor
+[22:56:37] [INFO] Patched: Command.LabelCap.get
+[22:56:37] [INFO] UIPatches applied. ApplyDictAtRuntime=True
+[22:56:37] [INFO] Options: Apply=True, PerMod=True, Aggregate=True, Mode=Both, PerModSubdir=PerMod, PauseAggregate=False, WatchDict=True
+[22:56:37] [INFO] === RimLex initialized ===
+[22:57:04] [INFO] Excluded(blacklist): EditWindow_Log
+[22:57:04] [INFO] Excluded(blacklist): EditWindow_Log x2668
+[22:57:05] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[22:57:05] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[22:57:06] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[22:57:06] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[22:57:07] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[22:57:07] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[22:57:08] [INFO] Excluded(blacklist): EditWindow_Log x2782
+[22:57:08] [INFO] Excluded(blacklist): EditWindow_Log x2738
+[22:57:09] [INFO] Excluded(blacklist): EditWindow_Log x2763
+[22:57:09] [INFO] Excluded(blacklist): EditWindow_Log x2757
+[23:17:15] [INFO] Excluded(blacklist): EditWindow_Log x1149
+[23:17:15] [INFO] Excluded(blacklist): EditWindow_Log x2840
+[23:17:16] [INFO] Excluded(blacklist): EditWindow_Log x2748
+[23:17:16] [INFO] Excluded(blacklist): EditWindow_Log x2761
+[23:17:17] [INFO] Excluded(blacklist): EditWindow_Log x2751
+[23:17:17] [INFO] Excluded(blacklist): EditWindow_Log x2765
+[23:17:18] [INFO] Excluded(blacklist): EditWindow_Log x2776
+[23:17:18] [INFO] Excluded(blacklist): EditWindow_Log x2757
+[23:17:19] [INFO] Excluded(blacklist): EditWindow_Log x2751
+[23:17:19] [INFO] Excluded(blacklist): EditWindow_Log x2771
+[23:17:20] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[23:17:20] [INFO] Excluded(blacklist): EditWindow_Log x2745
+[23:17:21] [INFO] Excluded(blacklist): EditWindow_Log x2775
+[23:17:21] [INFO] Excluded(blacklist): EditWindow_Log x2763
+[23:17:22] [INFO] Excluded(blacklist): EditWindow_Log x2753
+[23:17:22] [INFO] Excluded(blacklist): EditWindow_Log x2762
+[23:17:23] [INFO] Excluded(blacklist): EditWindow_Log x2772
+[23:17:23] [INFO] Excluded(blacklist): EditWindow_Log x2758
+[23:34:31] [INFO] === RimLex initializing ===
+[23:34:31] [INFO] Dictionary loaded: lines=65, exact=37, shape=28, dupNormalized=0
+[23:34:31] [INFO] TranslatorHub.InitIO OK: dict=D:/Program Files (x86)/Steam/steamapps/common/RimWorld/Mods/RimLex/Dict/strings_ja.tsv, exportRoot=D:/Program Files (x86)/Steam/steamapps/common/RimWorld/Mods/RimLex/Export, perMod=True, perModSubdir=PerMod, aggregate=True
+[23:34:31] [INFO] Dict watcher enabled: D:/Program Files (x86)/Steam/steamapps/common/RimWorld/Mods/RimLex/Dict/strings_ja.tsv
+[23:34:31] [INFO] Patched: Widgets.Label(Rect,string)
+[23:34:31] [INFO] Patched: Listing_Standard.Label x1
+[23:34:31] [INFO] Patched: Widgets.ButtonText
+[23:34:31] [INFO] Patched: Listing_Standard.Slider
+[23:34:31] [INFO] Patched: TooltipHandler.TipRegion(Rect,TipSignal)
+[23:34:31] [INFO] Patched: FloatMenuOption::.ctor
+[23:34:31] [INFO] Patched: Command.LabelCap.get
+[23:34:31] [INFO] UIPatches applied. ApplyDictAtRuntime=True
+[23:34:31] [INFO] Options: Apply=True, PerMod=True, Aggregate=True, Mode=Both, PerModSubdir=PerMod, PauseAggregate=False, WatchDict=True
+[23:34:31] [INFO] === RimLex initialized ===
+[23:34:59] [INFO] Excluded(blacklist): EditWindow_Log
+[23:34:59] [INFO] Excluded(blacklist): EditWindow_Log x2668
+[23:35:00] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[23:35:00] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[23:35:01] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[23:35:01] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[23:35:02] [INFO] Excluded(blacklist): EditWindow_Log x2763
+[23:35:02] [INFO] Excluded(blacklist): EditWindow_Log x2757
+[23:35:03] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[23:35:03] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[23:35:04] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[23:35:04] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[23:35:05] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[23:35:05] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[23:35:06] [INFO] Excluded(blacklist): EditWindow_Log x2761
+[23:35:06] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[23:35:07] [INFO] Excluded(blacklist): EditWindow_Log x2759
+[23:35:07] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[23:35:08] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[23:35:08] [INFO] Excluded(blacklist): EditWindow_Log x2761
+[23:35:09] [INFO] Excluded(blacklist): EditWindow_Log x2759
+[23:35:09] [INFO] Excluded(blacklist): EditWindow_Log x2762
+[23:35:10] [INFO] Excluded(blacklist): EditWindow_Log x2766
+[23:35:10] [INFO] Excluded(blacklist): EditWindow_Log x2759
+[23:35:28] [INFO] [Menu] Export reset OK
+[23:52:52] [INFO] === RimLex initializing ===
+[23:52:52] [INFO] Dictionary loaded: lines=65, exact=37, shape=28, dupNormalized=0
+[23:52:52] [INFO] TranslatorHub.InitIO OK: dict=D:/Program Files (x86)/Steam/steamapps/common/RimWorld/Mods/RimLex/Dict/strings_ja.tsv, exportRoot=D:/Program Files (x86)/Steam/steamapps/common/RimWorld/Mods/RimLex/Export, perMod=True, perModSubdir=PerMod, aggregate=True
+[23:52:52] [INFO] Dict watcher enabled: D:/Program Files (x86)/Steam/steamapps/common/RimWorld/Mods/RimLex/Dict/strings_ja.tsv
+[23:52:52] [INFO] Patched: Widgets.Label(Rect,string)
+[23:52:52] [INFO] Patched: Listing_Standard.Label x1
+[23:52:52] [INFO] Patched: Widgets.ButtonText
+[23:52:52] [INFO] Patched: Listing_Standard.Slider
+[23:52:52] [INFO] Patched: TooltipHandler.TipRegion(Rect,TipSignal)
+[23:52:52] [INFO] Patched: FloatMenuOption::.ctor
+[23:52:52] [INFO] Patched: Command.LabelCap.get
+[23:52:52] [INFO] UIPatches applied. ApplyDictAtRuntime=True
+[23:52:52] [INFO] Options: Apply=True, PerMod=True, Aggregate=True, Mode=Both, PerModSubdir=PerMod, PauseAggregate=False, WatchDict=True
+[23:52:52] [INFO] === RimLex initialized ===
+[23:53:19] [INFO] Excluded(blacklist): EditWindow_Log
+[23:53:20] [INFO] Excluded(blacklist): EditWindow_Log x2632
+[23:53:20] [INFO] Excluded(blacklist): EditWindow_Log x2709
+[23:53:21] [INFO] Excluded(blacklist): EditWindow_Log x2755
+[23:53:21] [INFO] Excluded(blacklist): EditWindow_Log x2768
+[23:53:22] [INFO] Excluded(blacklist): EditWindow_Log x2759
+[23:53:22] [INFO] Excluded(blacklist): EditWindow_Log x2765
+[23:53:23] [INFO] Excluded(blacklist): EditWindow_Log x2753
+[23:53:23] [INFO] Excluded(blacklist): EditWindow_Log x2762
+[23:53:24] [INFO] Excluded(blacklist): EditWindow_Log x2661
+[23:53:24] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[23:53:25] [INFO] Excluded(blacklist): EditWindow_Log x2766
+[23:53:25] [INFO] Excluded(blacklist): EditWindow_Log x2754
+[23:53:26] [INFO] Excluded(blacklist): EditWindow_Log x2764
+[23:53:26] [INFO] Excluded(blacklist): EditWindow_Log x2762
+[23:53:27] [INFO] Excluded(blacklist): EditWindow_Log x2754
+[23:53:27] [INFO] Excluded(blacklist): EditWindow_Log x2762
+[23:53:28] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[23:53:28] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[23:53:29] [INFO] Excluded(blacklist): EditWindow_Log x2764
+[23:53:29] [INFO] Excluded(blacklist): EditWindow_Log x2757
+[23:53:30] [INFO] Excluded(blacklist): EditWindow_Log x2757
+[23:53:30] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[23:53:31] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[23:53:31] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[23:53:32] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[23:53:32] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[23:53:33] [INFO] Excluded(blacklist): EditWindow_Log x2920
+[23:53:33] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[23:58:57] [INFO] Excluded(blacklist): EditWindow_Log x1793
+[23:58:58] [INFO] Excluded(blacklist): EditWindow_Log x2886
+[23:58:58] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[23:58:59] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[23:58:59] [INFO] Excluded(blacklist): EditWindow_Log x2760
+[00:01:04] [INFO] Excluded(blacklist): EditWindow_Log x597
+[00:01:04] [INFO] Excluded(blacklist): EditWindow_Log x2978
+[00:01:05] [INFO] Excluded(blacklist): EditWindow_Log x2760
