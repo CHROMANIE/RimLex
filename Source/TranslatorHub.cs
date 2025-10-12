@@ -413,6 +413,7 @@ namespace RimLex
                 string keyTxt = keyForExport.Replace("\n", "/n");
 
                 string modName = (modGuess != null && modGuess != "Unknown") ? modGuess : GuessModFromStack() ?? "Unknown";
+                modName = NormalizeModName(modName);
 
                 if (_perMod)
                 {
@@ -510,13 +511,14 @@ namespace RimLex
             try
             {
                 var st = new StackTrace(2, false);
-                for (int i = 0; i < Math.Min(st.FrameCount, 16); i++)
+                for (int i = 0; i < Math.Min(st.FrameCount, 24); i++)
                 {
                     var m = st.GetFrame(i).GetMethod();
                     var t = m?.DeclaringType;
                     if (t == null) continue;
 
-                    if (t.FullName == "RimLex.ModInitializer" && m.Name == "DoSettingsWindowContents")
+                    string full = t.FullName ?? string.Empty;
+                    if (full.StartsWith("RimLex.ModInitializer", StringComparison.Ordinal))
                         return true;
                 }
             }
@@ -526,6 +528,21 @@ namespace RimLex
 
         private static string Safe(string s)
             => string.IsNullOrEmpty(s) ? "" : s.Replace("\t", " ").Replace("\r", " ").Replace("\n", " ");
+
+        private static string NormalizeModName(string modName)
+        {
+            if (string.IsNullOrWhiteSpace(modName)) return "Unknown";
+
+            modName = modName.Trim();
+
+            if (modName.StartsWith("RimLex", StringComparison.OrdinalIgnoreCase))
+                return "Unknown";
+
+            if (modName.StartsWith("Unknown", StringComparison.OrdinalIgnoreCase))
+                return "Unknown";
+
+            return modName;
+        }
 
         private static void WriteAll(string path, string content)
         {
