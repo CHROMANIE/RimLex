@@ -45,7 +45,6 @@ bld/
 [Ll]og/
 [Ll]ogs/
 .vs/
-*.log
 *.tlog
 *.pdb
 *.tmp
