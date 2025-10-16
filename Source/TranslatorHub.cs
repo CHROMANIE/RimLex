@@ -5,15 +5,22 @@
 // - 2025-10-16: PerMod推定強化（Unknown落ち対策）
 //   * Stack上の Assembly と RunningMods.loadedAssemblies を ReferenceEquals / Location一致で照合
 //   * Mod Name / PackageId / Namespace 断片によるヒューリスティックを追加
-//   * RootDir が string/DirectoryInfo の両方に対応（CS1061対策）
-//   * 既存UI・収集仕様は不変（最小侵襲）
+//   * RootDir が string/DirectoryInfo の両方に対応
+// - 2025-10-16: ★置換の確実化（今回の修正）
+//   * TranslateOrEnroll の順序を「除外→翻訳→（未ヒットなら）ノイズ判定→Enroll」に変更（維持）
+//   * 改行を含むツールチップに対して「行ごと置換フォールバック」を追加（維持）
+//   * コロン前後の空白ゆらぎを正規化（":#", " : #", " :#"… を ": " に統一）（維持）
+//   * ★NormalizeForKey() に Trim + 連続スペース圧縮を追加（先頭/複スペースの揺らぎ吸収）
+//   * ForTsv() のタイポ修正: replace → Replace（維持）
+//
+// 既存の収集・UI・/n・# 仕様は不変。最小侵襲での修正。
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;    // ★ 追加
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -23,6 +30,7 @@ namespace RimLex
 {
     public static class TranslatorHub
     {
+        // ==== 基本設定・状態 ====
         private static string _dictTsv;
         private static string _exportRoot;
         private static string _exportMode = "Both";
@@ -58,15 +66,19 @@ namespace RimLex
         private static readonly List<string> _aggPending = new List<string>();
         private static Timer _aggTimer;
 
+        // ==== 正規化のための正規表現 ====
         private static readonly Regex RxNumbers = new Regex(@"\d+(?:\.\d+)?", RegexOptions.Compiled);
-
-        // rc6: 改行のゆるふわ正規化
         private static readonly Regex RxSlashNLoose = new Regex(@"\s*/\s*n\s*", RegexOptions.Compiled);
+        private static readonly Regex RxColonSpaces = new Regex(@"\s*:\s*", RegexOptions.Compiled);
+        // ★追加：複数連続スペース（タブ含む）を1つに圧縮
+        private static readonly Regex RxMultiSpaces = new Regex(@"[ \t]{2,}", RegexOptions.Compiled);
+
+        // ==== 正規化ユーティリティ ====
         private static string NormalizeNewlines(string s)
         {
             if (string.IsNullOrEmpty(s)) return s ?? "";
-            string t = s.Replace("\\n", "\n");  // 文字列としての \n → 実改行
-            t = RxSlashNLoose.Replace(t, "\n"); // "/ n" バリエーション → 実改行
+            string t = s.Replace("\\n", "\n");      // 文字列としての \n → 実改行
+            t = RxSlashNLoose.Replace(t, "\n");     // "/n" バリエーション → 実改行
             return t;
         }
 
@@ -82,12 +94,20 @@ namespace RimLex
             return new ShapeParts { Shape = shaped, Numbers = nums };
         }
 
+        // ★強化：Trim + 連続スペース圧縮を追加
         private static string NormalizeForKey(string s)
-            => NormalizeNewlines((s ?? "").Replace("\r\n", "\n").Replace("\r", "\n"));
+        {
+            string t = NormalizeNewlines((s ?? "").Replace("\r\n", "\n").Replace("\r", "\n"));
+            t = RxColonSpaces.Replace(t, ": ");   // " :#" → ": "
+            t = RxMultiSpaces.Replace(t, " ");    // "  "やタブ→" "
+            t = t.Trim();                          // 先頭・末尾スペース除去
+            return t;
+        }
 
         private static string ForTsv(string s)
             => (s ?? "").Replace("\t", " ").Replace("\r", " ").Replace("\n", "/n");
 
+        // ==== 初期化・オプション ====
         public static void InitIO(
             string dictTsv, string exportRoot, string exportMode, bool perMod, bool emitAggregate,
             Action<string> logInfo, Action<string> logWarn, string perModSubdir)
@@ -136,10 +156,14 @@ namespace RimLex
                 collected = _sessionCollected;
                 ioErrors = _sessionIoErrors;
                 excluded = NoiseFilter.ExcludedCount;
+
                 _totalReplaced += _sessionReplaced;
                 _totalCollected += _sessionCollected;
                 _totalIoErrors += _sessionIoErrors;
-                _sessionReplaced = _sessionCollected = _sessionIoErrors = 0;
+
+                _sessionReplaced = 0;
+                _sessionCollected = 0;
+                _sessionIoErrors = 0;
             }
         }
 
@@ -159,26 +183,69 @@ namespace RimLex
             lock (_lock) LoadDictionary_NoThrow(_dictTsv, verbose: true);
         }
 
+        // ==== 翻訳本体（翻訳→行別フォールバック→ノイズ判定→Enroll） ====
         public static string TranslateOrEnroll(string english, string source, string scope, string modGuess = "Unknown")
         {
             if (string.IsNullOrEmpty(english)) return english;
 
-            if (IsSelfSettingsCall()) return english;                 // RimLex自画面のみ除外
-            if (NoiseFilter.IsScreenExcluded(out _)) return english;   // 画面除外
-            if (NoiseFilter.IsNoise(english)) return english;          // 文字列ノイズ
+            // 自身の設定画面や除外画面は対象外
+            if (IsSelfSettingsCall()) return english;
+            if (NoiseFilter.IsScreenExcluded(out _)) return english;
 
+            // 1) 翻訳（完全一致→形状一致）
             string key = NormalizeForKey(english);
-
             if (TryTranslateExact(key, out var ja) || TryTranslateByShape(key, out ja))
             {
                 Interlocked.Increment(ref _sessionReplaced);
                 return ja;
             }
 
+            // 1b) 多行ツールチップは行ごとフォールバック翻訳（Enrollはしない）
+            if (LooksLikeTooltip(source, scope) && key.IndexOf('\n') >= 0)
+            {
+                var (hit, joined) = TryTranslatePerLine(key);
+                if (hit)
+                {
+                    Interlocked.Increment(ref _sessionReplaced);
+                    return joined;
+                }
+            }
+
+            // 2) 未ヒット時のみノイズ判定
+            if (NoiseFilter.IsNoise(english)) return english;
+
+            // 3) 未ヒット・非ノイズ → 収集（PerMod推定あり）
             TryEnrollOnce(key, source, scope, modGuess);
             return english;
         }
 
+        private static bool LooksLikeTooltip(string source, string scope)
+        {
+            if (!string.IsNullOrEmpty(scope) && scope.IndexOf("tooltip", StringComparison.OrdinalIgnoreCase) >= 0) return true;
+            if (!string.IsNullOrEmpty(source) && source.IndexOf("tooltip", StringComparison.OrdinalIgnoreCase) >= 0) return true;
+            return false;
+        }
+
+        private static (bool hit, string joined) TryTranslatePerLine(string text)
+        {
+            var lines = text.Split('\n');
+            bool any = false;
+            for (int i = 0; i < lines.Length; i++)
+            {
+                string ln = lines[i];
+                if (string.IsNullOrEmpty(ln)) continue;
+
+                string j;
+                if (TryTranslateExact(ln, out j) || TryTranslateByShape(ln, out j))
+                {
+                    lines[i] = j;
+                    any = true;
+                }
+            }
+            return (any, string.Join("\n", lines));
+        }
+
+        // ==== 集約・テンプレート生成 ====
         public static void RebuildAggregateAndUntranslated(out int aggregateLines, out int untranslatedLines, out int modSections)
         {
             aggregateLines = 0;
@@ -214,7 +281,7 @@ namespace RimLex
                     }
                 }
 
-                // texts_en_aggregate.txt -> /n 一行
+                // texts_en_aggregate.txt（追記ではなく再構築）
                 string aggTxt = Path.Combine(allDir, "texts_en_aggregate.txt");
                 string header = "# rebuilt_at=" + DateTime.UtcNow.ToString("O") + Environment.NewLine;
                 File.WriteAllText(aggTxt + ".tmp", header, new UTF8Encoding(false));
@@ -222,7 +289,7 @@ namespace RimLex
                     foreach (var r in rows) { sw.WriteLine(r.text.Replace("\n", "/n")); aggregateLines++; }
                 ReplaceAtomically(aggTxt);
 
-                // untranslated.txt -> /n 一行
+                // untranslated.txt（辞書未ヒットのみ）
                 var dictKeys = new HashSet<string>(_dictExact.Keys.Concat(_dictShape.Keys), StringComparer.Ordinal);
                 string untranslated = Path.Combine(allDir, "untranslated.txt");
                 File.WriteAllText(untranslated + ".tmp", header, new UTF8Encoding(false));
@@ -237,7 +304,7 @@ namespace RimLex
                 }
                 ReplaceAtomically(untranslated);
 
-                // grouped_by_mod.txt -> /n 一行
+                // grouped_by_mod.txt
                 string grouped = Path.Combine(allDir, "grouped_by_mod.txt");
                 File.WriteAllText(grouped + ".tmp", header, new UTF8Encoding(false));
                 using (var sw = new StreamWriter(grouped + ".tmp", true, new UTF8Encoding(false)))
@@ -296,6 +363,7 @@ namespace RimLex
             }
         }
 
+        // ==== 辞書ロード・監視 ====
         private static void LoadDictionary_NoThrow(string path, bool verbose = false)
         {
             try
@@ -319,9 +387,13 @@ namespace RimLex
                         string ja = NormalizeForKey(raw.Substring(idx + 1));
 
                         if (en.IndexOf('#') >= 0)
-                        { if (!shape.ContainsKey(en)) { shape[en] = ja; shapeN++; } else dup++; }
+                        {
+                            if (!shape.ContainsKey(en)) { shape[en] = ja; shapeN++; } else dup++;
+                        }
                         else
-                        { if (!exact.ContainsKey(en)) { exact[en] = ja; exactN++; } else dup++; }
+                        {
+                            if (!exact.ContainsKey(en)) { exact[en] = ja; exactN++; } else dup++;
+                        }
                     }
                 }
 
@@ -370,6 +442,7 @@ namespace RimLex
             }
         }
 
+        // ==== 照合・置換 ====
         private static bool TryTranslateExact(string key, out string ja)
         {
             key = NormalizeForKey(key);
@@ -399,7 +472,7 @@ namespace RimLex
             return true;
         }
 
-        // ==== 自分名義のバケット回避 ====
+        // ==== 収集（PerMod推定・アグリゲート）====
         private static bool LooksLikeSelfMod(string name)
             => !string.IsNullOrEmpty(name) && name.IndexOf("rimlex", StringComparison.OrdinalIgnoreCase) >= 0;
 
@@ -411,9 +484,7 @@ namespace RimLex
                 return "Unknown";
             return name.Trim();
         }
-        // =================================
 
-        // ==== PerMod 推定強化 ====
         private static readonly string[] _ignoreAsmPrefixes = new[] { "RimLex", "Verse", "Unity", "UnityEngine", "Assembly-CSharp", "Harmony", "0Harmony", "System" };
         private static readonly HashSet<string> _warnedAsm = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
@@ -434,7 +505,6 @@ namespace RimLex
 
                     string an = asm.GetName().Name ?? "";
 
-                    // まず無視プレフィックスの除外（自分・共通系）
                     if (_ignoreAsmPrefixes.Any(p => an.StartsWith(p, StringComparison.OrdinalIgnoreCase)))
                     {
                         if (an.StartsWith("Verse", StringComparison.OrdinalIgnoreCase)) fallback ??= "Unknown(Verse)";
@@ -444,16 +514,13 @@ namespace RimLex
                         continue;
                     }
 
-                    // 1) 参照等価/パス一致/ルート包含で解決
                     if (TryResolveModFromAssembly(asm, out var modName))
                         return modName;
 
-                    // 2) ヒント一致
                     var hint = (t?.Namespace ?? "") + " " + an;
                     var guess = TryMatchByHint(hint);
                     if (guess != null) return guess;
 
-                    // 3) 未解決時のフォールバック候補
                     fallback ??= "Unknown(" + an + ")";
 
                     if (_warnedAsm.Add(an))
@@ -476,7 +543,6 @@ namespace RimLex
 
                 foreach (var mcp in LoadedModManager.RunningMods)
                 {
-                    // a) 参照等価 / b) パス一致
                     var las = mcp.assemblies?.loadedAssemblies;
                     if (las != null)
                     {
@@ -492,7 +558,6 @@ namespace RimLex
                         }
                     }
 
-                    // c) ルートディレクトリ包含（RootDir が string/DirectoryInfo どちらでもOK）
                     string rootPathRaw = TryGetModRootPath(mcp);
                     if (!string.IsNullOrEmpty(rootPathRaw) && !string.IsNullOrEmpty(asmLoc))
                     {
@@ -507,14 +572,12 @@ namespace RimLex
             return false;
         }
 
-        // RootDir が DirectoryInfo / string / RootDirPath(string) のいずれにも対応
         private static string TryGetModRootPath(ModContentPack mcp)
         {
             try
             {
                 var t = mcp.GetType();
 
-                // RootDir: DirectoryInfo or string
                 var p = t.GetProperty("RootDir", BindingFlags.Public | BindingFlags.Instance);
                 if (p != null)
                 {
@@ -523,7 +586,6 @@ namespace RimLex
                     if (v is string s && !string.IsNullOrWhiteSpace(s)) return s;
                 }
 
-                // RootDirPath: string
                 p = t.GetProperty("RootDirPath", BindingFlags.Public | BindingFlags.Instance);
                 if (p != null)
                 {
@@ -576,8 +638,6 @@ namespace RimLex
         }
         private static string SafePath(string p) => p ?? "";
 
-        // ================================================
-
         private static void TryEnrollOnce(string keyRaw, string source, string scope, string modGuess)
         {
             long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
@@ -597,7 +657,7 @@ namespace RimLex
                 string keyTxt = keyForExport.Replace("\n", "/n");
 
                 string modName = (modGuess != null && modGuess != "Unknown") ? modGuess : GuessModFromStack() ?? "Unknown";
-                modName = SanitizeModBucket(modName); // 自分名義→未分類
+                modName = SanitizeModBucket(modName);
 
                 if (_perMod)
                 {
@@ -647,6 +707,7 @@ namespace RimLex
             }
         }
 
+        // ==== 自己参照の検出 ====
         private static bool IsSelfSettingsCall()
         {
             try
@@ -666,6 +727,7 @@ namespace RimLex
             return false;
         }
 
+        // ==== I/O helpers ====
         private static string Safe(string s)
             => string.IsNullOrEmpty(s) ? "" : s.Replace("\t", " ").Replace("\r", " ").Replace("\n", " ");
 
