@@ -1,12 +1,19 @@
-﻿// RimLex TranslatorHub.cs v0.10.0-rc6a @2025-10-09 11:25
-// 修正: RebuildAggregateAndUntranslated の out引数を try の外で初期化（CS0177対策）。
-// 仕様: rc6の「/n ゆるふわ正規化」「TXT/TSVは /n 一行表記」「自己参照=設定画面のみ」そのまま。
+﻿// RimLex TranslatorHub.cs v0.10.0-rc6a @2025-10-16
+// 変更履歴（抜粋）:
+// - 2025-10-09: CS0177対策（out初期化）、/n・# 既存仕様の維持
+// - 2025-10-12: 自分名義(RimLex)のPer-Mod出力をUnknownへ寄せるサニタイズ
+// - 2025-10-16: PerMod推定強化（Unknown落ち対策）
+//   * Stack上の Assembly と RunningMods.loadedAssemblies を ReferenceEquals / Location一致で照合
+//   * Mod Name / PackageId / Namespace 断片によるヒューリスティックを追加
+//   * RootDir が string/DirectoryInfo の両方に対応（CS1061対策）
+//   * 既存UI・収集仕様は不変（最小侵襲）
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;    // ★ 追加
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -174,7 +181,6 @@ namespace RimLex
 
         public static void RebuildAggregateAndUntranslated(out int aggregateLines, out int untranslatedLines, out int modSections)
         {
-            // ★ CS0177対策：先に初期化しておく（例外経路でも常に代入済）
             aggregateLines = 0;
             untranslatedLines = 0;
             modSections = 0;
@@ -250,7 +256,6 @@ namespace RimLex
             {
                 _logWarn("[Rebuild] failed: " + ex);
                 Interlocked.Increment(ref _sessionIoErrors);
-                // out は既に 0 初期化済みなのでここでいじらない
             }
         }
 
@@ -394,6 +399,185 @@ namespace RimLex
             return true;
         }
 
+        // ==== 自分名義のバケット回避 ====
+        private static bool LooksLikeSelfMod(string name)
+            => !string.IsNullOrEmpty(name) && name.IndexOf("rimlex", StringComparison.OrdinalIgnoreCase) >= 0;
+
+        private static string SanitizeModBucket(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name) || string.Equals(name, "Unknown", StringComparison.OrdinalIgnoreCase))
+                return "Unknown";
+            if (LooksLikeSelfMod(name))
+                return "Unknown";
+            return name.Trim();
+        }
+        // =================================
+
+        // ==== PerMod 推定強化 ====
+        private static readonly string[] _ignoreAsmPrefixes = new[] { "RimLex", "Verse", "Unity", "UnityEngine", "Assembly-CSharp", "Harmony", "0Harmony", "System" };
+        private static readonly HashSet<string> _warnedAsm = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        private static string GuessModFromStack()
+        {
+            try
+            {
+                var st = new StackTrace(2, false);
+                string fallback = null;
+
+                int depth = Math.Min(st.FrameCount, 48);
+                for (int i = 0; i < depth; i++)
+                {
+                    var m = st.GetFrame(i).GetMethod();
+                    var t = m?.DeclaringType;
+                    var asm = t?.Assembly;
+                    if (asm == null) continue;
+
+                    string an = asm.GetName().Name ?? "";
+
+                    // まず無視プレフィックスの除外（自分・共通系）
+                    if (_ignoreAsmPrefixes.Any(p => an.StartsWith(p, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        if (an.StartsWith("Verse", StringComparison.OrdinalIgnoreCase)) fallback ??= "Unknown(Verse)";
+                        else if (an.StartsWith("Unity", StringComparison.OrdinalIgnoreCase) || an.StartsWith("UnityEngine", StringComparison.OrdinalIgnoreCase)) fallback ??= "Unknown(Unity)";
+                        else if (an.StartsWith("Harmony", StringComparison.OrdinalIgnoreCase) || an.StartsWith("0Harmony", StringComparison.OrdinalIgnoreCase)) fallback ??= "Unknown(Harmony)";
+                        else if (an.StartsWith("Assembly-CSharp", StringComparison.OrdinalIgnoreCase)) fallback ??= "Unknown(Assembly-CSharp)";
+                        continue;
+                    }
+
+                    // 1) 参照等価/パス一致/ルート包含で解決
+                    if (TryResolveModFromAssembly(asm, out var modName))
+                        return modName;
+
+                    // 2) ヒント一致
+                    var hint = (t?.Namespace ?? "") + " " + an;
+                    var guess = TryMatchByHint(hint);
+                    if (guess != null) return guess;
+
+                    // 3) 未解決時のフォールバック候補
+                    fallback ??= "Unknown(" + an + ")";
+
+                    if (_warnedAsm.Add(an))
+                        _logWarn("GuessMod: unresolved assembly=" + an);
+                }
+
+                return fallback ?? "Unknown";
+            }
+            catch { }
+            return "Unknown";
+        }
+
+        private static bool TryResolveModFromAssembly(Assembly asm, out string modName)
+        {
+            modName = null;
+            try
+            {
+                string asmName = asm.GetName().Name ?? "";
+                string asmLoc = CanonicalPath(SafePath(asm.Location));
+
+                foreach (var mcp in LoadedModManager.RunningMods)
+                {
+                    // a) 参照等価 / b) パス一致
+                    var las = mcp.assemblies?.loadedAssemblies;
+                    if (las != null)
+                    {
+                        foreach (var la in las)
+                        {
+                            if (object.ReferenceEquals(la, asm))
+                            { modName = mcp.Name ?? mcp.PackageId ?? asmName; return true; }
+
+                            string laLoc = CanonicalPath(SafePath(la.Location));
+                            if (!string.IsNullOrEmpty(asmLoc) && !string.IsNullOrEmpty(laLoc) &&
+                                string.Equals(asmLoc, laLoc, StringComparison.OrdinalIgnoreCase))
+                            { modName = mcp.Name ?? mcp.PackageId ?? asmName; return true; }
+                        }
+                    }
+
+                    // c) ルートディレクトリ包含（RootDir が string/DirectoryInfo どちらでもOK）
+                    string rootPathRaw = TryGetModRootPath(mcp);
+                    if (!string.IsNullOrEmpty(rootPathRaw) && !string.IsNullOrEmpty(asmLoc))
+                    {
+                        string rootPath = CanonicalPath(SafePath(rootPathRaw));
+                        if (!string.IsNullOrEmpty(rootPath) &&
+                            asmLoc.StartsWith(rootPath, StringComparison.OrdinalIgnoreCase))
+                        { modName = mcp.Name ?? mcp.PackageId ?? asmName; return true; }
+                    }
+                }
+            }
+            catch { }
+            return false;
+        }
+
+        // RootDir が DirectoryInfo / string / RootDirPath(string) のいずれにも対応
+        private static string TryGetModRootPath(ModContentPack mcp)
+        {
+            try
+            {
+                var t = mcp.GetType();
+
+                // RootDir: DirectoryInfo or string
+                var p = t.GetProperty("RootDir", BindingFlags.Public | BindingFlags.Instance);
+                if (p != null)
+                {
+                    var v = p.GetValue(mcp, null);
+                    if (v is DirectoryInfo di) return di.FullName;
+                    if (v is string s && !string.IsNullOrWhiteSpace(s)) return s;
+                }
+
+                // RootDirPath: string
+                p = t.GetProperty("RootDirPath", BindingFlags.Public | BindingFlags.Instance);
+                if (p != null)
+                {
+                    var v = p.GetValue(mcp, null) as string;
+                    if (!string.IsNullOrWhiteSpace(v)) return v;
+                }
+            }
+            catch { }
+            return null;
+        }
+
+        private static string TryMatchByHint(string hint)
+        {
+            if (string.IsNullOrEmpty(hint)) return null;
+            string h = hint.ToLowerInvariant();
+
+            foreach (var mcp in LoadedModManager.RunningMods)
+            {
+                string name = (mcp.Name ?? "").ToLowerInvariant();
+                string pid = (mcp.PackageId ?? "").ToLowerInvariant();
+
+                if ((!string.IsNullOrEmpty(name) && h.Contains(name)) ||
+                    (!string.IsNullOrEmpty(pid) && h.Contains(pid)))
+                    return mcp.Name ?? mcp.PackageId ?? null;
+
+                foreach (var tok in Tokenize(name).Concat(Tokenize(pid)))
+                    if (tok.Length >= 3 && h.Contains(tok))
+                        return mcp.Name ?? mcp.PackageId ?? null;
+            }
+            return null;
+        }
+
+        private static IEnumerable<string> Tokenize(string s)
+        {
+            if (string.IsNullOrEmpty(s)) yield break;
+            var buf = new StringBuilder();
+            foreach (char c in s)
+            {
+                if (char.IsLetterOrDigit(c)) buf.Append(char.ToLowerInvariant(c));
+                else { if (buf.Length > 0) { yield return buf.ToString(); buf.Clear(); } }
+            }
+            if (buf.Length > 0) yield return buf.ToString();
+        }
+
+        private static string CanonicalPath(string p)
+        {
+            if (string.IsNullOrEmpty(p)) return "";
+            try { return Path.GetFullPath(p).Replace('\\', '/').TrimEnd('/'); }
+            catch { return p.Replace('\\', '/'); }
+        }
+        private static string SafePath(string p) => p ?? "";
+
+        // ================================================
+
         private static void TryEnrollOnce(string keyRaw, string source, string scope, string modGuess)
         {
             long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
@@ -413,6 +597,7 @@ namespace RimLex
                 string keyTxt = keyForExport.Replace("\n", "/n");
 
                 string modName = (modGuess != null && modGuess != "Unknown") ? modGuess : GuessModFromStack() ?? "Unknown";
+                modName = SanitizeModBucket(modName); // 自分名義→未分類
 
                 if (_perMod)
                 {
@@ -443,7 +628,7 @@ namespace RimLex
                         string tsv = Path.Combine(cur, "strings_en.tsv");
                         if (!File.Exists(tsv))
                             WriteAll(tsv, "timestamp_utc\tmod\tsource\tscope\ttext" + Environment.NewLine);
-                        AppendLine(tsv, DateTime.UtcNow.ToString("O") + "\t" + Safe(modGuess) + "\t" + Safe(source) + "\t" + Safe(scope) + "\t" + ForTsv(keyForExport));
+                        AppendLine(tsv, DateTime.UtcNow.ToString("O") + "\t" + Safe(modName) + "\t" + Safe(source) + "\t" + Safe(scope) + "\t" + ForTsv(keyForExport));
                     }
                 }
 
@@ -460,49 +645,6 @@ namespace RimLex
                 _logWarn("[Enroll] IO failed: " + ex.Message);
                 Interlocked.Increment(ref _sessionIoErrors);
             }
-        }
-
-        private static string GuessModFromStack()
-        {
-            try
-            {
-                var st = new StackTrace(2, false);
-                string fallback = null;
-
-                for (int i = 0; i < st.FrameCount; i++)
-                {
-                    var m = st.GetFrame(i).GetMethod();
-                    var asm = m?.DeclaringType?.Assembly;
-                    if (asm == null) continue;
-
-                    string an = asm.GetName().Name ?? "";
-                    if (an.StartsWith("RimLex", StringComparison.OrdinalIgnoreCase)) continue;
-                    if (an.StartsWith("Verse", StringComparison.OrdinalIgnoreCase)) { fallback ??= "Unknown(Verse)"; continue; }
-                    if (an.StartsWith("Unity", StringComparison.OrdinalIgnoreCase)) { fallback ??= "Unknown(Unity)"; continue; }
-                    if (an.StartsWith("Harmony", StringComparison.OrdinalIgnoreCase) || an.StartsWith("0Harmony", StringComparison.OrdinalIgnoreCase)) { fallback ??= "Unknown(Harmony)"; continue; }
-
-                    foreach (var mcp in LoadedModManager.RunningMods)
-                    {
-                        if (mcp.assemblies?.loadedAssemblies != null)
-                        {
-                            foreach (var la in mcp.assemblies.loadedAssemblies)
-                            {
-                                if (string.Equals(la.GetName().Name, an, StringComparison.OrdinalIgnoreCase))
-                                    return mcp.Name ?? mcp.PackageId ?? an;
-                            }
-                        }
-                        string id = (mcp.PackageId ?? "").ToLowerInvariant();
-                        if (!string.IsNullOrEmpty(id) && id.Contains(an.ToLowerInvariant()))
-                            return mcp.Name ?? mcp.PackageId ?? an;
-                    }
-
-                    fallback ??= "Unknown(" + an + ")";
-                }
-
-                return fallback ?? "Unknown";
-            }
-            catch { }
-            return "Unknown";
         }
 
         private static bool IsSelfSettingsCall()
