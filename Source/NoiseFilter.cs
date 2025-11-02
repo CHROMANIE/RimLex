@@ -21,9 +21,6 @@ namespace RimLex
         public static int ExcludedCount => _excludedCount;
 
         private static string _lastScreen = string.Empty;
-        private static int _suppressed = 0;
-        private static long _lastLogMs = 0;
-        private const int LOG_WINDOW_MS = 500;
 
         private struct DynState
         {
@@ -111,50 +108,21 @@ namespace RimLex
             {
             }
 
+            _lastScreen = string.Empty;
             return false;
         }
 
         private static void CountAndMaybeLog(string kind, string screen)
         {
-            long now = NowMs();
-
-            if (ShouldSuppress(screen, now))
-            {
-                _suppressed++;
+            if (string.Equals(_lastScreen, screen, StringComparison.Ordinal))
                 return;
-            }
 
-            if (_suppressed > 0 && !string.IsNullOrEmpty(_lastScreen))
-            {
-                FinalizeSuppressed(kind);
-            }
-            else
-            {
-                CountSingle(kind, screen);
-            }
-
-            _lastScreen = screen;
-            _lastLogMs = now;
-        }
-
-        private static void FinalizeSuppressed(string kind)
-        {
-            int total = _suppressed + 1;
-            _excludedCount += total;
-            if (_logExcludedScreens)
-                ModInitializer.LogInfo($"Excluded({kind}): {_lastScreen} x{total}");
-            _suppressed = 0;
-        }
-
-        private static void CountSingle(string kind, string screen)
-        {
             _excludedCount++;
+            _lastScreen = screen;
+
             if (_logExcludedScreens)
                 ModInitializer.LogInfo($"Excluded({kind}): {screen}");
         }
-
-        private static bool ShouldSuppress(string screen, long now)
-            => _lastScreen == screen && (now - _lastLogMs) < LOG_WINDOW_MS;
 
         private static long NowMs() => DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 
@@ -162,8 +130,6 @@ namespace RimLex
         {
             _excludedCount = 0;
             _lastScreen = string.Empty;
-            _suppressed = 0;
-            _lastLogMs = 0;
             _dyn.Clear();
         }
 
