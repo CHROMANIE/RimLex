@@ -1,65 +1,62 @@
-using System;
 using System.Text;
 using System.Text.RegularExpressions;
 
 namespace RimLex
 {
+    /// <summary>
+    /// Provides normalization utilities for RimLex. Text is normalized so that runtime collection
+    /// and dictionary lookup can share the same ruleset.
+    /// </summary>
     public static class Normalizer
     {
-        // "/n" ゆらぎ（"/ n" など）を拾う
+        // Accept loose variants such as "/ n" and collapse them into "\n"
         private static readonly Regex RxSlashNLoose = new Regex(@"/\s*n", RegexOptions.Compiled);
-        // 文字列リテラルの "\n"
+        // Literal "\n" sequences are treated as actual newlines
         private static readonly Regex RxBackslashN = new Regex(@"\\n", RegexOptions.Compiled);
 
         /// <summary>
-        /// 英文キーの正規化（辞書照合用）。
-        /// 仕様：
-        /// - CRLF/\\n/"/n"（ゆらぎ含む）を一度「実改行 \\n」に統一 → キー表現として "/n" に戻す
-        /// - 改行以外の連続空白は 1 個に圧縮
-        /// - 改行の前後の余分な空白は除去
-        /// - 末尾は Trim
-        /// ※ 数字の # 形状化は TranslatorHub 側の既存処理に委ねる（ここでは変更しない）
+        /// Normalizes incoming text for dictionary keys.
+        /// - Normalizes CRLF / literal "\n" / loose "/n" into a unified newline token
+        /// - Collapses consecutive whitespace to a single space
+        /// - Trims trailing spaces around newline boundaries
+        /// - Returns a trimmed string (TranslatorHub performs additional canonicalization)
         /// </summary>
-        public static string Normalize(string s)
+        public static string Normalize(string text)
         {
-            if (string.IsNullOrEmpty(s)) return s;
+            if (string.IsNullOrEmpty(text)) return text;
 
-            // 1) 改行表記を実改行に統一
-            s = s.Replace("\r\n", "\n");
-            s = RxBackslashN.Replace(s, "\n");
-            s = RxSlashNLoose.Replace(s, "\n");
+            string normalized = text.Replace("\r\n", "\n");
+            normalized = RxBackslashN.Replace(normalized, "\n");
+            normalized = RxSlashNLoose.Replace(normalized, "\n");
 
-            // 2) 改行を保持しつつ、その他の空白は圧縮
-            var sb = new StringBuilder(s.Length + 8);
-            bool prevSpace = false;
+            var sb = new StringBuilder(normalized.Length + 8);
+            bool previousWasSpace = false;
 
-            for (int i = 0; i < s.Length; i++)
+            for (int i = 0; i < normalized.Length; i++)
             {
-                char c = s[i];
+                char c = normalized[i];
 
                 if (c == '\n')
                 {
-                    // 改行直前の空白は削る
                     if (sb.Length > 0 && sb[sb.Length - 1] == ' ')
                         sb.Length--;
 
-                    // キー表現は "/n"
                     sb.Append("/n");
-                    prevSpace = false;
+                    previousWasSpace = false;
                     continue;
                 }
 
                 if (char.IsWhiteSpace(c))
                 {
-                    if (!prevSpace)
+                    if (!previousWasSpace)
                     {
                         sb.Append(' ');
-                        prevSpace = true;
+                        previousWasSpace = true;
                     }
                     continue;
                 }
 
-                prevSpace = false;
+                previousWasSpace = false;
                 sb.Append(c);
             }
 
@@ -67,18 +64,14 @@ namespace RimLex
         }
 
         /// <summary>
-        /// 表示用に "/n"（ゆらぎ含む）を実改行 \n へ復元。
-        /// ※ 置換後の UI 表示に使用。
+        /// Converts the normalized "/n" tokens back into "\n" for UI rendering.
         /// </summary>
-        public static string ReifyNewlines(string s)
+        public static string ReifyNewlines(string text)
         {
-            if (string.IsNullOrEmpty(s)) return s;
-            // ゆらぎをまず "/n" に寄せる
-            s = RxSlashNLoose.Replace(s, "/n");
-            // 文字列リテラルの "\n" も実改行へ
-            s = RxBackslashN.Replace(s, "\n");
-            // 最後に "/n" → 実改行
-            return s.Replace("/n", "\n");
+            if (string.IsNullOrEmpty(text)) return text;
+            string normalized = RxSlashNLoose.Replace(text, "/n");
+            normalized = RxBackslashN.Replace(normalized, "\n");
+            return normalized.Replace("/n", "\n");
         }
     }
 }

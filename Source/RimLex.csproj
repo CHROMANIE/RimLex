@@ -80,7 +80,6 @@
     <Compile Include="ProvenanceIndex.cs" />
     <Compile Include="TranslatorHub.cs" />
     <Compile Include="UIPatches.cs" />
-    <Compile Include="UIPatches_TooltipAndLabels.cs" />
     <Compile Include="UTFBuilder.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
