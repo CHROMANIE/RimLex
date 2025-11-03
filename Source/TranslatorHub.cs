@@ -59,12 +59,105 @@ namespace RimLex
 
         private static readonly HashSet<string> _seenOnce = new HashSet<string>(StringComparer.Ordinal);
         private static readonly Dictionary<string, long> _recentSeen = new Dictionary<string, long>(StringComparer.Ordinal);
+        private static readonly HashSet<string> _sessionReplacedShapes = new HashSet<string>(StringComparer.Ordinal);
         private const int DEBOUNCE_MS = 2000;
 
         private static bool _pauseAggregate = false;
         private static int _aggregateDebounceMs = 250;
         private static readonly List<string> _aggPending = new List<string>();
         private static Timer _aggTimer;
+
+        private static class ModResolver
+        {
+            private static readonly Dictionary<Assembly, string> _assemblyToMod = new Dictionary<Assembly, string>();
+            private static readonly Dictionary<string, string> _pathToMod = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            private static bool _initialized = false;
+            private static readonly object _resolverLock = new object();
+
+            public static void Refresh()
+            {
+                lock (_resolverLock)
+                {
+                    _assemblyToMod.Clear();
+                    _pathToMod.Clear();
+
+                    try
+                    {
+                        var mods = LoadedModManager.RunningModsListForReading;
+                        if (mods != null)
+                        {
+                            foreach (var mod in mods)
+                            {
+                                if (mod == null) continue;
+
+                                string modName = SanitizeModBucket(mod.Name ?? mod.PackageId ?? "Unknown");
+                                var las = mod.assemblies?.loadedAssemblies;
+                                if (las != null)
+                                {
+                                    foreach (var asm in las)
+                                    {
+                                        if (asm == null) continue;
+                                        _assemblyToMod[asm] = modName;
+                                        string loc = CanonicalPath(SafePath(asm.Location));
+                                        if (!string.IsNullOrEmpty(loc))
+                                            _pathToMod[loc] = modName;
+                                    }
+                                }
+
+                                string root = CanonicalPath(SafePath(TryGetModRootPath(mod)));
+                                if (!string.IsNullOrEmpty(root))
+                                    _pathToMod[root] = modName;
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logWarn("ModResolver.Refresh failed: " + ex.Message);
+                    }
+
+                    _initialized = true;
+                }
+            }
+
+            public static bool TryResolve(Assembly asm, out string modName)
+            {
+                modName = null;
+                if (asm == null) return false;
+
+                Ensure();
+
+                string loc = CanonicalPath(SafePath(asm.Location));
+
+                lock (_resolverLock)
+                {
+                    if (_assemblyToMod.TryGetValue(asm, out modName))
+                        return true;
+
+                    if (!string.IsNullOrEmpty(loc) && _pathToMod.TryGetValue(loc, out modName))
+                        return true;
+
+                    if (!string.IsNullOrEmpty(loc))
+                    {
+                        foreach (var kv in _pathToMod)
+                        {
+                            if (!string.IsNullOrEmpty(kv.Key) && loc.StartsWith(kv.Key, StringComparison.OrdinalIgnoreCase))
+                            {
+                                modName = kv.Value;
+                                return true;
+                            }
+                        }
+                    }
+                }
+
+                return false;
+            }
+
+            public static void Ensure()
+            {
+                if (_initialized) return;
+                Refresh();
+            }
+        }
 
         // ==== 正規化のための正規表現 ====
         private static readonly Regex RxNumbers = new Regex(@"\d+(?:\.\d+)?", RegexOptions.Compiled);
@@ -127,6 +220,8 @@ namespace RimLex
                 Directory.CreateDirectory(_exportRoot);
                 LoadDictionary_NoThrow(_dictTsv);
 
+                ModResolver.Refresh();
+
                 _aggTimer?.Dispose();
                 _aggTimer = new Timer(_ => FlushAggregateSafe(), null, Timeout.Infinite, Timeout.Infinite);
 
@@ -164,6 +259,7 @@ namespace RimLex
                 _sessionReplaced = 0;
                 _sessionCollected = 0;
                 _sessionIoErrors = 0;
+                _sessionReplacedShapes.Clear();
             }
         }
 
@@ -194,19 +290,27 @@ namespace RimLex
 
             // 1) 翻訳（完全一致→形状一致）
             string key = NormalizeForKey(english);
-            if (TryTranslateExact(key, out var ja) || TryTranslateByShape(key, out ja))
+            var shape = MakeShape(key);
+
+            if (TryTranslateExactNormalized(key, out var ja))
             {
-                Interlocked.Increment(ref _sessionReplaced);
+                RegisterReplacementShape(shape.Shape);
+                return ja;
+            }
+
+            if (TryTranslateByShape(shape, out ja))
+            {
+                RegisterReplacementShape(shape.Shape);
                 return ja;
             }
 
             // 1b) 多行ツールチップは行ごとフォールバック翻訳（Enrollはしない）
             if (LooksLikeTooltip(source, scope) && key.IndexOf('\n') >= 0)
             {
-                var (hit, joined) = TryTranslatePerLine(key);
+                var (hit, joined, shapes) = TryTranslatePerLine(key);
                 if (hit)
                 {
-                    Interlocked.Increment(ref _sessionReplaced);
+                    foreach (var shp in shapes) RegisterReplacementShape(shp);
                     return joined;
                 }
             }
@@ -226,23 +330,30 @@ namespace RimLex
             return false;
         }
 
-        private static (bool hit, string joined) TryTranslatePerLine(string text)
+        private static (bool hit, string joined, List<string> shapes) TryTranslatePerLine(string text)
         {
             var lines = text.Split('\n');
             bool any = false;
+            var shapes = new List<string>();
             for (int i = 0; i < lines.Length; i++)
             {
                 string ln = lines[i];
                 if (string.IsNullOrEmpty(ln)) continue;
 
+                string normalized = NormalizeForKey(ln);
+                if (string.IsNullOrEmpty(normalized)) continue;
+
+                var shape = MakeShape(normalized);
+
                 string j;
-                if (TryTranslateExact(ln, out j) || TryTranslateByShape(ln, out j))
+                if (TryTranslateExactNormalized(normalized, out j) || TryTranslateByShape(shape, out j))
                 {
                     lines[i] = j;
                     any = true;
+                    shapes.Add(shape.Shape);
                 }
             }
-            return (any, string.Join("\n", lines));
+            return (any, string.Join("\n", lines), shapes);
         }
 
         // ==== 集約・テンプレート生成 ====
@@ -443,22 +554,19 @@ namespace RimLex
         }
 
         // ==== 照合・置換 ====
-        private static bool TryTranslateExact(string key, out string ja)
+        private static bool TryTranslateExactNormalized(string normalizedKey, out string ja)
         {
-            key = NormalizeForKey(key);
-            lock (_lock) return _dictExact.TryGetValue(key, out ja) && !string.IsNullOrEmpty(ja);
+            lock (_lock) return _dictExact.TryGetValue(normalizedKey, out ja) && !string.IsNullOrEmpty(ja);
         }
 
-        private static bool TryTranslateByShape(string key, out string ja)
+        private static bool TryTranslateByShape(ShapeParts shp, out string ja)
         {
-            key = NormalizeForKey(key);
             ja = null;
-            var shp = MakeShape(key);
 
             string tmpl;
             lock (_lock)
             {
-                if (!_dictShape.TryGetValue(shp.Shape, out tmpl)) return false;
+                if (!_dictShape.TryGetValue(shp.Shape, out tmpl) || string.IsNullOrEmpty(tmpl)) return false;
             }
 
             int i = 0;
@@ -472,13 +580,23 @@ namespace RimLex
             return true;
         }
 
+        private static void RegisterReplacementShape(string shapeKey)
+        {
+            if (string.IsNullOrEmpty(shapeKey)) return;
+            lock (_lock)
+            {
+                if (_sessionReplacedShapes.Add(shapeKey))
+                    _sessionReplaced++;
+            }
+        }
+
         // ==== 収集（PerMod推定・アグリゲート）====
         private static bool LooksLikeSelfMod(string name)
             => !string.IsNullOrEmpty(name) && name.IndexOf("rimlex", StringComparison.OrdinalIgnoreCase) >= 0;
 
         private static string SanitizeModBucket(string name)
         {
-            if (string.IsNullOrWhiteSpace(name) || string.Equals(name, "Unknown", StringComparison.OrdinalIgnoreCase))
+            if (string.IsNullOrWhiteSpace(name) || name.StartsWith("Unknown", StringComparison.OrdinalIgnoreCase))
                 return "Unknown";
             if (LooksLikeSelfMod(name))
                 return "Unknown";
@@ -492,80 +610,73 @@ namespace RimLex
         {
             try
             {
+                ModResolver.Ensure();
+
                 var st = new StackTrace(2, false);
-                string fallback = null;
+                Assembly firstCandidate = null;
+                string firstName = null;
 
                 int depth = Math.Min(st.FrameCount, 48);
                 for (int i = 0; i < depth; i++)
                 {
-                    var m = st.GetFrame(i).GetMethod();
-                    var t = m?.DeclaringType;
-                    var asm = t?.Assembly;
+                    var frame = st.GetFrame(i);
+                    var asm = frame?.GetMethod()?.DeclaringType?.Assembly;
                     if (asm == null) continue;
 
-                    string an = asm.GetName().Name ?? "";
-
+                    string an = asm.GetName().Name ?? string.Empty;
                     if (_ignoreAsmPrefixes.Any(p => an.StartsWith(p, StringComparison.OrdinalIgnoreCase)))
-                    {
-                        if (an.StartsWith("Verse", StringComparison.OrdinalIgnoreCase)) fallback ??= "Unknown(Verse)";
-                        else if (an.StartsWith("Unity", StringComparison.OrdinalIgnoreCase) || an.StartsWith("UnityEngine", StringComparison.OrdinalIgnoreCase)) fallback ??= "Unknown(Unity)";
-                        else if (an.StartsWith("Harmony", StringComparison.OrdinalIgnoreCase) || an.StartsWith("0Harmony", StringComparison.OrdinalIgnoreCase)) fallback ??= "Unknown(Harmony)";
-                        else if (an.StartsWith("Assembly-CSharp", StringComparison.OrdinalIgnoreCase)) fallback ??= "Unknown(Assembly-CSharp)";
                         continue;
-                    }
 
-                    if (TryResolveModFromAssembly(asm, out var modName))
-                        return modName;
-
-                    var hint = (t?.Namespace ?? "") + " " + an;
-                    var guess = TryMatchByHint(hint);
-                    if (guess != null) return guess;
-
-                    fallback ??= "Unknown(" + an + ")";
-
-                    if (_warnedAsm.Add(an))
-                        _logWarn("GuessMod: unresolved assembly=" + an);
+                    firstCandidate = asm;
+                    firstName = an;
+                    break;
                 }
 
-                return fallback ?? "Unknown";
+                if (firstCandidate != null)
+                {
+                    if (ModResolver.TryResolve(firstCandidate, out var resolved))
+                        return resolved;
+
+                    if (TryResolveFromWindow(out var windowGuess))
+                        return windowGuess;
+
+                    if (!string.IsNullOrEmpty(firstName) && _warnedAsm.Add(firstName))
+                        _logWarn("GuessMod: unresolved assembly=" + firstName);
+
+                    return string.IsNullOrEmpty(firstName) ? "Unknown" : "Unknown(" + firstName + ")";
+                }
+
+                if (TryResolveFromWindow(out var windowOnly))
+                    return windowOnly;
             }
             catch { }
             return "Unknown";
         }
 
-        private static bool TryResolveModFromAssembly(Assembly asm, out string modName)
+        private static bool TryResolveFromWindow(out string modName)
         {
             modName = null;
             try
             {
-                string asmName = asm.GetName().Name ?? "";
-                string asmLoc = CanonicalPath(SafePath(asm.Location));
+                Window window = null;
+                var ws = Find.WindowStack;
+                if (ws != null && ws.Windows != null && ws.Windows.Count > 0)
+                    window = ws.Windows[ws.Windows.Count - 1];
 
-                foreach (var mcp in LoadedModManager.RunningMods)
+                var asm = window?.GetType()?.Assembly ?? Find.UIRoot?.GetType()?.Assembly;
+                if (asm == null) return false;
+
+                if (ModResolver.TryResolve(asm, out var resolved))
                 {
-                    var las = mcp.assemblies?.loadedAssemblies;
-                    if (las != null)
-                    {
-                        foreach (var la in las)
-                        {
-                            if (object.ReferenceEquals(la, asm))
-                            { modName = mcp.Name ?? mcp.PackageId ?? asmName; return true; }
+                    modName = resolved;
+                    return true;
+                }
 
-                            string laLoc = CanonicalPath(SafePath(la.Location));
-                            if (!string.IsNullOrEmpty(asmLoc) && !string.IsNullOrEmpty(laLoc) &&
-                                string.Equals(asmLoc, laLoc, StringComparison.OrdinalIgnoreCase))
-                            { modName = mcp.Name ?? mcp.PackageId ?? asmName; return true; }
-                        }
-                    }
-
-                    string rootPathRaw = TryGetModRootPath(mcp);
-                    if (!string.IsNullOrEmpty(rootPathRaw) && !string.IsNullOrEmpty(asmLoc))
-                    {
-                        string rootPath = CanonicalPath(SafePath(rootPathRaw));
-                        if (!string.IsNullOrEmpty(rootPath) &&
-                            asmLoc.StartsWith(rootPath, StringComparison.OrdinalIgnoreCase))
-                        { modName = mcp.Name ?? mcp.PackageId ?? asmName; return true; }
-                    }
+                string an = asm.GetName().Name ?? string.Empty;
+                if (!string.IsNullOrEmpty(an))
+                {
+                    modName = "Unknown(Window:" + an + ")";
+                    return true;
                 }
             }
             catch { }
@@ -595,39 +706,6 @@ namespace RimLex
             }
             catch { }
             return null;
-        }
-
-        private static string TryMatchByHint(string hint)
-        {
-            if (string.IsNullOrEmpty(hint)) return null;
-            string h = hint.ToLowerInvariant();
-
-            foreach (var mcp in LoadedModManager.RunningMods)
-            {
-                string name = (mcp.Name ?? "").ToLowerInvariant();
-                string pid = (mcp.PackageId ?? "").ToLowerInvariant();
-
-                if ((!string.IsNullOrEmpty(name) && h.Contains(name)) ||
-                    (!string.IsNullOrEmpty(pid) && h.Contains(pid)))
-                    return mcp.Name ?? mcp.PackageId ?? null;
-
-                foreach (var tok in Tokenize(name).Concat(Tokenize(pid)))
-                    if (tok.Length >= 3 && h.Contains(tok))
-                        return mcp.Name ?? mcp.PackageId ?? null;
-            }
-            return null;
-        }
-
-        private static IEnumerable<string> Tokenize(string s)
-        {
-            if (string.IsNullOrEmpty(s)) yield break;
-            var buf = new StringBuilder();
-            foreach (char c in s)
-            {
-                if (char.IsLetterOrDigit(c)) buf.Append(char.ToLowerInvariant(c));
-                else { if (buf.Length > 0) { yield return buf.ToString(); buf.Clear(); } }
-            }
-            if (buf.Length > 0) yield return buf.ToString();
         }
 
         private static string CanonicalPath(string p)

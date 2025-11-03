@@ -111,7 +111,9 @@ namespace RimLex
                     .Where(mi =>
                     {
                         var ps = mi.GetParameters();
-                        return ps.Length == 2 && ps[0].ParameterType == typeof(Rect) && ps[1].ParameterType == typeof(string);
+                        if (ps.Length < 2) return false;
+                        if (ps[0].ParameterType != typeof(Rect)) return false;
+                        return ps[1].ParameterType == typeof(string);
                     })
                     .Cast<MethodBase>()
                     .ToArray(),
@@ -133,7 +135,9 @@ namespace RimLex
                     .Where(mi =>
                     {
                         var ps = mi.GetParameters();
-                        return ps.Length == 2 && ps[0].ParameterType == typeof(Rect) && ps[1].ParameterType == typeof(Func<string>);
+                        if (ps.Length < 2) return false;
+                        if (ps[0].ParameterType != typeof(Rect)) return false;
+                        return ps[1].ParameterType == typeof(Func<string>);
                     })
                     .Cast<MethodBase>()
                     .ToArray(),
@@ -145,10 +149,10 @@ namespace RimLex
                     .Where(mi =>
                     {
                         var ps = mi.GetParameters();
-                        return ps.Length == 3
-                               && ps[0].ParameterType == typeof(Rect)
-                               && ps[1].ParameterType == typeof(Func<string>)
-                               && ps[2].ParameterType == typeof(string);
+                        if (ps.Length < 3) return false;
+                        if (ps[0].ParameterType != typeof(Rect)) return false;
+                        if (ps[1].ParameterType != typeof(Func<string>)) return false;
+                        return ps[2].ParameterType == typeof(string);
                     })
                     .Cast<MethodBase>()
                     .ToArray(),
