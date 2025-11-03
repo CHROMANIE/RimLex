@@ -236,7 +236,17 @@ namespace RimLex
             {
                 TryMenuAction("Log clear", () =>
                 {
-                    try { _log?.Flush(); _log?.Dispose(); } catch { }
+                    try
+                    {
+                        _log?.Flush();
+                        _log?.Dispose();
+                    }
+                    finally
+                    {
+                        _log = null;
+                    }
+
+                    File.WriteAllText(_cfg.LogPath, string.Empty, new System.Text.UTF8Encoding(false));
                     _log = new StreamWriter(_cfg.LogPath, true, new System.Text.UTF8Encoding(false)) { AutoFlush = true };
                     Messages.Message("ログをクリアしました。", MessageTypeDefOf.NeutralEvent, false);
                     LogInfo("[Menu] Log cleared.");

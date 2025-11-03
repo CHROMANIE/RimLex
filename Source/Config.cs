@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Text;
 
@@ -17,71 +17,103 @@ namespace RimLex
         public string LogPath;
         private string _iniPath;
 
-        // ---- New (数字・記号だらけの行は既定で除外) ----
+        // ---- Noise / screen filters ----
         public int MinLength = 2;
-        // 空白/URL/数字のみ/記号のみ/GUID を既定で弾く
         public string ExcludePatterns =
             @"^\s*$|^https?://|^[0-9]+$|^[-–—…\.\(\)\[\]\{\}/:+*,%<>→=~\s]+$|^[A-F0-9]{8}(-[A-F0-9]{4}){3}-[A-F0-9]{12}$";
 
-        // 画面名除外/許可（Type名カンマ区切り）
-        public string IncludedWindows = "";
-        // ★ 追加: 設定系ダイアログも既定で除外（自己参照ループ防止）
+        public string IncludedWindows = string.Empty;
         public string ExcludedWindows = "EditWindow_Log,Page_ModsConfig,Dialog_DebugTables,Dialog_ModSettings,Dialog_Options";
 
-        // 追記デバウンス
+        // ---- Aggregate control ----
         public bool PauseAggregate = false;
         public int AggregateDebounceMs = 250;
 
-        // 辞書監視とUI
+        // ---- Misc runtime flags ----
         public bool WatchDict = true;
         public bool ShowDebugHUD = false;
         public bool LogExcludedScreens = true;
 
         public static Config Load(string iniPath, string defaultDict, string defaultLog, string defaultExportRoot)
         {
-            var c = new Config();
-            c._iniPath = iniPath;
-            c.DictTsv = defaultDict;
-            c.LogPath = defaultLog;
-            c.ExportRoot = defaultExportRoot;
+            var config = new Config
+            {
+                _iniPath = iniPath,
+                DictTsv = defaultDict,
+                LogPath = defaultLog,
+                ExportRoot = defaultExportRoot
+            };
 
             try
             {
-                if (File.Exists(iniPath))
+                if (!File.Exists(iniPath)) return config;
+
+                foreach (var raw in File.ReadAllLines(iniPath, new UTF8Encoding(false)))
                 {
-                    foreach (var raw in File.ReadAllLines(iniPath, new UTF8Encoding(false)))
+                    var line = raw.Trim();
+                    if (line.Length == 0 || line.StartsWith("#") || line.StartsWith(";")) continue;
+
+                    int eq = line.IndexOf('=');
+                    if (eq <= 0) continue;
+
+                    string key = line.Substring(0, eq).Trim();
+                    string value = line.Substring(eq + 1).Trim();
+
+                    switch (key)
                     {
-                        var line = raw.Trim();
-                        if (line.Length == 0 || line.StartsWith("#") || line.StartsWith(";")) continue;
-                        int eq = line.IndexOf('=');
-                        if (eq <= 0) continue;
+                        case "ApplyDictAtRuntime":
+                            config.ApplyDictAtRuntime = ParseBool(value, config.ApplyDictAtRuntime);
+                            break;
+                        case "ExportPerMod":
+                            config.ExportPerMod = ParseBool(value, config.ExportPerMod);
+                            break;
+                        case "EmitAggregate":
+                            config.EmitAggregate = ParseBool(value, config.EmitAggregate);
+                            break;
+                        case "ExportMode":
+                            if (!string.IsNullOrWhiteSpace(value)) config.ExportMode = value;
+                            break;
+                        case "PerModSubdir":
+                            if (!string.IsNullOrWhiteSpace(value)) config.PerModSubdir = value;
+                            break;
 
-                        string k = line.Substring(0, eq).Trim();
-                        string v = line.Substring(eq + 1).Trim();
+                        case "DictPath":
+                            config.DictTsv = Resolve(value, config.DictTsv);
+                            break;
+                        case "LogPath":
+                            config.LogPath = Resolve(value, config.LogPath);
+                            break;
+                        case "ExportRoot":
+                            config.ExportRoot = Resolve(value, config.ExportRoot);
+                            break;
 
-                        switch (k)
-                        {
-                            case "ApplyDictAtRuntime": c.ApplyDictAtRuntime = ParseBool(v, c.ApplyDictAtRuntime); break;
-                            case "ExportPerMod": c.ExportPerMod = ParseBool(v, c.ExportPerMod); break;
-                            case "EmitAggregate": c.EmitAggregate = ParseBool(v, c.EmitAggregate); break;
-                            case "ExportMode": c.ExportMode = string.IsNullOrWhiteSpace(v) ? c.ExportMode : v; break;
-                            case "PerModSubdir": c.PerModSubdir = string.IsNullOrWhiteSpace(v) ? c.PerModSubdir : v; break;
-
-                            case "DictPath": c.DictTsv = Resolve(v, c.DictTsv); break;
-                            case "LogPath": c.LogPath = Resolve(v, c.LogPath); break;
-                            case "ExportRoot": c.ExportRoot = Resolve(v, c.ExportRoot); break;
-
-                            // New
-                            case "MinLength": if (int.TryParse(v, out var ml)) c.MinLength = Math.Max(0, ml); break;
-                            case "ExcludePatterns": c.ExcludePatterns = v ?? c.ExcludePatterns; break;
-                            case "IncludedWindows": c.IncludedWindows = v ?? ""; break;
-                            case "ExcludedWindows": c.ExcludedWindows = v ?? ""; break;
-                            case "PauseAggregate": c.PauseAggregate = ParseBool(v, c.PauseAggregate); break;
-                            case "AggregateDebounceMs": if (int.TryParse(v, out var ms)) c.AggregateDebounceMs = Math.Max(0, ms); break;
-                            case "WatchDict": c.WatchDict = ParseBool(v, c.WatchDict); break;
-                            case "ShowDebugHUD": c.ShowDebugHUD = ParseBool(v, c.ShowDebugHUD); break;
-                            case "LogExcludedScreens": c.LogExcludedScreens = ParseBool(v, c.LogExcludedScreens); break;
-                        }
+                        case "MinLength":
+                            if (int.TryParse(value, out var minLen)) config.MinLength = Math.Max(0, minLen);
+                            break;
+                        case "ExcludePatterns":
+                            config.ExcludePatterns = value ?? config.ExcludePatterns;
+                            break;
+                        case "IncludedWindows":
+                            config.IncludedWindows = value ?? string.Empty;
+                            break;
+                        case "ExcludedWindows":
+                            config.ExcludedWindows = value ?? string.Empty;
+                            break;
+                        case "PauseAggregate":
+                            config.PauseAggregate = ParseBool(value, config.PauseAggregate);
+                            break;
+                        case "AggregateDebounceMs":
+                            if (int.TryParse(value, out var debounce)) config.AggregateDebounceMs = Math.Max(0, debounce);
+                            break;
+                        case "WatchDict":
+                            config.WatchDict = ParseBool(value, config.WatchDict);
+                            break;
+                        case "ShowDebugHUD":
+                            config.ShowDebugHUD = ParseBool(value, config.ShowDebugHUD);
+                            break;
+                        case "LogExcludedScreens":
+                            config.LogExcludedScreens = ParseBool(value, config.LogExcludedScreens);
+                            break;
                     }
                 }
             }
@@ -90,7 +122,7 @@ namespace RimLex
                 Verse.Log.Warning("[RimLex] ini load failed: " + ex.Message);
             }
 
-            return c;
+            return config;
         }
 
         public void Save()
@@ -99,25 +131,24 @@ namespace RimLex
             {
                 var sb = new StringBuilder();
                 sb.AppendLine("# RimLex settings");
-                sb.AppendLine("ApplyDictAtRuntime=" + (ApplyDictAtRuntime ? "true" : "false"));
-                sb.AppendLine("ExportPerMod=" + (ExportPerMod ? "true" : "false"));
-                sb.AppendLine("EmitAggregate=" + (EmitAggregate ? "true" : "false"));
-                sb.AppendLine("ExportMode=" + ExportMode);
-                sb.AppendLine("DictPath=" + ToIni(DictTsv));
-                sb.AppendLine("LogPath=" + ToIni(LogPath));
-                sb.AppendLine("ExportRoot=" + ToIni(ExportRoot));
-                sb.AppendLine("PerModSubdir=" + (string.IsNullOrWhiteSpace(PerModSubdir) ? "PerMod" : PerModSubdir));
+                AppendKeyValue(sb, "ApplyDictAtRuntime", BoolToIni(ApplyDictAtRuntime));
+                AppendKeyValue(sb, "ExportPerMod", BoolToIni(ExportPerMod));
+                AppendKeyValue(sb, "EmitAggregate", BoolToIni(EmitAggregate));
+                AppendKeyValue(sb, "ExportMode", ExportMode ?? "Both");
+                AppendKeyValue(sb, "DictPath", ToIni(DictTsv));
+                AppendKeyValue(sb, "LogPath", ToIni(LogPath));
+                AppendKeyValue(sb, "ExportRoot", ToIni(ExportRoot));
+                AppendKeyValue(sb, "PerModSubdir", string.IsNullOrWhiteSpace(PerModSubdir) ? "PerMod" : PerModSubdir);
 
-                // New
-                sb.AppendLine("MinLength=" + MinLength);
-                sb.AppendLine("ExcludePatterns=" + (ExcludePatterns ?? ""));
-                sb.AppendLine("IncludedWindows=" + (IncludedWindows ?? ""));
-                sb.AppendLine("ExcludedWindows=" + (ExcludedWindows ?? ""));
-                sb.AppendLine("PauseAggregate=" + (PauseAggregate ? "true" : "false"));
-                sb.AppendLine("AggregateDebounceMs=" + AggregateDebounceMs);
-                sb.AppendLine("WatchDict=" + (WatchDict ? "true" : "false"));
-                sb.AppendLine("ShowDebugHUD=" + (ShowDebugHUD ? "true" : "false"));
-                sb.AppendLine("LogExcludedScreens=" + (LogExcludedScreens ? "true" : "false"));
+                AppendKeyValue(sb, "MinLength", MinLength.ToString());
+                AppendKeyValue(sb, "ExcludePatterns", ExcludePatterns ?? string.Empty);
+                AppendKeyValue(sb, "IncludedWindows", IncludedWindows ?? string.Empty);
+                AppendKeyValue(sb, "ExcludedWindows", ExcludedWindows ?? string.Empty);
+                AppendKeyValue(sb, "PauseAggregate", BoolToIni(PauseAggregate));
+                AppendKeyValue(sb, "AggregateDebounceMs", AggregateDebounceMs.ToString());
+                AppendKeyValue(sb, "WatchDict", BoolToIni(WatchDict));
+                AppendKeyValue(sb, "ShowDebugHUD", BoolToIni(ShowDebugHUD));
+                AppendKeyValue(sb, "LogExcludedScreens", BoolToIni(LogExcludedScreens));
 
                 File.WriteAllText(_iniPath, sb.ToString(), new UTF8Encoding(false));
             }
@@ -127,29 +158,40 @@ namespace RimLex
             }
         }
 
-        // ---- helpers ----
-        private static bool ParseBool(string v, bool def) =>
-            v.Equals("true", StringComparison.OrdinalIgnoreCase) || v == "1"
-                ? true
-                : (v.Equals("false", StringComparison.OrdinalIgnoreCase) || v == "0" ? false : def);
-
-        private static string Resolve(string v, string def)
+        private static bool ParseBool(string value, bool fallback)
         {
-            if (string.IsNullOrWhiteSpace(v)) return def;
-            return v.Replace("%ModDir%", ModInitializer.ModDir ?? "").Replace('\\', '/');
+            if (string.IsNullOrWhiteSpace(value)) return fallback;
+            if (value.Equals("true", StringComparison.OrdinalIgnoreCase)) return true;
+            if (value.Equals("false", StringComparison.OrdinalIgnoreCase)) return false;
+            if (value == "1") return true;
+            if (value == "0") return false;
+            return fallback;
         }
 
-        private static string ToIni(string abs)
+        private static string Resolve(string value, string fallback)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return fallback;
+            return value.Replace("%ModDir%", ModInitializer.ModDir ?? string.Empty).Replace('\\', '/');
+        }
+
+        private static string ToIni(string absolute)
         {
             try
             {
-                var md = (ModInitializer.ModDir ?? "").Replace('\\', '/');
-                var a = (abs ?? "").Replace('\\', '/');
-                if (!string.IsNullOrEmpty(md) && a.StartsWith(md, StringComparison.OrdinalIgnoreCase))
-                    return "%ModDir%" + a.Substring(md.Length);
+                var modDir = (ModInitializer.ModDir ?? string.Empty).Replace('\\', '/');
+                var normalized = (absolute ?? string.Empty).Replace('\\', '/');
+                if (!string.IsNullOrEmpty(modDir) && normalized.StartsWith(modDir, StringComparison.OrdinalIgnoreCase))
+                    return "%ModDir%" + normalized.Substring(modDir.Length);
             }
-            catch { }
-            return abs ?? "";
+            catch
+            {
+            }
+            return absolute ?? string.Empty;
         }
+
+        private static void AppendKeyValue(StringBuilder sb, string key, string value)
+            => sb.AppendLine(key + "=" + (value ?? string.Empty));
+
+        private static string BoolToIni(bool value) => value ? "true" : "false";
     }
 }
